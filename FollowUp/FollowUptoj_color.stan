@@ -230,11 +230,6 @@ model{
 	population_pss_judgement_type_effect_mean ~ normal(0,1);
 	population_pss_probe_effect_mean ~ normal(0,1);
 	
-  (population_pss_intercept_mean +
-	population_pss_initial_bias_effect_mean +
-	population_pss_judgement_type_effect_mean +
-	population_pss_probe_effect_mean) ~ normal(0,1) ;
-	
 	population_pss_effect_mean ~ normal(0,1) ;
 	population_pss_probe_interaction_effect_mean ~ normal(0,1);
 	population_pss_judgement_type_interaction_effect_mean ~ normal(0,1);
@@ -244,25 +239,10 @@ model{
 	population_pss_judgement_type_probe_interaction_effect_mean ~ normal(0,1);
 	population_pss_four_way_interaction_effect_mean ~ normal(0,1);
 	
-	(population_pss_effect_mean+
-	population_pss_probe_interaction_effect_mean +
-	population_pss_judgement_type_interaction_effect_mean+
-	population_pss_initial_bias_interaction_effect_mean + 
-	population_pss_initial_bias_judgement_type_interaction_effect_mean +
-	population_pss_initial_bias_probe_interaction_effect_mean+
-	population_pss_judgement_type_probe_interaction_effect_mean+
-	population_pss_four_way_interaction_effect_mean ) ~ normal(0,1) ; 
-	
-	
 	population_logjnd_intercept_mean ~ normal(-1,.5) ;
 	population_logjnd_initial_bias_effect_mean ~ normal(0,1);
 	population_logjnd_judgement_type_effect_mean ~ normal(0,1);
 	population_logjnd_probe_effect_mean ~ normal(0,1);
-	
-	(population_logjnd_intercept_mean +
-	population_logjnd_initial_bias_effect_mean +
-	population_logjnd_judgement_type_effect_mean +
-	population_logjnd_probe_effect_mean  ) ~ normal(-1,.5);
 	
   population_logjnd_effect_mean ~ normal(0,1) ;
 	population_logjnd_probe_interaction_effect_mean ~ normal(0,1);
@@ -273,25 +253,11 @@ model{
 	population_logjnd_judgement_type_probe_interaction_effect_mean ~ normal(0,1);
 	population_logjnd_four_way_interaction_effect_mean ~ normal(0,1);
 
-  (population_logjnd_effect_mean+
-	population_logjnd_probe_interaction_effect_mean +
-	population_logjnd_judgement_type_interaction_effect_mean +
-	population_logjnd_initial_bias_interaction_effect_mean +
-	population_logjnd_initial_bias_judgement_type_interaction_effect_mean +
-	population_logjnd_initial_bias_probe_interaction_effect_mean+
-	population_logjnd_judgement_type_probe_interaction_effect_mean +
-	population_logjnd_four_way_interaction_effect_mean ) ~ normal(0,1);
-
   //set priors on population parameters
   logitRhoMean ~ normal(3,3);
   logitRhoProbeEffectMean ~ normal(0,3) ;
   logitRhoJudgementTypeEffectMean ~ normal(0,3);
   logitRhoInitialBiasEffectMean ~ normal(0,3);
-
-  (logitRhoMean +
-  logitRhoProbeEffectMean +
-  logitRhoJudgementTypeEffectMean +
-  logitRhoInitialBiasEffectMean ) ~ normal(3,3) ;  
 
   logitRhoEffectMean ~ normal(0,3) ; 
   logitRhoProbeInteractionEffectMean ~ normal(0,3);
@@ -302,26 +268,10 @@ model{
   logitRhoJudgementTypeProbeInteractionEffectMean ~ normal(0,3);
   logitRhoFourWayInteractionEffectMean ~ normal(0,3);
   
-  ( logitRhoEffectMean +
-  logitRhoProbeInteractionEffectMean +
-  logitRhoJudgementTypeInteractionEffectMean +
-  logitRhoInitialBiasInteractionEffectMean +
-  logitRhoInitialBiasProbeInteractionEffectMean +
-  logitRhoInitialBiasJudgementTypeInteractionEffectMean +
-  logitRhoJudgementTypeProbeInteractionEffectMean +
-  logitRhoFourWayInteractionEffectMean) ~ normal(0,3);
-
-  
   logKappaMean ~ normal(3,3);
   logKappaProbeEffectMean ~ normal(0,3) ;
   logKappaProbeInteractionEffectMean ~ normal(0,3);
   logKappaJudgementTypeEffectMean ~ normal(0,3);
-  
-  ( logKappaMean +
-  logKappaProbeEffectMean +
-  logKappaProbeInteractionEffectMean +
-  logKappaJudgementTypeEffectMean ) ~ normal(3,3);
-
 
   logKappaEffectMean ~ normal(0,3) ;
   logKappaJudgementTypeInteractionEffectMean ~ normal(0,3);
@@ -331,15 +281,6 @@ model{
   logKappaInitialBiasJudgementTypeInteractionEffectMean ~ normal(0,3);
   logKappaJudgementTypeProbeInteractionEffectMean ~ normal(0,3);
   logKappaFourWayInteractionEffectMean ~ normal(0,3);
-  
-  (logKappaEffectMean+
-  logKappaJudgementTypeInteractionEffectMean +
-  logKappaInitialBiasEffectMean+
-  logKappaInitialBiasInteractionEffectMean+
-  logKappaInitialBiasProbeInteractionEffectMean+
-  logKappaInitialBiasJudgementTypeInteractionEffectMean +
-  logKappaJudgementTypeProbeInteractionEffectMean +
-  logKappaFourWayInteractionEffectMean) ~ normal(0,3);
   
   // logitRhoSD ~ weibull(2,2);#student_t(4,0,2);
   // logKappaSD ~ weibull(2,2);#student_t(4,0,1);
