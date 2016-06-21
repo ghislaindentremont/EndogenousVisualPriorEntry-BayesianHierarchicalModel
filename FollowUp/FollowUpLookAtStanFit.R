@@ -8,7 +8,7 @@ library(sprintfr)
 library(plyr)
 
 setwd("~/Documents/TOJ/Follow-Up")
-load("FollowUptoj_color_post_June17th2016")
+load("FollowUptoj_color_post_June21th2016")
 load("FollowUp_color_trials.Rdata")
 load("FollowUp_toj_trials.Rdata")
 source("../EndogenousVisualPriorEntry-BayesianHierarchicalModel/functions.R")
@@ -28,7 +28,11 @@ param_list = c("logitRhoEffectMean"
                , "logitRhoJudgementTypeEffectMean"
                , "logitRhoJudgementTypeInteractionEffectMean"
                , "logitRhoInitialBiasEffectMean"
-               , "logitRhoInitialBiasInteractionEffectMean"                 
+               , "logitRhoInitialBiasInteractionEffectMean"
+               , "logitRhoInitialBiasProbeInteractionEffectMean"
+               , "logitRhoInitialBiasJudgementTypeInteractionEffectMean"
+               , "logitRhoJudgementTypeProbeInteractionEffectMean"
+               , "logitRhoFourWayInteractionEffectMean"
                , "logKappaEffectMean"
                , "logKappaMean"
                , "logKappaProbeEffectMean"
@@ -37,6 +41,10 @@ param_list = c("logitRhoEffectMean"
                , "logKappaJudgementTypeInteractionEffectMean"
                , "logKappaInitialBiasEffectMean"
                , "logKappaInitialBiasInteractionEffectMean"
+               , "logKappaInitialBiasProbeInteractionEffectMean"
+               , "logKappaInitialBiasJudgementTypeInteractionEffectMean"
+               , "logKappaJudgementTypeProbeInteractionEffectMean"
+               , "logKappaFourWayInteractionEffectMean"
                , "population_logjnd_effect_mean"
                , "population_logjnd_initial_bias_effect_mean"
                , "population_logjnd_initial_bias_interaction_effect_mean"
@@ -44,6 +52,10 @@ param_list = c("logitRhoEffectMean"
                , "population_logjnd_judgement_type_interaction_effect_mean"
                , "population_logjnd_probe_effect_mean"
                , "population_logjnd_probe_interaction_effect_mean"
+               , "population_logjnd_initial_bias_judgement_type_interaction_effect_mean"
+               , "population_logjnd_initial_bias_probe_interaction_effect_mean"
+               , "population_logjnd_judgement_type_probe_interaction_effect_mean"
+               , "population_logjnd_four_way_interaction_effect_mean"
                , "population_logjnd_intercept_mean"
                , "population_pss_effect_mean"
                , "population_pss_initial_bias_effect_mean"
@@ -52,6 +64,10 @@ param_list = c("logitRhoEffectMean"
                , "population_pss_judgement_type_interaction_effect_mean"
                , "population_pss_probe_effect_mean" 
                , "population_pss_probe_interaction_effect_mean" 
+               , "population_pss_initial_bias_judgement_type_interaction_effect_mean"
+               , "population_pss_initial_bias_probe_interaction_effect_mean"
+               , "population_pss_judgement_type_probe_interaction_effect_mean"
+               , "population_pss_four_way_interaction_effect_mean"
                , "population_pss_intercept_mean"
                , "zlogitRhoEffectSD" 
                ,  "zlogitRhoSD"
@@ -113,17 +129,7 @@ for (param in param_list) {
 ############################################################################################
 
 #-------------------------------------- TOJ Actual Data -----------------------------------#
-real_toj_judgement_type = aggregate(left_first_TF ~ soa2 + block_bias + toj_judgement_type, data = toj_trials, FUN = mean)
-real_toj_judgement_type[,2] = as.character(real_toj_judgement_type[,2])
-real_toj_judgement_type[,3] = as.character(real_toj_judgement_type[,3])
-
-real_toj_initial_bias = aggregate(left_first_TF ~ soa2 + block_bias + probe_initial_bias, data = toj_trials, FUN = mean)
-real_toj_initial_bias[,2] = as.character(real_toj_initial_bias[,2])
-real_toj_initial_bias[,3] = as.character(real_toj_initial_bias[,3])
-
-real_toj_probe_duration = aggregate(left_first_TF ~ soa2 + block_bias + onehundredms, data = toj_trials, FUN = mean)
-real_toj_probe_duration[,2] = as.character(real_toj_probe_duration[,2])
-real_toj_probe_duration[,3] = as.character(real_toj_probe_duration[,3])
+real_toj = aggregate(left_first_TF ~ soa2 + block_bias + toj_judgement_type + probe_initial_bias + onehundredms, data = toj_trials, FUN = mean)
 #-------------------------------------- TOJ Actual Data -----------------------------------#
 
 
@@ -141,92 +147,19 @@ pss_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$P
 pss_probe_duration_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_probe_effect_mean",]$value
 pss_probe_duration_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_probe_interaction_effect_mean",]$value
 
-# judgement type
-pss_right_first_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean - pss_judgement_type_effect_mean/2
-  , (pss_effect_mean - pss_judgement_type_interaction_effect_mean )
-  , TRUE
-  , "null"
-)
+pss_initial_bias_judgement_type_interaction_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_initial_bias_judgement_type_interaction_effect_mean",]$value
+pss_initial_bias_probe_interaction_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_initial_bias_probe_interaction_effect_mean",]$value
+pss_judgement_type_probe_interaction_effect_mean =  gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_judgement_type_probe_interaction_effect_mean",]$value
+pss_four_way_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_four_way_interaction_effect_mean",]$value
 
-pss_right_second_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean + pss_judgement_type_effect_mean/2
-  , (pss_effect_mean + pss_judgement_type_interaction_effect_mean )
-  , TRUE
-  , "null"
-)
+# # judgement type
+# pss_right__mean_reps = get_condition_mean_sample(
+#   pss_intercept_mean - pss_judgement_type_effect_mean/2
+#   , (pss_effect_mean - pss_judgement_type_interaction_effect_mean )
+#   , TRUE
+#   , "null"
+# )
 
-pss_left_first_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean - pss_judgement_type_effect_mean/2
-  , (pss_effect_mean - pss_judgement_type_interaction_effect_mean )
-  , FALSE
-  , "null"
-)
-
-pss_left_second_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean + pss_judgement_type_effect_mean/2
-  , (pss_effect_mean + pss_judgement_type_interaction_effect_mean )
-  , FALSE
-  , "null"
-)
-
-# initial bias
-pss_right_right_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean - pss_initial_bias_effect_mean/2
-  , (pss_effect_mean - pss_initial_bias_interaction_effect_mean )
-  , TRUE
-  , "null"
-)
-
-pss_right_left_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean + pss_initial_bias_effect_mean/2
-  , (pss_effect_mean + pss_initial_bias_interaction_effect_mean )
-  , TRUE
-  , "null"
-)
-
-pss_left_right_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean - pss_initial_bias_effect_mean/2
-  , (pss_effect_mean - pss_initial_bias_interaction_effect_mean )
-  , FALSE
-  , "null"
-)
-
-pss_left_left_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean + pss_initial_bias_effect_mean/2
-  , (pss_effect_mean + pss_initial_bias_interaction_effect_mean )
-  , FALSE
-  , "null"
-)
-
-# probe duration
-pss_right_short_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean - pss_probe_duration_effect_mean/2
-  , (pss_effect_mean - pss_probe_duration_interaction_effect_mean )
-  , TRUE
-  , "null"
-)
-
-pss_right_long_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean + pss_probe_duration_effect_mean/2
-  , (pss_effect_mean + pss_probe_duration_interaction_effect_mean )
-  , TRUE
-  , "null"
-)
-
-pss_left_short_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean - pss_probe_duration_effect_mean/2
-  , (pss_effect_mean - pss_probe_duration_interaction_effect_mean )
-  , FALSE
-  , "null"
-)
-
-pss_left_long_mean_reps = get_condition_mean_sample(
-  pss_intercept_mean + pss_probe_duration_effect_mean/2
-  , (pss_effect_mean + pss_probe_duration_interaction_effect_mean )
-  , FALSE
-  , "null"
-)
 
 ### Get JND Parameters
 logjnd_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_intercept_mean",]$value
