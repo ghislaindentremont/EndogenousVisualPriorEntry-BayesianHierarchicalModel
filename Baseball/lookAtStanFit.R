@@ -411,7 +411,7 @@ betas3$parameter = rep( c(
 , times = 1
 , each = nrow(betas2)*length(unique(betas3$variable))/8  # 8 is number of parameters 
 )  
-betas3$participant = rep(c(1:44), times = 8, each = nrow(betas2))
+betas3$participant = rep(c(1:length(unique(toj_trials$id))), times = 8, each = nrow(betas2))
 
 # flip betas 
 betas = betas3
@@ -634,6 +634,18 @@ get_violin(
   , ( (ex_toj_color_post$population_logjnd_intercept_mean + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
       - (ex_toj_color_post$population_logjnd_intercept_mean - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
   , "JND Attention Effect\nGiven Know"
+  , y_lab = "SOA (Attended - Unattended; ms)"
+)
+
+# effect of attention on PSS by knowledge of convention
+get_violin(
+  c(
+  ( (ex_toj_color_post$population_pss_intercept_mean + (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) 
+    - (ex_toj_color_post$population_pss_intercept_mean - (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
+  , ( (ex_toj_color_post$population_pss_intercept_mean + (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) 
+      - (ex_toj_color_post$population_pss_intercept_mean - (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
+  )
+  , c("PSS Attention Effect\nGiven Don't Know", "PSS Attention Effect\nGiven Know")
   , y_lab = "SOA (Attended - Unattended; ms)"
 )
 #--------------------------------- SOA Convention Effects ---------------------------------#

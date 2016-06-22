@@ -170,8 +170,8 @@ toj_trials[toj_trials$soa2 == "240",]$soa2 = 250
 # Negative SOAs means RIGHT first 
 toj_trials[toj_trials$t1_loc == "RIGHT",]$soa2 = -toj_trials[toj_trials$t1_loc == "RIGHT",]$soa2
 
-# save
-save(toj_trials, file = "FollowUp_toj_trials.Rdata")
+# # save
+# save(toj_trials, file = "FollowUp_toj_trials.Rdata")
 
 ### Plot Psychometric Functions 
 toj_means_by_id_by_condition = ddply(
@@ -209,6 +209,43 @@ ggplot(
   geom_point(size = 4)+
   geom_point(colour = "grey90")
   # +theme(legend.position = "none")  # to be blind to the condition 
+
+
+
+#### FOR RAY #### 
+toj_means_by_id_by_condition2 = ddply(
+  .data = toj_trials
+  , .variables = .(block_bias, toj_judgement_type, soa2)
+  , .fun = function(x){
+    to_return = data.frame(
+      value = mean(x$left_first_TF)
+      , factor = paste(unique(x$block_bias), unique(x$toj_judgement_type))
+    )
+    return(to_return)
+  }
+)
+toj_means_by_id_by_condition2$soa2 = as.numeric(as.character(toj_means_by_id_by_condition2$soa2))
+
+ggplot(
+  data = toj_means_by_id_by_condition2
+  , mapping = aes(
+    x = soa2
+    , y =  value
+    , shape = block_bias
+    , linetype = block_bias
+    , group = factor
+    , colour = toj_judgement_type
+  )
+)+
+  geom_smooth(
+    method = "glm"
+    , method.args = list(family = "binomial")
+    , formula = y ~ splines::ns(x,2)
+    , se = FALSE
+  )+
+  labs(x = "Stimulus Onset Asynchony (Negative Means First Line Appeared on the Right)", y = "Proportion of 'LEFT' Responses")+
+  geom_point(size = 4)+
+  geom_point(colour = "grey90")
 
 
 

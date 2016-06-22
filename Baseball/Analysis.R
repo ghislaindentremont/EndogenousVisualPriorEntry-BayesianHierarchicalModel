@@ -158,6 +158,8 @@ a= a[a$id != "delta 8 2014-12-04 14:23:37",]
 length(unique(a$id))
 
 
+# ##### for Ray #####
+# a = a[a$know_tie_goes_runner == FALSE,]
 
 
 ##########################################
@@ -179,8 +181,8 @@ toj_trials[toj_trials$soa2 == "240",]$soa2 = 250
 # Negative SOAs means Ball first 
 toj_trials$soa2[toj_trials$first_arrival == "ball"] = -toj_trials$soa2[toj_trials$first_arrival == "ball"]
 
-### save toj trials for posterior predictive check
-save(toj_trials, file = "../toj_trials.Rdata")
+# ### save toj trials for posterior predictive check
+# save(toj_trials, file = "../toj_trials.Rdata")
 
 
 ### Graph participant-wise psychometric functions 
@@ -215,6 +217,40 @@ ggplot(
     , se = FALSE
   ) +
   geom_point()
+
+
+#### Group functions for Ray ####
+toj_means_by_id_by_condition2 = ddply(
+  .data = toj_trials
+  , .variables = .(base_probe_dist, know_tie_goes_runner, soa2)
+  , .fun = function(x){
+    to_return = data.frame(
+      value = mean(x$safe)
+      , factor = paste(unique(x$base_probe_dist), unique(x$know_tie_goes_runner))
+    )
+    return(to_return)
+  }
+)
+toj_means_by_id_by_condition2$soa2 = as.numeric(as.character(toj_means_by_id_by_condition2$soa2))
+
+ggplot(
+  data = toj_means_by_id_by_condition2
+  , mapping = aes(
+    x = soa2
+    , y =  value
+    , shape = factor
+    , linetype = base_probe_dist
+    , group = factor
+    , colour = know_tie_goes_runner
+  )
+)+
+  geom_smooth(
+    method = "glm"
+    , method.args = list(family = binomial(link="probit"))
+    , se = FALSE
+  ) +
+  geom_point()
+
 
 
 
@@ -275,21 +311,22 @@ toj_color_data_for_stan = list(
 )
   
 toj_color_model = stan_model(
-  file = './EndogenousVisualPriorEntry-BayesianHierarchicalModel/Baseball/toj_color.stan'
+  file = '../../EndogenousVisualPriorEntry-BayesianHierarchicalModel/Baseball/toj_color.stan'
+  # file = '../FORRAYtoj_color.stan'
 )
 
 toj_color_post = sampling(
   object = toj_color_model
   , data = toj_color_data_for_stan
-  , iter = 1e4*2
-  , chains = 8
-  , cores = 8
+  , iter = 1e2
+  , chains = 1
+  , cores = 1
   , pars = c('trial_prob', 'p')
   , include = FALSE
 )
 print(toj_color_post)
-save(toj_color_post, "toj_color_post_June16th2016")
-
+# save(toj_color_post, "toj_color_post_June16th2016")
+# save(toj_color_post, file = "FORRAYtoj_color_post")
 
 
 
