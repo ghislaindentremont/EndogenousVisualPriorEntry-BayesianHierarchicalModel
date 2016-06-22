@@ -1,8 +1,10 @@
-#### Libraries ####
 library(plyr)
 library(ggplot2)
 library(grid)
 library(rstan)
+
+setwd("~/Documents/TOJ/Follow-Up")
+
 
 
 
@@ -112,6 +114,10 @@ table(a$t1_type, a$block_num) # good
 
 # get experimental blocks (3, 5)
 a_exp = a[a$block_num %in% c(3,5),]
+
+# get rid of probe duration of 200ms
+# i.e. only keep ~100 ms 
+a_exp = a_exp[a_exp$onehundredms==TRUE,]
 
 
 
@@ -236,7 +242,9 @@ ggplot(
     , group = factor
     , colour = toj_judgement_type
   )
-)+
+)+facet_grid(
+  toj_judgement_type~.
+  )+
   geom_smooth(
     method = "glm"
     , method.args = list(family = "binomial")
@@ -294,14 +302,11 @@ toj_color_data_for_stan = list(
   , y_toj = as.numeric(toj_trials$left_first_TF)  
   , x_toj = (as.numeric(toj_trials$soa2))/250  # we normalize soas, and therefore pss
   , id_toj = as.numeric(factor(toj_trials$id))
-  # Flipped from Baseball 'Analysis' so no need to change in 'stananalysis'
-  # Will give positive effect for predicted results, which we want
   , condition_toj = ifelse(toj_trials$block_bias=="LEFT",-1,1)  # LEFT is -1 and RIGHT is +1 
   , N_color = length(unique(color_trials$id))
   , L_color = nrow(color_trials)
   , unit_color = as.numeric(factor(color_trials$id))
   , condition_color = as.numeric(as.factor(color_trials$attended)) # TRUE is 2, FALSE is 1 
-  , condition_probe = ifelse(aggregate(onehundredms ~ id, data = color_trials, unique)$onehundred, -1, 1) # 100 ms is -1, and 200 ms is +1
   , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) # RIGHT is -1, and LEFT is +1
   , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) # first is -1, and second is +1
   , y_color = pi+degree_to_rad(color_trials$p_minus_j)  # want from 0 to 360 instead of -180 to 180
