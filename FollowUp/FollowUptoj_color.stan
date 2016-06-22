@@ -136,8 +136,8 @@ parameters{
 }
 
 transformed parameters{
-	real<lower=0,upper=1> trial_prob[L_toj] ;
-  vector<lower=0>[L_color] p ; // for storing log-probabilities
+	real trial_prob[L_toj] ;
+  vector[L_color] p ; // for storing log-probabilities
 	{
 	  // local inits for TOJ
 		real pss_intercept_per_id[N_toj] ; 
