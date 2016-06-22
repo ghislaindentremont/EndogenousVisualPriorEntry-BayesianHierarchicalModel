@@ -23,7 +23,7 @@ transformed data{
 	}
 }
 parameters{
-	//population means
+	// pss population means
 	real population_pss_intercept_mean ;
 	
 	real population_logjnd_intercept_mean ;

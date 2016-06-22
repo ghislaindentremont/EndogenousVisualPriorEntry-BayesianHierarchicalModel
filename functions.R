@@ -163,16 +163,17 @@ get_corr = function( cor_val, cor_lab) {
 
 
 # get violin plots
-get_violin = function(value1, label1, value2 = NULL, label2 = NULL, y_lab, hline = TRUE, facet = FALSE, samps = 80000) {
+get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = 10000) {
+  
+  label_vec = NULL
+  for (i in 1:length(labels)) {
+    label = rep(labels[i], samps)
+    label_vec = c(label_vec, label)
+  }
+  
   df = data.frame(  
-    value = c(
-      value1
-      , value2
-    )
-    , parameter = c(
-      rep(label1, samps)  
-      , rep(label2, samps)  
-    )
+    value = values
+    , parameter = label_vec
   )
   
   gg = ggplot(data = df)+
@@ -200,13 +201,15 @@ get_violin = function(value1, label1, value2 = NULL, label2 = NULL, y_lab, hline
   
   print(gg)
   
-  print("value 1"); print(get_95_HDI(value1) )
-  if ( is.null(value2) ) {
-    to_print = NA
-  } else {
-    to_print = get_95_HDI(value2)
-  } 
-  print("value 2"); print( to_print )
+#   values_num = length(values)/samps
+#   
+#   print(values_num)
+#   
+#   for (i in 1:values_num) {
+#     # print(values[ ( (i-1)*samps + 1) : samps*i ])
+#     get_95_HDI(values[ ( (i-1)*samps + 1) : samps*i ])
+#   }
+  
 }
 
 

@@ -274,14 +274,16 @@ toj_color_model = stan_model(
  file = '../EndogenousVisualPriorEntry-BayesianHierarchicalModel/FollowUp/FollowUptoj_color.stan'
   )
 
+# try multiple seeds 
 toj_color_post = sampling(
-  object = toj_color_model
-  , data = toj_color_data_for_stan
-  , iter = 1e2
-  , chains = 1
-  , cores = 1
-  , pars = c('trial_prob', 'p')  
-  , include = FALSE
-)
+      object = toj_color_model
+      , data = toj_color_data_for_stan
+      , iter = 1e2
+      , chains = 1
+      , cores = 1
+      , pars = c('trial_prob', 'p')  
+      , include = FALSE
+    )
+    
 print(toj_color_post)
 # save(toj_color_post, file = "FollowUptoj_color_post_June17th2016")
