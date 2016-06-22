@@ -311,7 +311,7 @@ toj_color_model = stan_model(
  file = '../EndogenousVisualPriorEntry-BayesianHierarchicalModel/FollowUp/FollowUptoj_color.stan'
   )
 
-# try multiple seeds 
+# sample from model
 toj_color_post = sampling(
       object = toj_color_model
       , data = toj_color_data_for_stan
