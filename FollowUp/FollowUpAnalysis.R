@@ -170,8 +170,8 @@ toj_trials[toj_trials$soa2 == "240",]$soa2 = 250
 # Negative SOAs means RIGHT first 
 toj_trials[toj_trials$t1_loc == "RIGHT",]$soa2 = -toj_trials[toj_trials$t1_loc == "RIGHT",]$soa2
 
-# save
-save(toj_trials, file = "FollowUp_toj_trials.Rdata")
+# # save
+# save(toj_trials, file = "FollowUp_toj_trials.Rdata")
 
 ### Plot Psychometric Functions 
 toj_means_by_id_by_condition = ddply(
@@ -243,8 +243,8 @@ color_trials$attended[ (color_trials$block_bias == "LEFT" & color_trials$probe_l
 
 color_trials$color_diff_radians = color_trials$p_minus_j*pi/180
 
-# save
-save(color_trials, file = "FollowUp_color_trials.Rdata")
+# # save
+# save(color_trials, file = "FollowUp_color_trials.Rdata")
 
 
 
@@ -284,4 +284,4 @@ toj_color_post = sampling(
   , include = FALSE
 )
 print(toj_color_post)
-save(toj_color_post, file = "FollowUptoj_color_post_June15th2016")
+# save(toj_color_post, file = "FollowUptoj_color_post_June15th2016")
