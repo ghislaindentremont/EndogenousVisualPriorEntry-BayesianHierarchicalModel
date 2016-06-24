@@ -5,6 +5,8 @@ library(grid)
 library(rstan)
 
 
+setwd("~/Documents/TOJ/Follow-Up")
+
 
 ##########################################
 ####          Data Import             #### 
@@ -32,29 +34,13 @@ a = ldply(
   .data = list.files(
     pattern = ".txt"
     , full.names = T
-    , path = './100msOrLess'  # includes folders for 50ms, 75ms, 100ms
+    , path = './200ms' 
     , recursive = T
   )
   , .fun = check_before_read
   , .progress = 'text'
 )
 names(a)[1] = "id"
-a$onehundredms = TRUE
-
-b = ldply(
-  .data = list.files(
-	  	pattern = ".txt"
-  		, full.names = T
-  		, path = './200ms'
-	  	# , path = './50ms'
-  	)
-  , .fun = check_before_read
-  , .progress = 'text'
-)
-names(b)[1] = "id"
-b$onehundredms = FALSE
-
-a = rbind(a,b)
 
 length(unique(a$id))
 
@@ -294,16 +280,13 @@ toj_color_data_for_stan = list(
   , y_toj = as.numeric(toj_trials$left_first_TF)  
   , x_toj = (as.numeric(toj_trials$soa2))/250  # we normalize soas, and therefore pss
   , id_toj = as.numeric(factor(toj_trials$id))
-  # Flipped from Baseball 'Analysis' so no need to change in 'stananalysis'
-  # Will give positive effect for predicted results, which we want
-  , condition_toj = ifelse(toj_trials$block_bias=="LEFT",-1,1)  # LEFT is -1 and RIGHT is +1 
+  , condition_toj = ifelse(toj_trials$block_bias=="LEFT",-1,1) 
   , N_color = length(unique(color_trials$id))
   , L_color = nrow(color_trials)
   , unit_color = as.numeric(factor(color_trials$id))
-  , condition_color = as.numeric(as.factor(color_trials$attended)) # TRUE is 2, FALSE is 1 
-  , condition_probe = ifelse(aggregate(onehundredms ~ id, data = color_trials, unique)$onehundred, -1, 1) # 100 ms is -1, and 200 ms is +1
-  , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) # RIGHT is -1, and LEFT is +1
-  , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) # first is -1, and second is +1
+  , condition_color = as.numeric(as.factor(color_trials$attended)) 
+  , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) 
+  , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) 
   , y_color = pi+degree_to_rad(color_trials$p_minus_j)  # want from 0 to 360 instead of -180 to 180
 )
 
