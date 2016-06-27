@@ -569,10 +569,9 @@ get_95_HDI(pos_corr_f[pos_corr_f$parameter == "value.2.8",]$value)
 
 #---------------------------------- SOA Intercepts ----------------------------------------#
 get_violin(
-  ex_toj_color_post$population_pss_intercept_mean * 250
-  , "PSS Intercept Mean"
-  , exp( ex_toj_color_post$population_logjnd_intercept_mean ) * 250
-  , "JND Intercept Mean"
+  c( ex_toj_color_post$population_pss_intercept_mean * 250  
+    , exp( ex_toj_color_post$population_logjnd_intercept_mean ) * 250 )
+  , c("PSS Intercept Mean" , "JND Intercept Mean")
   , y_lab = "SOA (ms)"
   , hline = FALSE
   , facet = TRUE
@@ -601,12 +600,13 @@ get_violin(
 #--------------------------------- SOA Convention Effects ---------------------------------#
 # effect of convention knowlege on PSS and JND
 get_violin(
+  c(
   ( (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2) 
     - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_convention_effect_mean/2) ) * 250
-  , "PSS Convention\nEffect Mean"
   , ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 )
       - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_convention_effect_mean/2  ) ) * 250 
-  , "JND Convention\nEffect Mean"
+  )
+  , c("PSS Convention\nEffect Mean"  , "JND Convention\nEffect Mean")
   , y_lab = "SOA (Don't Know - Know; ms)"
 )
 
@@ -628,13 +628,14 @@ get_violin(
 
 # effect of attention on JND by knowledge of convention
 get_violin(
+  c(
   ( (ex_toj_color_post$population_logjnd_intercept_mean + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
     - (ex_toj_color_post$population_logjnd_intercept_mean - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
-  , "JND Attention Effect\nGiven Don't Know"
   , ( (ex_toj_color_post$population_logjnd_intercept_mean + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
       - (ex_toj_color_post$population_logjnd_intercept_mean - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
-  , "JND Attention Effect\nGiven Know"
-  , y_lab = "SOA (Attended - Unattended; ms)"
+  )
+  , c("JND Attention Effect\nGiven Don't Know"  , "JND Attention Effect\nGiven Know")
+  , y_lab = "SOA (Glove - Base; ms)"
 )
 
 # effect of attention on PSS by knowledge of convention
@@ -646,7 +647,7 @@ get_violin(
       - (ex_toj_color_post$population_pss_intercept_mean - (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
   )
   , c("PSS Attention Effect\nGiven Don't Know", "PSS Attention Effect\nGiven Know")
-  , y_lab = "SOA (Attended - Unattended; ms)"
+  , y_lab = "SOA (Glove - Base; ms)"
 )
 #--------------------------------- SOA Convention Effects ---------------------------------#
 
@@ -761,33 +762,119 @@ get_violin(
 
 #---------------------------------- NCFs --------------------------------------------------#
 # including effects 
-yGlove = pnorm(
+yGloveDontKnow = pnorm(
   -250:250
-  , mean = ( median(ex_toj_color_post$population_pss_intercept_mean) + median(ex_toj_color_post$population_pss_effect_mean)/2 ) * 250
-  , sd = ( exp( median(ex_toj_color_post$population_logjnd_intercept_mean) + median(ex_toj_color_post$population_logjnd_effect_mean)/2 )   ) * 250
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) + median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    + (
+     median(ex_toj_color_post$population_pss_effect_mean) 
+     + median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+     )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) + median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    + (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      + median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+      ) /2
+  ) ) * 250
 )
-yBase = pnorm(
+
+yGloveKnow = pnorm(
   -250:250
-  , mean = ( median(ex_toj_color_post$population_pss_intercept_mean) - median(ex_toj_color_post$population_pss_effect_mean)/2 ) * 250
-  , sd = ( exp( median(ex_toj_color_post$population_logjnd_intercept_mean) - median(ex_toj_color_post$population_logjnd_effect_mean)/2 )   ) * 250
-  
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) - median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    + (
+      median(ex_toj_color_post$population_pss_effect_mean) 
+      - median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+    )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) - median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    + (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      - median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+    ) /2
+  ) ) * 250
 )
-df = data.frame(SOA = -250:250, Prop = c(yGlove, yBase), Attend = c(rep("Glove",501), rep("Base", 501)))
+
+yBaseDontKnow = pnorm(
+  -250:250
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) + median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_pss_effect_mean) 
+      + median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+    )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) + median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      + median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+    ) /2
+  ) ) * 250
+)
+
+yBaseKnow = pnorm(
+  -250:250
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) - median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_pss_effect_mean) 
+      - median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+    )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) - median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      - median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+    ) /2
+  ) ) * 250
+)
+
+df = data.frame(SOA = -250:250
+                , Prop = c(yGloveDontKnow, yGloveKnow, yBaseDontKnow, yBaseKnow)
+                , Attend = c(rep("Glove",1002), rep("Base", 1002))
+                , Convention = c(rep( c(rep("Don't Know", 501), rep("Know", 501)), 2) )
+)
+
+toj_means_by_id_by_condition2 = ddply(
+  .data = toj_trials
+  , .variables = .(base_probe_dist, know_tie_goes_runner, soa2)
+  , .fun = function(x){
+    to_return = data.frame(
+      Prop = mean(x$safe)
+      , Attend = paste( unique(x$base_probe_dist) )
+      , Convention = paste( unique(x$know_tie_goes_runner) )
+      , SOA = unique(x$soa2)
+    )
+    return(to_return)
+  }
+)
+
+levels(toj_means_by_id_by_condition2$Attend) = c("Glove", "Base")
+levels(toj_means_by_id_by_condition2$Convention) = c("Don't Know", "Know")
+
 
 gg = ggplot(data = df, aes(y = Prop, x = SOA, colour = Attend))+
   geom_line(size = 1.25)+
   # scale_color_manual("Attend", values = c("red", "blue"))+
   scale_color_hue("Attend", l = c(60, 15), c = c(100, 50), h = c(240, 360) ) +
   labs(x = "SOA (ms)", y = "Proportion of 'Safe' Responses")+
-  theme_gray(base_size = 24)+
+  geom_point(data = toj_means_by_id_by_condition2, aes(y = Prop, x = SOA, colour = Attend), size = 4)+
+  geom_point(data = toj_means_by_id_by_condition2, aes(y = Prop, x = SOA), size = 2.5, colour = "grey90")+
+  facet_grid(Convention~.)+
+  theme_gray(base_size = 30)+
   theme(panel.grid.major = element_line(size = 1.5)
         ,panel.grid.minor = element_line(size = 1))
   # define text to add
-  Text1 = textGrob(label = paste("Out"), gp = gpar(fontsize= 24))
-  Text2 = textGrob(label = paste("Safe"), gp = gpar(fontsize= 24)) 
+  Text1 = textGrob(label = paste("Out"), gp = gpar(fontsize= 30))
+  Text2 = textGrob(label = paste("Safe"), gp = gpar(fontsize= 30)) 
   gg = gg+
-  annotation_custom(grob = Text1,  xmin = -200, xmax = -200, ymin = -0.115, ymax = -0.115)+
-  annotation_custom(grob = Text2,  xmin = 200, xmax = 200, ymin = -0.115, ymax = -0.115)
+  annotation_custom(grob = Text1,  xmin = -200, xmax = -200, ymin = -0.25, ymax = -0.25)+
+  annotation_custom(grob = Text2,  xmin = 200, xmax = 200, ymin = -0.25, ymax = -0.25)
   # Code to override clipping
   gg2 <- ggplot_gtable(ggplot_build(gg))
   gg2$layout$clip[gg2$layout$name=="panel"] <- "off"
