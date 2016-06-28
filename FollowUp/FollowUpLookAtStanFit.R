@@ -9,7 +9,7 @@ library(plyr)
 library(gtools)
 
 setwd("~/Documents/TOJ/Follow-Up")
-load("FollowUptoj_color_post_June24th2016_EEGTEST")
+load("FollowUptoj_color_post_June26th2016")
 load("FollowUp_color_trials.Rdata")
 load("FollowUp_toj_trials.Rdata")
 source("../EndogenousVisualPriorEntry-BayesianHierarchicalModel/functions.R")
@@ -352,14 +352,15 @@ rhoeffect_ids = ddply(
 
 psseffect_v_rhoeffect = merge(rhoeffect_ids, psseffect_ids)
 
-ggplot(data = psseffect_v_rhoeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor)))+
+ggplot(data = psseffect_v_rhoeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(initialbiasfactor)))+
   scale_y_continuous(name = "PSS Effect Mean")+
   scale_x_continuous(name = "Logit \u03C1 Effect Mean")+
   geom_vline(xintercept = 0, linetype = 2, size = 1)+
   geom_hline(yintercept = 0, linetype = 2, size = 1)+
   geom_point(size = 4)+
-  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(16,17) )+
+  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
   scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
+  scale_fill_manual(name = "Initial\nBias", labels = c("Right", "Left"), values = c("black", "white")) +
   theme_gray(base_size = 30)+
   theme(panel.grid.major = element_line(size = 1.5)
         ,panel.grid.minor = element_line(size = 1))
@@ -395,14 +396,15 @@ kappaeffect_ids = ddply(
 
 psseffect_v_kappaeffect = merge(kappaeffect_ids, psseffect_ids)
 
-ggplot(data = psseffect_v_kappaeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor)))+ 
+ggplot(data = psseffect_v_kappaeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(initialbiasfactor)))+ 
   scale_y_continuous(name = "PSS Effect Mean")+
   scale_x_continuous(name = "Log \u03BA Effect Mean")+
   geom_vline(xintercept = 0, linetype = 2, size = 1)+
   geom_hline(yintercept = 0, linetype = 2, size = 1)+
   geom_point(size = 4)+
-  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(16,17) )+
+  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
   scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
+  scale_fill_manual(name = "Initial\nBias", labels = c("Right", "Left"), values = c("black", "white")) +
   theme_gray(base_size = 30)+
   theme(panel.grid.major = element_line(size = 1.5)
         ,panel.grid.minor = element_line(size = 1))
@@ -430,6 +432,7 @@ get_violin(
   , hline = FALSE
   , facet = TRUE
 )
+get_95_HDI(exp( ex_toj_color_post$population_logjnd_intercept_mean ) * 250)
 #---------------------------------- SOA Intercepts ----------------------------------------#
 
 
@@ -445,6 +448,9 @@ get_violin(
   , c("PSS Effect Mean"  , "JND Effect Mean")
   , y_lab = "SOA (Right - Left; ms)"
 )
+get_95_HDI( ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_effect_mean/2 )
+              - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_effect_mean/2  ) ) * 250 
+)
 
 # effect of judgement type (Q) on PSS and JND
 get_violin(
@@ -456,6 +462,10 @@ get_violin(
   , c("PSS Judgement\nType Effect Mean"  , "JND Judgement\nType Effect Mean")
   , y_lab = "SOA (Second - First; ms)"
 )
+get_95_HDI(
+  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_judgement_type_effect_mean/2 )
+             - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_judgement_type_effect_mean/2  ) ) * 250
+)
 
 # effect of initial bias on PSS and JND
 get_violin(
@@ -466,6 +476,10 @@ get_violin(
   )
   , c("PSS Initial Probe\nBias Effect Mean"  , "JND Initial Probe\nBias Effect Mean")
   , y_lab = "SOA (Left - Right; ms)"
+)
+get_95_HDI(
+  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2 )
+    - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2  ) ) * 250 
 )
 #---------------------------------- Main Effects ---------------------=--------------------#
 
@@ -481,6 +495,10 @@ get_violin(
   , c("PSS Attention\n& Judgement Type\nInteraction Effect Mean"  , "JND Attention\n& Judgement Type\nInteraction Effect Mean")
   , y_lab = "SOA (Right - Left; ms)"
 )
+get_95_HDI(
+  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_judgement_type_interaction_effect_mean/2 )
+    - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_judgement_type_interaction_effect_mean/2  ) ) * 250 
+)
 
 #  effect of interaction between initial bias and attention on PSS 
 get_violin(
@@ -492,7 +510,10 @@ get_violin(
   , c("PSS Attention\n& Initial Probe Bias\nInteraction Effect Mean", "JND Attention\n& Initial Probe Bias\nInteraction Effect Mean")
   , y_lab = "SOA (Right - Left; ms)"
 )
-
+get_95_HDI(
+  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2 )
+    - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2  ) ) * 250 
+)
 #------------------------------- Two-way Interactions -------------------------------------#
 
 
