@@ -5,7 +5,7 @@ library(grid)
 library(rstan)
 
 
-setwd("~/Documents/TOJ/Follow-Up")
+# setwd("~/Documents/TOJ/Follow-Up")
 
 
 ##########################################
@@ -285,7 +285,7 @@ toj_color_data_for_stan = list(
   , L_color = nrow(color_trials)
   , unit_color = as.numeric(factor(color_trials$id))
   , condition_color = as.numeric(as.factor(color_trials$attended)) 
-  , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) 
+  # , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) 
   , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) 
   , y_color = pi+degree_to_rad(color_trials$p_minus_j)  # want from 0 to 360 instead of -180 to 180
 )
@@ -298,11 +298,11 @@ toj_color_model = stan_model(
 toj_color_post = sampling(
       object = toj_color_model
       , data = toj_color_data_for_stan
-      , iter = 1e3*5
+      , iter = 1e1*5
       , chains = 4
       , cores = 4
       , pars = c('trial_prob', 'p')  
       , include = FALSE
     )
-save(toj_color_post, file = "FollowUptoj_color_post_June26th2016")
+save(toj_color_post, file = "FollowUptoj_color_post_June28th2016_TEST")
 # print(toj_color_post)

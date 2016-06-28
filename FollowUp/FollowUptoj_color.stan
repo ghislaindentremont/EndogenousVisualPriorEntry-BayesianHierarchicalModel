@@ -9,7 +9,7 @@ data{
   int<lower=0> L_color;                         
   int<lower=0> unit_color[L_color];                 
   int<lower=1,upper=2> condition_color[L_color];   
-  int<lower=-1,upper=1> condition_initial_bias[N_toj];
+  // int<lower=-1,upper=1> condition_initial_bias[N_toj];
   int<lower=-1,upper=1> condition_judgement_type[N_toj];
   real<lower=0,upper=2*pi()> y_color[L_color]; 
 }
@@ -29,11 +29,11 @@ parameters{
 	
 	// main effects 
 	real population_pss_attention_effect_mean ;
-	real population_pss_initial_bias_effect_mean;
+	// real population_pss_initial_bias_effect_mean;
 	real population_pss_judgement_type_effect_mean;
 
 	real population_logjnd_attention_effect_mean ;
-	real population_logjnd_initial_bias_effect_mean;
+	// real population_logjnd_initial_bias_effect_mean;
 	real population_logjnd_judgement_type_effect_mean;
 	
 	// two-way interactions (within vs. between)
@@ -56,19 +56,19 @@ parameters{
   
   // main effects
   real logitRhoAttentionEffectMean;
-  real logitRhoInitialBiasEffectMean;
-  real logitRhoJudgementTypeEffectMean;
+  // real logitRhoInitialBiasEffectMean;
+  // real logitRhoJudgementTypeEffectMean;
   
   real logKappaAttentionEffectMean;
-  real logKappaInitialBiasEffectMean;
-  real logKappaJudgementTypeEffectMean;
+  // real logKappaInitialBiasEffectMean;
+  // real logKappaJudgementTypeEffectMean;
   
   // two-way interations
   // real logitRhoAttentionInitialBiasEffectMean;
-  real logitRhoAttentionJudgementTypeEffectMean;
+  // real logitRhoAttentionJudgementTypeEffectMean;
 
   // real logKappaAttentionInitialBiasEffectMean;
-  real logKappaAttentionJudgementTypeEffectMean;
+  // real logKappaAttentionJudgementTypeEffectMean;
  
   // SDs for population parameters
   real<lower=0,upper=pi()/2> zlogitRhoSD;
@@ -119,7 +119,7 @@ transformed parameters{
 		population_logjnd_effect_sd <- tan(zpopulation_logjnd_effect_sd) ;
 		for(this_id in 1:N_toj){
 			pss_intercept_per_id[this_id] <- beta[this_id,1]*population_pss_intercept_sd + population_pss_intercept_mean
-			+ population_pss_initial_bias_effect_mean* condition_initial_bias[this_id]/2
+			// + population_pss_initial_bias_effect_mean* condition_initial_bias[this_id]/2
 			+ population_pss_judgement_type_effect_mean * condition_judgement_type[this_id]/2 ;
 
 			pss_effect_per_id[this_id] <- ( beta[this_id,2]*population_pss_effect_sd + population_pss_attention_effect_mean
@@ -127,7 +127,7 @@ transformed parameters{
 			+ population_pss_attention_judgement_type_interaction_effect_mean * condition_judgement_type[this_id] )/2 ;
 
 		  logjnd_intercept_per_id[this_id] <- beta[this_id,3]*population_logjnd_intercept_sd + population_logjnd_intercept_mean
-			+ population_logjnd_initial_bias_effect_mean* condition_initial_bias[this_id]/2 
+			// + population_logjnd_initial_bias_effect_mean* condition_initial_bias[this_id]/2 
 			+ population_logjnd_judgement_type_effect_mean * condition_judgement_type[this_id]/2 ;
 			
 			logjnd_effect_per_id[this_id] <- ( beta[this_id,4]*population_logjnd_effect_sd + population_logjnd_attention_effect_mean
@@ -147,21 +147,21 @@ transformed parameters{
     logKappaEffectSD <- tan(zlogKappaEffectSD) ;
     // compute unit-level parameters
     for(n in 1:N_color){
-      logitRho[n] <- logitRhoMean + beta[n,5]*logitRhoSD 
-      + logitRhoInitialBiasEffectMean * condition_initial_bias[n]/2
-      + logitRhoJudgementTypeEffectMean * condition_initial_bias[n]/2 ;
+      logitRho[n] <- logitRhoMean + beta[n,5]*logitRhoSD ;
+      // + logitRhoInitialBiasEffectMean * condition_initial_bias[n]/2 ;
+      // + logitRhoJudgementTypeEffectMean * condition_initial_bias[n]/2 ;
       
-      logKappa[n] <- logKappaMean + beta[n,6]*logKappaSD 
-      + logKappaInitialBiasEffectMean * condition_initial_bias[n]/2
-      + logKappaJudgementTypeEffectMean * condition_initial_bias[n]/2 ;
+      logKappa[n] <- logKappaMean + beta[n,6]*logKappaSD ;
+      // + logKappaInitialBiasEffectMean * condition_initial_bias[n]/2
+      // + logKappaJudgementTypeEffectMean * condition_initial_bias[n]/2 ;
       
-      logitRhoEffect[n] <- logitRhoAttentionEffectMean + beta[n,7]*logitRhoEffectSD 
+      logitRhoEffect[n] <- logitRhoAttentionEffectMean + beta[n,7]*logitRhoEffectSD ;
       // + logitRhoAttentionInitialBiasEffectMean * condition_initial_bias[n]
-      + logitRhoAttentionJudgementTypeEffectMean * condition_judgement_type[n] ;
+      // + logitRhoAttentionJudgementTypeEffectMean * condition_judgement_type[n] ;
       
-      logKappaEffect[n] <- logKappaAttentionEffectMean + beta[n,8]*logKappaEffectSD 
+      logKappaEffect[n] <- logKappaAttentionEffectMean + beta[n,8]*logKappaEffectSD ;
       // + logKappaAttentionInitialBiasEffectMean * condition_initial_bias[n]
-      + logKappaAttentionJudgementTypeEffectMean * condition_judgement_type[n] ;
+      // + logKappaAttentionJudgementTypeEffectMean * condition_judgement_type[n] ;
       
       rho[1,n] <- inv_logit( logitRho[n] - logitRhoEffect[n]/2 ) ; 
       rho[2,n] <- inv_logit( logitRho[n] + logitRhoEffect[n]/2 ) ; 
@@ -196,11 +196,11 @@ model{
 	
 	// main effects 
 	population_pss_attention_effect_mean ~ normal(0,1);
-	population_pss_initial_bias_effect_mean~ normal(0,1);
+	// population_pss_initial_bias_effect_mean~ normal(0,1);
 	population_pss_judgement_type_effect_mean~ normal(0,1);
 
 	population_logjnd_attention_effect_mean ~ normal(0,1);
-	population_logjnd_initial_bias_effect_mean~ normal(0,1);
+	// population_logjnd_initial_bias_effect_mean~ normal(0,1);
 	population_logjnd_judgement_type_effect_mean~ normal(0,1);
 	
 	// two-way interactions
@@ -217,19 +217,19 @@ model{
   
   // main effects
   logitRhoAttentionEffectMean~ normal(0,3);
-  logitRhoInitialBiasEffectMean~ normal(0,3);
-  logitRhoJudgementTypeEffectMean~ normal(0,3);
+  // logitRhoInitialBiasEffectMean~ normal(0,3);
+  // logitRhoJudgementTypeEffectMean~ normal(0,3);
   
   logKappaAttentionEffectMean~ normal(0,3);
-  logKappaInitialBiasEffectMean~ normal(0,3);
-  logKappaJudgementTypeEffectMean~ normal(0,3);
+  // logKappaInitialBiasEffectMean~ normal(0,3);
+  // logKappaJudgementTypeEffectMean~ normal(0,3);
   
   // two-way interations
   // logitRhoAttentionInitialBiasEffectMean~ normal(0,3);
-  logitRhoAttentionJudgementTypeEffectMean~ normal(0,3);
+  // logitRhoAttentionJudgementTypeEffectMean~ normal(0,3);
   
   // logKappaAttentionInitialBiasEffectMean~ normal(0,3);
-  logKappaAttentionJudgementTypeEffectMean~ normal(0,3);
+  // logKappaAttentionJudgementTypeEffectMean~ normal(0,3);
   
   cor ~ lkj_corr(4) ;  // prior on correlation matrix 
 	
