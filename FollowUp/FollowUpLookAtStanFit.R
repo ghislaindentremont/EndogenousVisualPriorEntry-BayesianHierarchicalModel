@@ -9,7 +9,7 @@ library(plyr)
 library(gtools)
 
 setwd("~/Documents/TOJ/Follow-Up")
-load("FollowUptoj_color_post_June26th2016")
+load("FollowUptoj_color_post_June28th2016")
 load("FollowUp_color_trials.Rdata")
 load("FollowUp_toj_trials.Rdata")
 source("../EndogenousVisualPriorEntry-BayesianHierarchicalModel/functions.R")
@@ -24,26 +24,26 @@ gg_toj_color_post = ggs(toj_color_post)
 # list of parameters to examine
 param_list = c("logitRhoAttentionEffectMean"
                , "logitRhoMean"
-               , "logitRhoJudgementTypeEffectMean"
-               , "logitRhoAttentionJudgementTypeEffectMean"
-               , "logitRhoInitialBiasEffectMean"
-               , "logitRhoAttentionInitialBiasEffectMean"
+               # , "logitRhoJudgementTypeEffectMean"
+#                , "logitRhoAttentionJudgementTypeEffectMean"
+#                , "logitRhoInitialBiasEffectMean"
+#                , "logitRhoAttentionInitialBiasEffectMean"
                , "logKappaAttentionEffectMean"
                , "logKappaMean"
-               , "logKappaJudgementTypeEffectMean"
-               , "logKappaAttentionJudgementTypeEffectMean"
-               , "logKappaInitialBiasEffectMean"
-               , "logKappaAttentionInitialBiasEffectMean"
+#                , "logKappaJudgementTypeEffectMean"
+#                , "logKappaAttentionJudgementTypeEffectMean"
+#                , "logKappaInitialBiasEffectMean"
+#                , "logKappaAttentionInitialBiasEffectMean"
                , "population_logjnd_intercept_mean"
                , "population_logjnd_attention_effect_mean"
-               , "population_logjnd_initial_bias_effect_mean"
-               , "population_logjnd_attention_initial_bias_interaction_effect_mean"
+#                , "population_logjnd_initial_bias_effect_mean"
+#                , "population_logjnd_attention_initial_bias_interaction_effect_mean"
                , "population_logjnd_judgement_type_effect_mean"
                , "population_logjnd_attention_judgement_type_interaction_effect_mean"
                , "population_pss_intercept_mean"
                , "population_pss_attention_effect_mean"
-               , "population_pss_initial_bias_effect_mean"
-               , "population_pss_attention_initial_bias_interaction_effect_mean"
+#                , "population_pss_initial_bias_effect_mean"
+#                , "population_pss_attention_initial_bias_interaction_effect_mean"
                , "population_pss_judgement_type_effect_mean"
                , "population_pss_attention_judgement_type_interaction_effect_mean"
                , "zlogitRhoEffectSD" 
@@ -106,7 +106,7 @@ for (param in param_list) {
 ############################################################################################
 
 #-------------------------------------- TOJ Actual Data -----------------------------------#
-real_toj = aggregate(left_first_TF ~ soa2 + block_bias + toj_judgement_type + probe_initial_bias, data = toj_trials, FUN = mean)
+real_toj = aggregate(left_first_TF ~ soa2 + block_bias + toj_judgement_type, data = toj_trials, FUN = mean)
 #-------------------------------------- TOJ Actual Data -----------------------------------#
 
 
@@ -119,17 +119,17 @@ pss_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_p
 pss_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_judgement_type_effect_mean",]$value
 pss_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_attention_judgement_type_interaction_effect_mean",]$value
 
-pss_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_initial_bias_effect_mean",]$value
-pss_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_attention_initial_bias_interaction_effect_mean",]$value
+# pss_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_initial_bias_effect_mean",]$value
+# pss_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_attention_initial_bias_interaction_effect_mean",]$value
 
 # judgement type
-pss_right_first_right_mean_reps = get_condition_mean_sample(
+pss_right_first_mean_reps = get_condition_mean_sample(
   ( pss_intercept_mean 
-    - pss_judgement_type_effect_mean/2 
-    - pss_initial_bias_effect_mean/2 )
+    - pss_judgement_type_effect_mean/2 )
+   # - pss_initial_bias_effect_mean/2 )
   , ( pss_effect_mean 
-      - pss_judgement_type_interaction_effect_mean 
-      - pss_initial_bias_interaction_effect_mean)
+      - pss_judgement_type_interaction_effect_mean )
+      # - pss_initial_bias_interaction_effect_mean)
   , TRUE
   , "null"
 )
@@ -141,17 +141,17 @@ logjnd_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "populatio
 logjnd_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_judgement_type_effect_mean",]$value
 logjnd_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_attention_judgement_type_interaction_effect_mean",]$value
 
-logjnd_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_initial_bias_effect_mean",]$value
-logjnd_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_attention_initial_bias_interaction_effect_mean",]$value
+# logjnd_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_initial_bias_effect_mean",]$value
+# logjnd_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_attention_initial_bias_interaction_effect_mean",]$value
 
 # judgement type
-logjnd_right_first_right_mean_reps = get_condition_mean_sample(
+logjnd_right_first_mean_reps = get_condition_mean_sample(
   ( logjnd_intercept_mean 
-  - logjnd_judgement_type_effect_mean/2 
-  - logjnd_initial_bias_effect_mean/2 )
+  - logjnd_judgement_type_effect_mean/2 )
+  # - logjnd_initial_bias_effect_mean/2 )
   , ( logjnd_effect_mean 
-     - logjnd_judgement_type_interaction_effect_mean 
-     - logjnd_initial_bias_interaction_effect_mean )
+     - logjnd_judgement_type_interaction_effect_mean )
+     # - logjnd_initial_bias_interaction_effect_mean )
   , TRUE
   , "log"
 )
@@ -163,11 +163,11 @@ SOAs = c(-250, -150, -100, -50, -17, 17, 50, 100, 150, 250)
 
 # judgement type
 do_toj_ppc(
-  pss_right_first_right_mean_reps
-  , logjnd_right_first_right_mean_reps
-  , "'which first?' & initial right & attend right"
-  , c("toj_judgement_type", "probe_initial_bias", "block_bias")
-  , c("first", "RIGHT", "RIGHT")
+  pss_right_first_mean_reps
+  , logjnd_right_first_mean_reps
+  , "'which first?' & attend right"
+  , c("toj_judgement_type", "block_bias")
+  , c("first", "RIGHT")
   , "left proportion"
   , real = real_toj
 )
@@ -185,20 +185,20 @@ hist(color_trials[color_trials$attended == FALSE,]$color_diff_radians, breaks = 
 rho_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoMean",]$value
 rho_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoAttentionEffectMean",]$value
 
-rho_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoJudgementTypeEffectMean",]$value
-rho_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoAttentionJudgementTypeEffectMean",]$value
-
-rho_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoInitialBiasEffectMean",]$value
-rho_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoAttentionInitialBiasEffectMean",]$value
+# rho_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoJudgementTypeEffectMean",]$value
+# rho_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoAttentionJudgementTypeEffectMean",]$value
+# 
+# rho_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoInitialBiasEffectMean",]$value
+# rho_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoAttentionInitialBiasEffectMean",]$value
 
 # get condition combination
-rho_right_first_right_mean_reps = get_condition_mean_sample(
-  ( rho_intercept_mean 
-    - rho_judgement_type_effect_mean/2 
-    - rho_initial_bias_effect_mean/2 )
-  , ( rho_effect_mean 
-      - rho_judgement_type_interaction_effect_mean 
-      - rho_initial_bias_interaction_effect_mean )
+rho_right_mean_reps = get_condition_mean_sample(
+  ( rho_intercept_mean )
+#     - rho_judgement_type_effect_mean/2 
+#     - rho_initial_bias_effect_mean/2 )
+  , ( rho_effect_mean )
+#       - rho_judgement_type_interaction_effect_mean 
+#       - rho_initial_bias_interaction_effect_mean )
   , TRUE
   , "logit"
 )
@@ -207,20 +207,20 @@ rho_right_first_right_mean_reps = get_condition_mean_sample(
 kappa_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaMean",]$value
 kappa_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaAttentionEffectMean",]$value
 
-kappa_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaJudgementTypeEffectMean",]$value
-kappa_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaAttentionJudgementTypeEffectMean",]$value
-
-kappa_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaInitialBiasEffectMean",]$value
-kappa_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaAttentionInitialBiasEffectMean",]$value
+# kappa_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaJudgementTypeEffectMean",]$value
+# kappa_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaAttentionJudgementTypeEffectMean",]$value
+# 
+# kappa_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaInitialBiasEffectMean",]$value
+# kappa_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaAttentionInitialBiasEffectMean",]$value
 
 # get condition combination
-kappa_right_first_right_mean_reps = get_condition_mean_sample(
-  ( kappa_intercept_mean 
-    - kappa_judgement_type_effect_mean/2 
-    - kappa_initial_bias_effect_mean/2 )
-  , ( kappa_effect_mean 
-      - kappa_judgement_type_interaction_effect_mean 
-      - kappa_initial_bias_interaction_effect_mean )
+kappa_right_mean_reps = get_condition_mean_sample(
+  ( kappa_intercept_mean )
+#     - kappa_judgement_type_effect_mean/2 
+#     - kappa_initial_bias_effect_mean/2 )
+  , ( kappa_effect_mean )
+#       - kappa_judgement_type_interaction_effect_mean 
+#       - kappa_initial_bias_interaction_effect_mean )
   , TRUE
   , "log_free"
 )
@@ -229,11 +229,11 @@ kappa_right_first_right_mean_reps = get_condition_mean_sample(
 
 #-------------------------------------- Do Color PPC --------------------------------------#
 do_color_ppc(
-  rho_right_first_right_mean_reps
-  , kappa_right_first_right_mean_reps
-  , "'which first?' & initial right & attend right"
-  , c("toj_judgement_type", "probe_initial_bias" , "block_bias")
-  , c("first", "RIGHT","RIGHT")
+  rho_right_mean_reps
+  , kappa_right_mean_reps
+  , "attend right"
+  , c("block_bias")
+  , c("RIGHT")
 )
 #-------------------------------------- Do Color PPC --------------------------------------#
 
@@ -303,117 +303,117 @@ betas$participant = rep(c(1:length(unique(toj_trials$id))), times = 8, each = nr
 #-------------------------------------- Get Betas -----------------------------------------#
 
 
-#---------------------------- Rho vs. PSS Effects -----------------------------------------#
-psseffect = extract_samples("population_pss_attention_effect_mean")
-
-psseffectsd = extract_samples("zpopulation_pss_effect_sd", TRUE)
-
-pssjudgementinteraction = extract_samples("population_pss_attention_judgement_type_interaction_effect_mean")
-
-pssinitialbiasinteraction = extract_samples("population_pss_attention_initial_bias_interaction_effect_mean")
-
-judgementfactor = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1)
-
-initialbiasfactor = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1)
-
-psseffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter ==  "population_pss_attention_effect_mean",]$value
-    psseffect_use = median(psseffect)  + median(psseffectsd)*median(x_use)+ median(pssjudgementinteraction)*judgementfactor[i]+ median(pssinitialbiasinteraction)*initialbiasfactor[i]
-    df = data.frame(psseffect_use*250, judgementfactor[i], initialbiasfactor[i])
-    names(df) = c("psseffect",  "judgementfactor", "initialbiasfactor")
-    return(df)
-  }
-)
-
-logitrhoeffect = extract_samples("logitRhoAttentionEffectMean")
-
-logitrhoeffectsd = extract_samples("zlogitRhoEffectSD", TRUE)
-
-logitrhojudgementinteractioneffect = extract_samples("logitRhoAttentionJudgementTypeEffectMean")
-
-logitrhoinitialbiasinteractioneffect = extract_samples("logitRhoAttentionInitialBiasEffectMean")
-
-rhoeffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter == "logitRhoAttentionEffectMean",]$value
-    logitrhoeffect_use =  median(logitrhoeffect) + median(logitrhoeffectsd)*median(x_use)+ median(logitrhojudgementinteractioneffect)*judgementfactor[i]+ median(logitrhoinitialbiasinteractioneffect)*initialbiasfactor[i]
-    df = data.frame(logitrhoeffect_use, judgementfactor[i], initialbiasfactor[i])
-    names(df) = c("value", "judgementfactor", "initialbiasfactor")
-    return(df)
-  }
-)
-
-psseffect_v_rhoeffect = merge(rhoeffect_ids, psseffect_ids)
-
-ggplot(data = psseffect_v_rhoeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(initialbiasfactor)))+
-  scale_y_continuous(name = "PSS Effect Mean")+
-  scale_x_continuous(name = "Logit \u03C1 Effect Mean")+
-  geom_vline(xintercept = 0, linetype = 2, size = 1)+
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  geom_point(size = 4)+
-  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
-  scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
-  scale_fill_manual(name = "Initial\nBias", labels = c("Right", "Left"), values = c("black", "white")) +
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1))
-
-get_corr(
-  "value.2.7"
-  , "Logit \u03C1 vs. PSS Effect Means"
-)
-#---------------------------- Rho vs. PSS Effects -----------------------------------------#
-
-
-#---------------------------- Kappa vs. PSS Effects ---------------------------------------#
-logkappaeffect = extract_samples("logKappaAttentionEffectMean")
-
-logkappaeffectsd = extract_samples("zlogKappaEffectSD", TRUE)
-
-logkappajudgementtypeinteractioneffect = extract_samples("logKappaAttentionJudgementTypeEffectMean")
-
-logkappainitialbiasinteractioneffect = extract_samples("logKappaAttentionInitialBiasEffectMean")
-
-kappaeffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter == "logKappaAttentionEffectMean",]$value
-    logkappaeffect_use =  median(logkappaeffect) + median(logkappaeffectsd)*median(x_use)  + median(logkappajudgementtypeinteractioneffect)*judgementfactor[i] + median(logkappainitialbiasinteractioneffect)*initialbiasfactor[i]
-    df = data.frame(logkappaeffect_use,  judgementfactor[i], initialbiasfactor[i])
-    names(df) = c("value", "judgementfactor", "initialbiasfactor")
-    return(df)
-  }
-)
-
-psseffect_v_kappaeffect = merge(kappaeffect_ids, psseffect_ids)
-
-ggplot(data = psseffect_v_kappaeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(initialbiasfactor)))+ 
-  scale_y_continuous(name = "PSS Effect Mean")+
-  scale_x_continuous(name = "Log \u03BA Effect Mean")+
-  geom_vline(xintercept = 0, linetype = 2, size = 1)+
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  geom_point(size = 4)+
-  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
-  scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
-  scale_fill_manual(name = "Initial\nBias", labels = c("Right", "Left"), values = c("black", "white")) +
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1))
-
-get_corr(
-  "value.2.8"
-  , "Log \u03BA vs. PSS Effect Means"
-)        
-#---------------------------- Kappa vs. PSS Effects ---------------------------------------#
+# #---------------------------- Rho vs. PSS Effects -----------------------------------------#
+# psseffect = extract_samples("population_pss_attention_effect_mean")
+# 
+# psseffectsd = extract_samples("zpopulation_pss_effect_sd", TRUE)
+# 
+# pssjudgementinteraction = extract_samples("population_pss_attention_judgement_type_interaction_effect_mean")
+# 
+# pssinitialbiasinteraction = extract_samples("population_pss_attention_initial_bias_interaction_effect_mean")
+# 
+# judgementfactor = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1)
+# 
+# initialbiasfactor = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1)
+# 
+# psseffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter ==  "population_pss_attention_effect_mean",]$value
+#     psseffect_use = median(psseffect)  + median(psseffectsd)*median(x_use)+ median(pssjudgementinteraction)*judgementfactor[i]+ median(pssinitialbiasinteraction)*initialbiasfactor[i]
+#     df = data.frame(psseffect_use*250, judgementfactor[i], initialbiasfactor[i])
+#     names(df) = c("psseffect",  "judgementfactor", "initialbiasfactor")
+#     return(df)
+#   }
+# )
+# 
+# logitrhoeffect = extract_samples("logitRhoAttentionEffectMean")
+# 
+# logitrhoeffectsd = extract_samples("zlogitRhoEffectSD", TRUE)
+# 
+# logitrhojudgementinteractioneffect = extract_samples("logitRhoAttentionJudgementTypeEffectMean")
+# 
+# logitrhoinitialbiasinteractioneffect = extract_samples("logitRhoAttentionInitialBiasEffectMean")
+# 
+# rhoeffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter == "logitRhoAttentionEffectMean",]$value
+#     logitrhoeffect_use =  median(logitrhoeffect) + median(logitrhoeffectsd)*median(x_use)+ median(logitrhojudgementinteractioneffect)*judgementfactor[i]+ median(logitrhoinitialbiasinteractioneffect)*initialbiasfactor[i]
+#     df = data.frame(logitrhoeffect_use, judgementfactor[i], initialbiasfactor[i])
+#     names(df) = c("value", "judgementfactor", "initialbiasfactor")
+#     return(df)
+#   }
+# )
+# 
+# psseffect_v_rhoeffect = merge(rhoeffect_ids, psseffect_ids)
+# 
+# ggplot(data = psseffect_v_rhoeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(initialbiasfactor)))+
+#   scale_y_continuous(name = "PSS Effect Mean")+
+#   scale_x_continuous(name = "Logit \u03C1 Effect Mean")+
+#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   geom_point(size = 4)+
+#   scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
+#   scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
+#   scale_fill_manual(name = "Initial\nBias", labels = c("Right", "Left"), values = c("black", "white")) +
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1))
+# 
+# get_corr(
+#   "value.2.7"
+#   , "Logit \u03C1 vs. PSS Effect Means"
+# )
+# #---------------------------- Rho vs. PSS Effects -----------------------------------------#
+# 
+# 
+# #---------------------------- Kappa vs. PSS Effects ---------------------------------------#
+# logkappaeffect = extract_samples("logKappaAttentionEffectMean")
+# 
+# logkappaeffectsd = extract_samples("zlogKappaEffectSD", TRUE)
+# 
+# logkappajudgementtypeinteractioneffect = extract_samples("logKappaAttentionJudgementTypeEffectMean")
+# 
+# logkappainitialbiasinteractioneffect = extract_samples("logKappaAttentionInitialBiasEffectMean")
+# 
+# kappaeffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter == "logKappaAttentionEffectMean",]$value
+#     logkappaeffect_use =  median(logkappaeffect) + median(logkappaeffectsd)*median(x_use)  + median(logkappajudgementtypeinteractioneffect)*judgementfactor[i] + median(logkappainitialbiasinteractioneffect)*initialbiasfactor[i]
+#     df = data.frame(logkappaeffect_use,  judgementfactor[i], initialbiasfactor[i])
+#     names(df) = c("value", "judgementfactor", "initialbiasfactor")
+#     return(df)
+#   }
+# )
+# 
+# psseffect_v_kappaeffect = merge(kappaeffect_ids, psseffect_ids)
+# 
+# ggplot(data = psseffect_v_kappaeffect, aes(y = psseffect, x = value, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(initialbiasfactor)))+ 
+#   scale_y_continuous(name = "PSS Effect Mean")+
+#   scale_x_continuous(name = "Log \u03BA Effect Mean")+
+#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   geom_point(size = 4)+
+#   scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
+#   scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
+#   scale_fill_manual(name = "Initial\nBias", labels = c("Right", "Left"), values = c("black", "white")) +
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1))
+# 
+# get_corr(
+#   "value.2.8"
+#   , "Log \u03BA vs. PSS Effect Means"
+# )        
+# #---------------------------- Kappa vs. PSS Effects ---------------------------------------#
 
 
 
@@ -445,7 +445,7 @@ get_violin(
   , ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_effect_mean/2 )
   - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_effect_mean/2  ) ) * 250 
   )
-  , c("PSS Effect Mean"  , "JND Effect Mean")
+  , c("PSS\nAttention Effect Mean"  , "JND\nAttention Effect Mean")
   , y_lab = "SOA (Right - Left; ms)"
 )
 get_95_HDI( ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_effect_mean/2 )
@@ -467,20 +467,20 @@ get_95_HDI(
              - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_judgement_type_effect_mean/2  ) ) * 250
 )
 
-# effect of initial bias on PSS and JND
-get_violin(
-  c(
-  ( ex_toj_color_post$population_pss_initial_bias_effect_mean ) * 250
-  , ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2 )
-      - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2  ) ) * 250 
-  )
-  , c("PSS Initial Probe\nBias Effect Mean"  , "JND Initial Probe\nBias Effect Mean")
-  , y_lab = "SOA (Left - Right; ms)"
-)
-get_95_HDI(
-  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2 )
-    - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2  ) ) * 250 
-)
+# # effect of initial bias on PSS and JND
+# get_violin(
+#   c(
+#   ( ex_toj_color_post$population_pss_initial_bias_effect_mean ) * 250
+#   , ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2 )
+#       - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2  ) ) * 250 
+#   )
+#   , c("PSS Initial Probe\nBias Effect Mean"  , "JND Initial Probe\nBias Effect Mean")
+#   , y_lab = "SOA (Left - Right; ms)"
+# )
+# get_95_HDI(
+#   ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2 )
+#     - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_initial_bias_effect_mean/2  ) ) * 250 
+# )
 #---------------------------------- Main Effects ---------------------=--------------------#
 
 
@@ -500,20 +500,42 @@ get_95_HDI(
     - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_judgement_type_interaction_effect_mean/2  ) ) * 250 
 )
 
-#  effect of interaction between initial bias and attention on PSS 
+
 get_violin(
   c(
-  (ex_toj_color_post$population_pss_attention_initial_bias_interaction_effect_mean) * 250
-  ,  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2 )
-       - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2  ) ) * 250 
+  (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_judgement_type_effect_mean/2
+  + (ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
+  - (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_judgement_type_effect_mean/2
+  - (ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) * 250
+  ,   (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2
+       + (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
+  - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2
+     - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
   )
-  , c("PSS Attention\n& Initial Probe Bias\nInteraction Effect Mean", "JND Attention\n& Initial Probe Bias\nInteraction Effect Mean")
-  , y_lab = "SOA (Right - Left; ms)"
+  , c("PSS Attention Effect\nGiven Second", "PSS Attention Effect\nGiven First")
+  , y_lab = "SOA (Second - First; ms)"
 )
 get_95_HDI(
-  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2 )
-    - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2  ) ) * 250 
+  (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2
+   + (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
+  - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2
+     - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
 )
+
+# #  effect of interaction between initial bias and attention on PSS 
+# get_violin(
+#   c(
+#   (ex_toj_color_post$population_pss_attention_initial_bias_interaction_effect_mean) * 250
+#   ,  ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2 )
+#        - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2  ) ) * 250 
+#   )
+#   , c("PSS Attention\n& Initial Probe Bias\nInteraction Effect Mean", "JND Attention\n& Initial Probe Bias\nInteraction Effect Mean")
+#   , y_lab = "SOA (Right - Left; ms)"
+# )
+# get_95_HDI(
+#   ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2 )
+#     - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_attention_initial_bias_interaction_effect_mean/2  ) ) * 250 
+# )
 #------------------------------- Two-way Interactions -------------------------------------#
 
 
@@ -535,40 +557,40 @@ get_violin(
 get_violin(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoAttentionEffectMean/2 )
     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoAttentionEffectMean/2 ) )
-  , "Probability of Memory Effect Mean"
+  , "Probability of Encoding Attention Effect Mean"
   , y_lab = "\u03C1 (Attended - Unattended)"
 )
 
-get_violin(
-  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoJudgementTypeEffectMean/2 )
-    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoJudgementTypeEffectMean/2 ) )
-  , "Probability of Memory\nJudgement Type Effect Mean"
-  , y_lab = "\u03C1 (Second - First)"
-)
-
-get_violin(
-  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoInitialBiasEffectMean/2 )
-    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoInitialBiasEffectMean/2 ) )
-  , "Probability of Memory\nInitial Probe Bias Effect Mean"
-  , y_lab = "\u03C1 (Left - Right)"
-)
+# get_violin(
+#   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoJudgementTypeEffectMean/2 )
+#     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoJudgementTypeEffectMean/2 ) )
+#   , "Probability of Memory\nJudgement Type Effect Mean"
+#   , y_lab = "\u03C1 (Second - First)"
+# )
+# 
+# get_violin(
+#   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoInitialBiasEffectMean/2 )
+#     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoInitialBiasEffectMean/2 ) )
+#   , "Probability of Memory\nInitial Probe Bias Effect Mean"
+#   , y_lab = "\u03C1 (Left - Right)"
+# )
 #-------------------------------- Main Effects --------------------------------------------#
 
 
 #------------------------------- Two-way Interactions -------------------------------------#
-get_violin(
-  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoAttentionJudgementTypeEffectMean/2 )
-    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoAttentionJudgementTypeEffectMean/2 ) )
-  , "Probability of Memory\nAttention\n& Judgement Type\nInteraction Effect Mean"
-  , y_lab = "\u03C1 (Attended - Unattended)"
-)
+# get_violin(
+#   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoAttentionJudgementTypeEffectMean/2 )
+#     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoAttentionJudgementTypeEffectMean/2 ) )
+#   , "Probability of Memory\nAttention\n& Judgement Type\nInteraction Effect Mean"
+#   , y_lab = "\u03C1 (Attended - Unattended)"
+# )
 
-get_violin(
-  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoAttentionInitialBiasEffectMean/2 )
-    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoAttentionInitialBiasEffectMean/2 ) )
-  , "Probability of Memory\nAttention\nInitial Probe Bias\nInteraction Effect Mean"
-  , y_lab ="\u03C1 (Attended - Unattended)"
-)
+# get_violin(
+#   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoAttentionInitialBiasEffectMean/2 )
+#     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoAttentionInitialBiasEffectMean/2 ) )
+#   , "Probability of Memory\nAttention\nInitial Probe Bias\nInteraction Effect Mean"
+#   , y_lab ="\u03C1 (Attended - Unattended)"
+# )
 #------------------------------- Two-way Interactions -------------------------------------#
 
 
@@ -591,40 +613,40 @@ get_violin(
 get_violin(
   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaAttentionEffectMean/2 )
     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaAttentionEffectMean/2 ) )
-  , "Fidelity of Memory Effect Mean"
+  , "Fidelity of Memory Attention Effect Mean"
   , y_lab = "\u03BA (Attended - Unattended)"
 )
 
-get_violin(
-  ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaJudgementTypeEffectMean/2 )
-    - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaJudgementTypeEffectMean/2 ) )
-  , "Fidelity of Memory\nJudgement Type Effect Mean"
-  , y_lab = "\u03BA (Second - First)"
-)
-
-get_violin(
-  ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaInitialBiasEffectMean/2 )
-    - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaInitialBiasEffectMean/2 ) )
-  , "Fidelity of Memory\nInitial Probe Bias Effect Mean"
-  , y_lab = "\u03BA (Left - Right)"
-)
+# get_violin(
+#   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaJudgementTypeEffectMean/2 )
+#     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaJudgementTypeEffectMean/2 ) )
+#   , "Fidelity of Memory\nJudgement Type Effect Mean"
+#   , y_lab = "\u03BA (Second - First)"
+# )
+# 
+# get_violin(
+#   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaInitialBiasEffectMean/2 )
+#     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaInitialBiasEffectMean/2 ) )
+#   , "Fidelity of Memory\nInitial Probe Bias Effect Mean"
+#   , y_lab = "\u03BA (Left - Right)"
+# )
 #-------------------------------- Main Effects --------------------------------------------#
 
 
 #------------------------------- Two-way Interactions -------------------------------------#
-get_violin(
-  ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaAttentionJudgementTypeEffectMean/2 )
-    - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaAttentionJudgementTypeEffectMean/2 ) )
-  , "Fidelity of Memory\nAttention\n& Judgement Type\nInteraction Effect Mean"
-  , y_lab = "\u03BA (Attended - Unattended)"
-)
-
-get_violin(
-  ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaAttentionInitialBiasEffectMean/2 )
-    - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaAttentionInitialBiasEffectMean/2 ) )
-  , "Fidelity of Memory\nAttention\nInitial Probe Bias\nInteraction Effect Mean"
-  , y_lab = "\u03BA (Attended - Unattended)"
-)
+# get_violin(
+#   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaAttentionJudgementTypeEffectMean/2 )
+#     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaAttentionJudgementTypeEffectMean/2 ) )
+#   , "Fidelity of Memory\nAttention\n& Judgement Type\nInteraction Effect Mean"
+#   , y_lab = "\u03BA (Attended - Unattended)"
+# )
+# 
+# get_violin(
+#   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaAttentionInitialBiasEffectMean/2 )
+#     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaAttentionInitialBiasEffectMean/2 ) )
+#   , "Fidelity of Memory\nAttention\nInitial Probe Bias\nInteraction Effect Mean"
+#   , y_lab = "\u03BA (Attended - Unattended)"
+# )
 #------------------------------- Two-way Interactions -------------------------------------#
 
 

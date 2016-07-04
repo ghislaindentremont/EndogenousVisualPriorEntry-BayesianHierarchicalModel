@@ -420,146 +420,146 @@ betas[betas$parameter=="population_logjnd_effect_mean",]$value = -betas3[betas3$
 #-------------------------------------- Get Betas -----------------------------------------#
 
 
-#---------------------------- Rho vs. PSS Effects -----------------------------------------#
-psseffect = extract_samples("population_pss_effect_mean")
+# #---------------------------- Rho vs. PSS Effects -----------------------------------------#
+# psseffect = extract_samples("population_pss_effect_mean")
+# 
+# psseffectsd = extract_samples("zpopulation_pss_effect_sd", TRUE)
+# 
+# pssinteractioneffect = extract_samples("population_pss_convention_interaction_effect_mean")
+# 
+# conventionfactor = ifelse(aggregate(know_tie_goes_runner~id,data = toj_trials, FUN =unique)$know_tie_goes_runner, -1, 1)
+# 
+# psseffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter ==  "population_pss_effect_mean",]$value
+#     psseffect = median(psseffect)  + median(psseffectsd)*median(x_use) 
+#     + median(pssinteractioneffect)*conventionfactor[i]
+#     df = data.frame(psseffect*250, conventionfactor[i])
+#     names(df) = c("psseffect", "conventionfactor")
+#     return(df)
+#   }
+# )
+# 
+# logitrhoeffect = extract_samples("logitRhoEffectMean")
+# 
+# logitrhoeffectsd = extract_samples("zlogitRhoEffectSD", TRUE)
+# 
+# logitrhointeractioneffect = extract_samples("logitRhoConventionInteractionEffectMean")
+# 
+# rhoeffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter == "logitRhoEffectMean",]$value
+#     logitrhoeffect_use = median(logitrhoeffect) + median(logitrhoeffectsd)*median(x_use)+ median(logitrhointeractioneffect)*conventionfactor[i]
+#     df = data.frame(logitrhoeffect_use, conventionfactor[i])
+#     names(df) = c("logitrhoeffect", "conventionfactor")
+#     return(df)
+#   }
+# )
+# 
+# psseffect_v_rhoeffect = merge(rhoeffect_ids, psseffect_ids)
+# 
+# ggplot(data = psseffect_v_rhoeffect, aes(x = logitrhoeffect, y =psseffect, colour = factor(conventionfactor), shape = factor(conventionfactor)))+
+#   scale_y_continuous(name = "PSS Effect Mean")+
+#   scale_x_continuous(name = "Logit \u03C1 Effect Mean")+
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
+#   geom_point(size = 4)+
+#   scale_shape_manual(name = "Know\nConvention", labels = c("True", "False"), values = c(16,17) )+
+#   scale_colour_manual(name = "Know\nConvention", labels =c("True", "False") , values = c("red", "blue") )+
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1))
+#  
+# ### Violin
+# # must take negative because I flipped pss effect sign
+# pos_corr_f = pos_corr
+# pos_corr_f[pos_corr_f$parameter == "value.2.7",]$value = -pos_corr[pos_corr$parameter == "value.2.7",]$value    
+# # plot
+# ggplot(
+#   data = pos_corr_f[pos_corr_f$parameter == "value.2.7",]  
+#   , aes(x = parameter, y = value)
+# )+
+#   geom_violin()+
+#   labs(x = "Logit \u03C1 vs. PSS Effect Means", y = "Correlation Coefficient (r)")+
+#   stat_summary(fun.data = get_95_HDI, size = 0.7)+
+#   stat_summary(fun.data = get_50_HDI, size = 2.5)+  
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1)
+#         , axis.text.x = element_blank()
+#         , axis.ticks.x = element_blank()) 
+# 
+# # get 95% HDI
+# print("NOTE: make sure to flip sign (see above code)")
+# get_95_HDI(pos_corr_f[pos_corr_f$parameter == "value.2.7",]$value)
+# #---------------------------- Rho vs. PSS Effects -----------------------------------------#
 
-psseffectsd = extract_samples("zpopulation_pss_effect_sd", TRUE)
 
-pssinteractioneffect = extract_samples("population_pss_convention_interaction_effect_mean")
-
-conventionfactor = ifelse(aggregate(know_tie_goes_runner~id,data = toj_trials, FUN =unique)$know_tie_goes_runner, -1, 1)
-
-psseffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter ==  "population_pss_effect_mean",]$value
-    psseffect = median(psseffect)  + median(psseffectsd)*median(x_use) 
-    + median(pssinteractioneffect)*conventionfactor[i]
-    df = data.frame(psseffect*250, conventionfactor[i])
-    names(df) = c("psseffect", "conventionfactor")
-    return(df)
-  }
-)
-
-logitrhoeffect = extract_samples("logitRhoEffectMean")
-
-logitrhoeffectsd = extract_samples("zlogitRhoEffectSD", TRUE)
-
-logitrhointeractioneffect = extract_samples("logitRhoConventionInteractionEffectMean")
-
-rhoeffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter == "logitRhoEffectMean",]$value
-    logitrhoeffect_use = median(logitrhoeffect) + median(logitrhoeffectsd)*median(x_use)+ median(logitrhointeractioneffect)*conventionfactor[i]
-    df = data.frame(logitrhoeffect_use, conventionfactor[i])
-    names(df) = c("logitrhoeffect", "conventionfactor")
-    return(df)
-  }
-)
-
-psseffect_v_rhoeffect = merge(rhoeffect_ids, psseffect_ids)
-
-ggplot(data = psseffect_v_rhoeffect, aes(x = logitrhoeffect, y =psseffect, colour = factor(conventionfactor), shape = factor(conventionfactor)))+
-  scale_y_continuous(name = "PSS Effect Mean")+
-  scale_x_continuous(name = "Logit \u03C1 Effect Mean")+
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  geom_vline(xintercept = 0, linetype = 2, size = 1)+
-  geom_point(size = 4)+
-  scale_shape_manual(name = "Know\nConvention", labels = c("True", "False"), values = c(16,17) )+
-  scale_colour_manual(name = "Know\nConvention", labels =c("True", "False") , values = c("red", "blue") )+
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1))
- 
-### Violin
-# must take negative because I flipped pss effect sign
-pos_corr_f = pos_corr
-pos_corr_f[pos_corr_f$parameter == "value.2.7",]$value = -pos_corr[pos_corr$parameter == "value.2.7",]$value    
-# plot
-ggplot(
-  data = pos_corr_f[pos_corr_f$parameter == "value.2.7",]  
-  , aes(x = parameter, y = value)
-)+
-  geom_violin()+
-  labs(x = "Logit \u03C1 vs. PSS Effect Means", y = "Correlation Coefficient (r)")+
-  stat_summary(fun.data = get_95_HDI, size = 0.7)+
-  stat_summary(fun.data = get_50_HDI, size = 2.5)+  
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1)
-        , axis.text.x = element_blank()
-        , axis.ticks.x = element_blank()) 
-
-# get 95% HDI
-print("NOTE: make sure to flip sign (see above code)")
-get_95_HDI(pos_corr_f[pos_corr_f$parameter == "value.2.7",]$value)
-#---------------------------- Rho vs. PSS Effects -----------------------------------------#
-
-
-#---------------------------- Kappa vs. PSS Effects ---------------------------------------#
-logkappaeffect = extract_samples("logKappaEffectMean")
-
-logkappaeffectsd = extract_samples("zlogKappaEffectSD", TRUE)
-
-logkappainteractioneffect = extract_samples("logKappaConventionInteractionEffectMean")
-
-kappaeffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter == "logKappaEffectMean",]$value
-    logkappaeffect_use = median(logkappaeffect) + median(logkappaeffectsd)*median(x_use) + median(logkappainteractioneffect)*conventionfactor[i]
-    df = data.frame(logkappaeffect_use, conventionfactor[i])
-    names(df) = c("logkappaeffect", "conventionfactor")
-    return(df)
-  }
-)
-
-psseffect_v_kappaeffect = merge(kappaeffect_ids, psseffect_ids)
-
-ggplot(data = psseffect_v_kappaeffect, aes(x = logkappaeffect, y =psseffect, colour = factor(conventionfactor), shape = factor(conventionfactor)))+
-  scale_y_continuous(name = "PSS Effect Mean")+
-  scale_x_continuous(name = "Log \u03BA Effect Mean")+
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  geom_vline(xintercept = 0, linetype = 2, size = 1)+
-  geom_point(size = 4)+
-  scale_shape_manual(name = "Know\nConvention", labels = c("True", "False"), values = c(16,17) )+
-  scale_colour_manual(name = "Know\nConvention", labels =c("True", "False") , values = c("red", "blue") )+
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1))
-
-### Violin
-# must take negative because I flipped pss effect sign
-pos_corr_f = pos_corr
-pos_corr_f[pos_corr_f$parameter == "value.2.8",]$value = -pos_corr[pos_corr$parameter == "value.2.8",]$value    
-# plot
-ggplot(
-  data = pos_corr_f[pos_corr_f$parameter == "value.2.8",]  
-  , aes(x = parameter, y = value)
-)+
-  geom_violin()+
-  labs(x = "Log \u03BA vs. PSS Effect Means", y = "Correlation Coefficient (r)")+
-  stat_summary(fun.data = get_95_HDI, size = 0.7)+
-  stat_summary(fun.data = get_50_HDI, size = 2.5)+  
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1)
-        , axis.text.x = element_blank()
-        , axis.ticks.x = element_blank()) 
-
-# get 95% HDI
-print("NOTE: make sure to flip sign (see above code)")
-get_95_HDI(pos_corr_f[pos_corr_f$parameter == "value.2.8",]$value)
-#---------------------------- Kappa vs. PSS Effects ---------------------------------------#
+# #---------------------------- Kappa vs. PSS Effects ---------------------------------------#
+# logkappaeffect = extract_samples("logKappaEffectMean")
+# 
+# logkappaeffectsd = extract_samples("zlogKappaEffectSD", TRUE)
+# 
+# logkappainteractioneffect = extract_samples("logKappaConventionInteractionEffectMean")
+# 
+# kappaeffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter == "logKappaEffectMean",]$value
+#     logkappaeffect_use = median(logkappaeffect) + median(logkappaeffectsd)*median(x_use) + median(logkappainteractioneffect)*conventionfactor[i]
+#     df = data.frame(logkappaeffect_use, conventionfactor[i])
+#     names(df) = c("logkappaeffect", "conventionfactor")
+#     return(df)
+#   }
+# )
+# 
+# psseffect_v_kappaeffect = merge(kappaeffect_ids, psseffect_ids)
+# 
+# ggplot(data = psseffect_v_kappaeffect, aes(x = logkappaeffect, y =psseffect, colour = factor(conventionfactor), shape = factor(conventionfactor)))+
+#   scale_y_continuous(name = "PSS Effect Mean")+
+#   scale_x_continuous(name = "Log \u03BA Effect Mean")+
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
+#   geom_point(size = 4)+
+#   scale_shape_manual(name = "Know\nConvention", labels = c("True", "False"), values = c(16,17) )+
+#   scale_colour_manual(name = "Know\nConvention", labels =c("True", "False") , values = c("red", "blue") )+
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1))
+# 
+# ### Violin
+# # must take negative because I flipped pss effect sign
+# pos_corr_f = pos_corr
+# pos_corr_f[pos_corr_f$parameter == "value.2.8",]$value = -pos_corr[pos_corr$parameter == "value.2.8",]$value    
+# # plot
+# ggplot(
+#   data = pos_corr_f[pos_corr_f$parameter == "value.2.8",]  
+#   , aes(x = parameter, y = value)
+# )+
+#   geom_violin()+
+#   labs(x = "Log \u03BA vs. PSS Effect Means", y = "Correlation Coefficient (r)")+
+#   stat_summary(fun.data = get_95_HDI, size = 0.7)+
+#   stat_summary(fun.data = get_50_HDI, size = 2.5)+  
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1)
+#         , axis.text.x = element_blank()
+#         , axis.ticks.x = element_blank()) 
+# 
+# # get 95% HDI
+# print("NOTE: make sure to flip sign (see above code)")
+# get_95_HDI(pos_corr_f[pos_corr_f$parameter == "value.2.8",]$value)
+# #---------------------------- Kappa vs. PSS Effects ---------------------------------------#
 
 
 
@@ -609,6 +609,22 @@ get_violin(
   , c("PSS Convention\nEffect Mean"  , "JND Convention\nEffect Mean")
   , y_lab = "SOA (Don't Know - Know; ms)"
 )
+# PSS: DK 
+get_95_HDI(
+  (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2) * 250
+)
+# PSS: K
+get_95_HDI(
+( ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_convention_effect_mean/2)  * 250
+)
+# logjnd: DK 
+get_95_HDI(
+  exp(ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2) * 250
+)
+# logjnd: K
+get_95_HDI(
+  exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_convention_effect_mean/2)  * 250
+)
 
 # effect of interaction between convention knowledge and attention on PSS
 get_violin(
@@ -626,28 +642,60 @@ get_violin(
   , y_lab = "SOA (ms)"
 )
 
-# effect of attention on JND by knowledge of convention
+#  effect of attention on JND by knowledge of convention
 get_violin(
   c(
-  ( (ex_toj_color_post$population_logjnd_intercept_mean + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
-    - (ex_toj_color_post$population_logjnd_intercept_mean - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
-  , ( (ex_toj_color_post$population_logjnd_intercept_mean + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
-      - (ex_toj_color_post$population_logjnd_intercept_mean - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
+  ( (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
+    - (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
+  , ( (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
+      - (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
   )
   , c("JND Attention Effect\nGiven Don't Know"  , "JND Attention Effect\nGiven Know")
   , y_lab = "SOA (Glove - Base; ms)"
+)
+# DK + A
+get_95_HDI(
+  exp(ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) * 250
+)
+# DK + U
+get_95_HDI(
+  exp(ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2  ) * 250
+)
+# K + A
+get_95_HDI(
+  exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) * 250 
+)
+# K + U
+get_95_HDI(
+  exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 )  * 250
 )
 
 # effect of attention on PSS by knowledge of convention
 get_violin(
   c(
-  ( (ex_toj_color_post$population_pss_intercept_mean + (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) 
-    - (ex_toj_color_post$population_pss_intercept_mean - (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
-  , ( (ex_toj_color_post$population_pss_intercept_mean + (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) 
-      - (ex_toj_color_post$population_pss_intercept_mean - (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
+  ( (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) 
+    - (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
+  , ( (ex_toj_color_post$population_pss_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) 
+      - (ex_toj_color_post$population_pss_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
   )
   , c("PSS Attention Effect\nGiven Don't Know", "PSS Attention Effect\nGiven Know")
   , y_lab = "SOA (Glove - Base; ms)"
+)
+# DK + A
+get_95_HDI(
+  (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) * 250 
+)
+# DK + U
+get_95_HDI(
+  (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_pss_effect_mean + ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2  ) * 250
+)
+# K + A
+get_95_HDI(
+  (ex_toj_color_post$population_pss_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) * 250 
+)
+# K + U
+get_95_HDI(
+  (ex_toj_color_post$population_pss_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 )  * 250
 )
 #--------------------------------- SOA Convention Effects ---------------------------------#
 
@@ -655,7 +703,7 @@ get_violin(
 #---------------------------------- Rho Intercept -----------------------------------------#
 get_violin(
   plogis(ex_toj_color_post$logitRhoMean)
-  , "Probability of Memory Intercept Mean"
+  , "Probability of Encoding Intercept Mean"
   , y_lab = "\u03C1"
   , hline = FALSE
 )
@@ -666,7 +714,7 @@ get_violin(
 get_violin(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoEffectMean/2 )
     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoEffectMean/2 ) )
-  , "Probability of Memory Effect Mean"
+  , "Probability of Encoding Effect Mean"
   , y_lab = "\u03C1 (Attended - Unattended)"
 )
 #-------------------------------- Rho Attention Effect ------------------------------------#
@@ -676,38 +724,77 @@ get_violin(
 get_violin(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2 )
     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2 ) )
-  , "Probability of Memory\nConvention Effect Mean"
+  , "Probability of Encoding\nConvention Effect Mean"
   , y_lab = "\u03C1 (Don't Know - Know)"
+)
+# DK
+get_95_HDI(
+  plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2)
+  )
+# K
+get_95_HDI(
+  plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2 )
 )
 
 get_violin(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean/2 )
     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean/2 ) )
-  , "Probability of Memory\nConvention Knowledge\nInteraction Effect Mean"
+  , "Probability of Encoding\nConvention Knowledge\nInteraction Effect Mean"
   , y_lab = "\u03C1"
 )
 
 # effect of attention on rho for each convention knowledge level
 get_violin(
+  c(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
            + (ex_toj_color_post$logitRhoEffectMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
     - plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
              - (ex_toj_color_post$logitRhoEffectMean +  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) )
-  , "Probability of Memory\nAttention Effect Given\nDon't Know Convention"
   , ( plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
              + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
       - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
                - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) )
-  , "Probability of Memory\nAttention Effect Given\nKnow Convention"
+  )
+  , c("Probability of Encoding\nAttention Effect\nGiven Don't Know"  , "Probability of Encoding\nAttention Effect\nGiven Know")
   , y_lab = "\u03C1 (Attended - Unattended)"
 )
+# Know condition estimate 
+get_95_HDI(
+  ( plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+           + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+             - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) )
+)
+
+# A + DK
+get_95_HDI(
+  plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+                     + (ex_toj_color_post$logitRhoEffectMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+)
+# U + DK
+get_95_HDI(
+  plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+         - (ex_toj_color_post$logitRhoEffectMean +  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) 
+)
+# A + K
+get_95_HDI(
+  plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+         + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+)
+# U + K
+get_95_HDI(
+  plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+         - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) 
+  )
+
+
 #-------------------------------- Rho Convention Effects ----------------------------------#
 
 
 #---------------------------------- Kappa Intercept ---------------------------------------#
 get_violin(
   exp( ex_toj_color_post$logKappaMean ) 
-  , "Fidelity of Memory Intercept Mean"
+  , "Fidelity of Encoding Intercept Mean"
   , y_lab = "\u03BA"
   , hline = FALSE
 )
@@ -718,7 +805,7 @@ get_violin(
 get_violin(
   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaEffectMean/2) 
     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaEffectMean/2) )
-  , "Fidelity of Memory Effect Mean"
+  , "Fidelity of Encoding Effect Mean"
   , y_lab = "\u03BA (Attended - Unattended)"
 )
 #-------------------------------- Kappa Attention Effect ----------------------------------#
@@ -728,29 +815,66 @@ get_violin(
 get_violin(
   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2 )
     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2 ) )
-  , "Fidelity of Memory\nConvention Effect Mean"
+  , "Fidelity of Encoding\nConvention Effect Mean"
   , y_lab = "\u03BA (Don't Know - Know)"
+)
+# DK
+get_95_HDI(
+  exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2 )
+)
+# K
+get_95_HDI(
+  exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2 ) 
 )
 
 get_violin(
   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionInteractionEffectMean/2 )
     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionInteractionEffectMean/2 ) )
-  , "Fidelity of Memory\nConvention Knowledge\nInteraction Effect Mean"
+  , "Fidelity of Encoding\nConvention Knowledge\nInteraction Effect Mean"
   , y_lab = "\u03BA"
 )
 
 get_violin(
+  c(
   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
         + (ex_toj_color_post$logKappaEffectMean + ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
     - exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
           - (ex_toj_color_post$logKappaEffectMean +  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) )
-  , "Fidelity of Memory\nAttention Effect\nGiven Don't Know"
   , ( exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
           + (ex_toj_color_post$logKappaEffectMean - ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
       - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
             - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) )
-  , "Fidelity of Memory\nAttention Effect\nGiven Know"
+)
+  , c("Fidelity of Encoding\nAttention Effect\nGiven Don't Know", "Fidelity of Encoding\nAttention Effect\nGiven Know")
   , y_lab = "\u03BA (Attended - Unattended)"
+)
+# kappa estimate 
+get_95_HDI(
+  ( exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+        + (ex_toj_color_post$logKappaEffectMean - ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+    - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+          - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) )
+  
+)
+# DK + A
+get_95_HDI(
+exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
+    + (ex_toj_color_post$logKappaEffectMean + ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+)
+# DK + U
+get_95_HDI(
+  exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
+      - (ex_toj_color_post$logKappaEffectMean +  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) 
+)
+# K + A
+get_95_HDI(
+  exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+      + (ex_toj_color_post$logKappaEffectMean - ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+)
+# K + U
+get_95_HDI(
+  exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+      - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) 
 )
 #------------------------------- Kappa Convention Effects ---------------------------------#
 
@@ -897,7 +1021,7 @@ gg = ggplot(data = df, aes(y = Prop, x = SOA, colour = Attend))+
 #   geom_density(data = pos_rhoMean_WithEffect[pos_rhoMean_WithEffect$Effect == "Attended",],alpha = 0.5)+
 #   geom_density(data = pos_rhoMean_WithEffect[pos_rhoMean_WithEffect$Effect == "Unattended",],alpha = 0.5)+
 #   scale_fill_hue("Effect", l = c(90, 45), c = c(100, 50) ) +
-#   labs(x = "Probability of Memory Population Mean", y = "Density", colour = "")+
+#   labs(x = "Probability of Encoding Population Mean", y = "Density", colour = "")+
 #   theme_gray(base_size = 24)+
 #   theme(panel.grid.major = element_line(size = 1.5)
 #         ,panel.grid.minor = element_line(size = 1))
