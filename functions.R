@@ -101,7 +101,7 @@ do_color_ppc = function(rho, kappa, main, factors, levels) {
 # Highest Density Interval Functions
 get_95_HDI = function(y) {
   HDI = HPDinterval( as.mcmc( as.vector(y) ), prob = .95 )
-  Den = density( as.vector(y) )
+  # Den = density( as.vector(y) )
   min = HDI[1]
   # mod = Den$x[which(Den$y == max(Den$y))] # mode as indicator of central tendency
   med = median(y)
@@ -111,7 +111,7 @@ get_95_HDI = function(y) {
 
 get_50_HDI = function(y) {
   HDI = HPDinterval( as.mcmc( as.vector(y) ), prob = .50 )
-  Den = density( as.vector(y) )
+  # Den = density( as.vector(y) )
   min = HDI[1]
   # mod = Den$x[which(Den$y == max(Den$y))]  # mode as indicator of central tendency
   med = median(y)
@@ -201,14 +201,8 @@ get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps 
   
   print(gg)
   
-#   values_num = length(values)/samps
-#   
-#   print(values_num)
-#   
-#   for (i in 1:values_num) {
-#     # print(values[ ( (i-1)*samps + 1) : samps*i ])
-#     get_95_HDI(values[ ( (i-1)*samps + 1) : samps*i ])
-#   }
+  print( get_95_HDI(values[1:samps]) )
+  print( get_95_HDI(values[(samps+1):samps*2])  )
   
 }
 
