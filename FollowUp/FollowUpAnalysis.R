@@ -5,7 +5,7 @@ library(grid)
 library(rstan)
 
 
-# setwd("~/Documents/TOJ/Follow-Up")
+setwd("~/Documents/TOJ/Follow-Up")
 
 
 ##########################################
@@ -41,15 +41,31 @@ a = ldply(
   , .progress = 'text'
 )
 names(a)[1] = "id"
+a$longprobe = TRUE
+
+b = ldply(
+  .data = list.files(
+    pattern = ".txt"
+    , full.names = T
+    , path = './100msOrLess' 
+    , recursive = T
+  )
+  , .fun = check_before_read
+  , .progress = 'text'
+)
+names(b)[1] = "id"
+b$longprobe = FALSE
+
+a = rbind(a,b)
 
 length(unique(a$id))
 
 length(checksums)
 
-#count trials per id
+# count trials per id
 temp = data.frame(table(id=a$id))
 
-#discard those with too few trials
+# discard those with too few trials
 keep = temp$id[temp$Freq==600]  # 40 * 3 + 240 * 2 = 600
 a = a[a$id %in% keep,]
 
@@ -193,45 +209,45 @@ ggplot(
   )+
   labs(x = "Stimulus Onset Asynchony (Negative Means First Line Appeared on the Right)", y = "Proportion of 'LEFT' Responses")+
   geom_point(size = 4)+
-  geom_point(colour = "grey90")
-  # +theme(legend.position = "none")  # to be blind to the condition 
+  geom_point(colour = "grey90")+
+  theme(legend.position = "none")  # to be blind to the condition 
 
 
 
-#### FOR RAY #### 
-toj_means_by_id_by_condition2 = ddply(
-  .data = toj_trials
-  , .variables = .(block_bias, toj_judgement_type, soa2)
-  , .fun = function(x){
-    to_return = data.frame(
-      value = mean(x$left_first_TF)
-      , factor = paste(unique(x$block_bias), unique(x$toj_judgement_type))
-    )
-    return(to_return)
-  }
-)
-toj_means_by_id_by_condition2$soa2 = as.numeric(as.character(toj_means_by_id_by_condition2$soa2))
-
-ggplot(
-  data = toj_means_by_id_by_condition2
-  , mapping = aes(
-    x = soa2
-    , y =  value
-    , shape = block_bias
-    , linetype = block_bias
-    , group = factor
-    , colour = toj_judgement_type
-  )
-)+
-  geom_smooth(
-    method = "glm"
-    , method.args = list(family = "binomial")
-    , formula = y ~ splines::ns(x,2)
-    , se = FALSE
-  )+
-  labs(x = "Stimulus Onset Asynchony (Negative Means First Line Appeared on the Right)", y = "Proportion of 'LEFT' Responses")+
-  geom_point(size = 4)+
-  geom_point(colour = "grey90")
+# #### FOR RAY #### 
+# toj_means_by_id_by_condition2 = ddply(
+#   .data = toj_trials
+#   , .variables = .(block_bias, toj_judgement_type, soa2)
+#   , .fun = function(x){
+#     to_return = data.frame(
+#       value = mean(x$left_first_TF)
+#       , factor = paste(unique(x$block_bias), unique(x$toj_judgement_type))
+#     )
+#     return(to_return)
+#   }
+# )
+# toj_means_by_id_by_condition2$soa2 = as.numeric(as.character(toj_means_by_id_by_condition2$soa2))
+# 
+# ggplot(
+#   data = toj_means_by_id_by_condition2
+#   , mapping = aes(
+#     x = soa2
+#     , y =  value
+#     , shape = block_bias
+#     , linetype = block_bias
+#     , group = factor
+#     , colour = toj_judgement_type
+#   )
+# )+
+#   geom_smooth(
+#     method = "glm"
+#     , method.args = list(family = "binomial")
+#     , formula = y ~ splines::ns(x,2)
+#     , se = FALSE
+#   )+
+#   labs(x = "Stimulus Onset Asynchony (Negative Means First Line Appeared on the Right)", y = "Proportion of 'LEFT' Responses")+
+#   geom_point(size = 4)+
+#   geom_point(colour = "grey90")
 
 
 
@@ -283,9 +299,10 @@ toj_color_data_for_stan = list(
   , condition_toj = ifelse(toj_trials$block_bias=="LEFT",-1,1) 
   , N_color = length(unique(color_trials$id))
   , L_color = nrow(color_trials)
-  , unit_color = as.numeric(factor(color_trials$id))
+  , id_color = as.numeric(factor(color_trials$id))
   , condition_color = as.numeric(as.factor(color_trials$attended)) 
   # , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) 
+  , condition_probe = ifelse(aggregate(longprobe ~ id, data = toj_trials, FUN = unique)$longprobe == "FALSE", -1, 1)   # if longprobe T, then +1
   , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) 
   , y_color = pi+degree_to_rad(color_trials$p_minus_j)  # want from 0 to 360 instead of -180 to 180
 )
@@ -298,11 +315,22 @@ toj_color_model = stan_model(
 toj_color_post = sampling(
       object = toj_color_model
       , data = toj_color_data_for_stan
-      , iter = 1e4
-      , chains = 8
-      , cores = 8
-      , pars = c('trial_prob', 'p')  
+      , iter = 1e1*5
+      , chains = 4
+      , cores = 4
+      , pars = c('trial_prob', 'p'  # be blind to effects
+                 , 'population_pss_attention_effect_mean'
+                 , 'population_pss_attention_judgement_type_interaction_effect_mean'
+                 , 'population_pss_attention_probe_duration_interaction_effect_mean'
+                 , 'population_log_jnd_attention_effect_mean'
+                 , 'population_log_jnd_attention_judgement_type_interaction_effect_mean'
+                 , 'population_log_jnd_attention_probe_duration_interaction_effect_mean'
+                 , 'population_logit_rho_attention_effect_mean'
+                 , 'population_logit_rho_attention_probe_duration_interaction_effect_mean'
+                 , 'population_log_kappa_attention_effect_mean'
+                 , 'population_log_kappa_attention_probe_duration_interaction_effect_mean')  
+      , control = list(adapt_delta = 0.99)
       , include = FALSE
     )
-save(toj_color_post, file = "FollowUptoj_color_post_June28th2016")
-# print(toj_color_post)
+print(toj_color_post)
+# save(toj_color_post, file = "FollowUptoj_color_post_June28th2016")
