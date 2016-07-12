@@ -14,12 +14,14 @@ data{
   real<lower=0,upper=2*pi()> y_color[L_color]; // color wheel responses (in radians) for each observation
 }
 transformed data{
+  int<lower=1> K;
 	vector[8] zeros ;
 	real neglog2pi;
-  neglog2pi <- -log(2.0 * pi()); // log-probability of uniform component (i.e. data invariant)
+  neglog2pi = -log(2.0 * pi()); // log-probability of uniform component (i.e. data invariant)
 	for(i in 1:8){
-		zeros[i] <- 0 ;
+		zeros[i] = 0 ;
 	}
+	K = max(condition_color);
 }
 parameters{
 	// Population Means
@@ -61,10 +63,10 @@ transformed parameters{
   vector[L_color] p; // for storing log-probabilities
 	{
 	  // Local Inits for TOJ
-		real pss_intercept_per_id[N_toj]; 
-		real pss_effect_per_id[N_toj]; 
-		real logjnd_intercept_per_id[N_toj]; 
-		real logjnd_effect_per_id[N_toj]; 
+		real id_pss_intercept[N_toj]; 
+		real id_pss_effect[N_toj]; 
+		real id_log_jnd_intercept[N_toj]; 
+		real id_log_jnd_effect[N_toj]; 
 		real trial_pss[L_toj]; 
 		real trial_logjnd[L_toj]; 
 		real population_pss_intercept_sd;
@@ -77,91 +79,95 @@ transformed parameters{
     real population_log_kappa_intercept_sd ;
     real population_logit_rho_effect_sd ;
     real population_log_kappa_effect_sd ;
-    vector[N_color] logRho[2]; // subject-level log-rho for each condition
-    vector[N_color] log1mrho_neglog2pi[2]; // subject-level log(1-rho) for each condition
-    vector[N_color] kappa[2]; // eventually used in the model block
-    vector[N_color] rho[2]; // intermediate value
-    vector[N_color] id_logit_rho_intercept; // intermediate value
-    vector[N_color] id_log_kappa_intercept; // intermediate value
-    vector[N_color] id_logit_rho_effect; // intermediate value
-    vector[N_color] id_log_kappa_effect; // intermediate value
+    vector[N_color] id_logit_rho_intercept ;
+    vector[N_color] id_logit_rho_effect ;
+    vector[N_color] id_logit_rho[K] ;
+    vector[N_color] id_log_kappa_intercept ;
+    vector[N_color] id_log_kappa_effect ;
+    vector[N_color] id_log_kappa[K] ;
+    // useful transformations
+    vector[N_color] id_kappa[K] ;
+    vector[N_color] id_inv_sqrt_kappa[K] ;
+    vector[N_color] id_rho[K] ;
 		
 		// Computations for TOJ
-		population_pss_intercept_sd <- tan(zpopulation_pss_intercept_sd) ;
-		population_pss_effect_sd <- tan(zpopulation_pss_effect_sd) ;
-		population_logjnd_intercept_sd <- tan(zpopulation_logjnd_intercept_sd);
-		population_logjnd_effect_sd <- tan(zpopulation_logjnd_effect_sd) ;
+		population_pss_intercept_sd = tan(zpopulation_pss_intercept_sd) ;
+		population_pss_effect_sd = tan(zpopulation_pss_effect_sd) ;
+		population_logjnd_intercept_sd = tan(zpopulation_logjnd_intercept_sd);
+		population_logjnd_effect_sd = tan(zpopulation_logjnd_effect_sd) ;
 		// compute unit-level parameters
 		for(n in 1:N_toj){
-			pss_intercept_per_id[n] <- 
+			id_pss_intercept[n] = 
 			beta[n,1]*population_pss_intercept_sd + population_pss_intercept_mean 
 			+ population_pss_convention_effect_mean*condition_convention[n]/2 ;
 			
-			pss_effect_per_id[n] <- (
+			id_pss_effect[n] = (
 			beta[n,2]*population_pss_effect_sd + population_pss_effect_mean
 			+ population_pss_attention_convention_interaction_effect_mean*condition_convention[n]
 			)/2 ;
 			
-			logjnd_intercept_per_id[n] <- 
+			id_log_jnd_intercept[n] = 
 			beta[n,3]*population_logjnd_intercept_sd + population_logjnd_intercept_mean 
 			+ population_logjnd_convention_effect_mean*condition_convention[n]/2 ;
 			
-			logjnd_effect_per_id[n] <- (
+			id_log_jnd_effect[n] = (
 			beta[n,4]*population_logjnd_effect_sd + population_logjnd_effect_mean
 			+ population_logjnd_attention_convention_interaction_effect_mean*condition_convention[n]
 			)/2 ;
 		}
 		// compute trial-level parameters
 		for(l in 1:L_toj){
-			trial_pss[l] <- pss_intercept_per_id[id_toj[l]] + pss_effect_per_id[id_toj[l]]*condition_toj[l] ;  
-			trial_logjnd[l] <- logjnd_intercept_per_id[id_toj[l]] + logjnd_effect_per_id[id_toj[l]]*condition_toj[l]; 
-			trial_prob[l] <- Phi_approx((x_toj[l]-trial_pss[l])/exp(trial_logjnd[l])) ;
+			trial_pss[l] = id_pss_intercept[id_toj[l]] + id_pss_effect[id_toj[l]]*condition_toj[l] ;  
+			trial_logjnd[l] = id_log_jnd_intercept[id_toj[l]] + id_log_jnd_effect[id_toj[l]]*condition_toj[l]; 
+			trial_prob[l] = Phi_approx((x_toj[l]-trial_pss[l])/exp(trial_logjnd[l])) ;
 		}
 		
   	// Computations for Color Wheel
-    population_logit_rho_intercept_sd <- tan(zpopulation_logit_rho_intercept_sd) ;
-    population_log_kappa_intercept_sd <- tan(zpopulation_log_kappa_intercept_sd) ;
-    population_logit_rho_effect_sd <- tan(zpopulation_logit_rho_effect_sd) ;
-    population_log_kappa_effect_sd <- tan(zpopulation_log_kappa_effect_sd) ;
+    population_logit_rho_intercept_sd = tan(zpopulation_logit_rho_intercept_sd) ;
+    population_log_kappa_intercept_sd = tan(zpopulation_log_kappa_intercept_sd) ;
+    population_logit_rho_effect_sd = tan(zpopulation_logit_rho_effect_sd) ;
+    population_log_kappa_effect_sd = tan(zpopulation_log_kappa_effect_sd) ;
     // compute unit-level parameters
     for(n in 1:N_color){
-      id_logit_rho_intercept[n] <- 
+      id_logit_rho_intercept[n] = 
       beta[n,5]*population_logit_rho_intercept_sd + population_logit_rho_intercept_mean
       + population_logit_rho_convention_effect_mean*condition_convention[n]/2 ;
       
-      id_log_kappa_intercept[n] <- 
+      id_log_kappa_intercept[n] = 
       beta[n,6]*population_log_kappa_intercept_sd + population_log_kappa_intercept_mean 
       + population_log_kappa_convention_effect_mean*condition_convention[n]/2 ;
       
-      id_logit_rho_effect[n] <- 
+      id_logit_rho_effect[n] = 
       beta[n,7]*population_logit_rho_effect_sd + population_logit_rho_attention_effect_mean
       + population_logit_rho_attention_convention_interaction_effect_mean*condition_convention[n] ;
       
-      id_log_kappa_effect[n] <- 
+      id_log_kappa_effect[n] = 
       beta[n,8]*population_log_kappa_effect_sd + population_log_kappa_attention_effect_mean
       + population_log_kappa_attention_convention_interaction_effect_mean*condition_convention[n] ;
       
-      // compute the transforms 
-      rho[1,n] <- inv_logit( id_logit_rho_intercept[n] - id_logit_rho_effect[n]/2 );  
-      rho[2,n] <- inv_logit( id_logit_rho_intercept[n] + id_logit_rho_effect[n]/2 );  
-      kappa[1,n] <- exp( id_log_kappa_intercept[n] - id_log_kappa_effect[n]/2 );
-      kappa[2,n] <- exp( id_log_kappa_intercept[n] + id_log_kappa_effect[n]/2 );
-      logRho[1,n] <- log(rho[1,n]);
-      logRho[2,n] <- log(rho[2,n]);
-      log1mrho_neglog2pi[1,n] <- log1m(rho[1,n]) + neglog2pi;
-      log1mrho_neglog2pi[2,n] <- log1m(rho[2,n]) + neglog2pi;
+      id_logit_rho[1][n] = id_logit_rho_intercept[n] + id_logit_rho_effect[n]/2 ;
+      id_logit_rho[2][n] = id_logit_rho_intercept[n] - id_logit_rho_effect[n]/2 ;
+      id_log_kappa[1][n] = id_log_kappa_intercept[n] + id_log_kappa_effect[n]/2 ;
+      id_log_kappa[2][n] = id_log_kappa_intercept[n] - id_log_kappa_effect[n]/2 ;
+    }
+    // compute the transforms
+    for(i in 1:K){
+      id_kappa[i] = exp(id_log_kappa[i]) ;
+      for(n in 1:N_color){
+        id_inv_sqrt_kappa[i][n] = sqrt(1/id_kappa[i][n]) ;
+        id_rho[i][n] = inv_logit(id_logit_rho[i][n]) ;
+      }
     }
   	// compute trial-level parameters
-    for (l in 1:L_color){
-      p[l] <- log_sum_exp( 
-                            logRho[condition_color[l],id_color[l]] 
-                            + von_mises_log(
-                            y_color[l]
-                            ,pi()
-                            ,kappa[condition_color[l],id_color[l]]
-                            )   
-                            , log1mrho_neglog2pi[condition_color[l],id_color[l]]
-      ) ;
+    for(l in 1:L_color){
+        p[l] = log_mix( //mixture for angle
+                      id_rho[condition_color[l]][id_color[l]]
+                      , von_mises_lpdf(
+                                       y_color[l] | pi()
+                                       , id_kappa[condition_color[l]][id_color[l]]
+                                       )
+                      , neglog2pi
+                      ) ;
     }
 	}
 }
@@ -193,5 +199,5 @@ model{
 	
 	y_toj ~ bernoulli(trial_prob) ;
 	//update the log-probability from p (defined in transformed parameters)
-  increment_log_prob(p) ;
+  target += p ;
 }
