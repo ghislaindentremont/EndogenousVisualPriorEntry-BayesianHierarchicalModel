@@ -1,10 +1,10 @@
 data{
-	int<lower=0> N_toj ;
-	int<lower=0> L_toj ;
-	int<lower=0,upper=1> y_toj[L_toj] ;
-	real x_toj[L_toj] ;
-	int id_toj[L_toj] ;
-	int<lower=-1,upper=1> condition_toj[L_toj] ;
+	int<lower=0> N_toj;
+	int<lower=0> L_toj;
+	int<lower=0,upper=1> y_toj[L_toj];
+	real x_toj[L_toj];
+	int id_toj[L_toj];
+	int<lower=-1,upper=1> condition_toj[L_toj];
 	int<lower=0> N_color;                      
   int<lower=0> L_color;                         
   int<lower=0> id_color[L_color];                 
@@ -15,19 +15,19 @@ data{
   real<lower=0,upper=2*pi()> y_color[L_color]; 
 }
 transformed data{
-  int<lower=1> K ;
-	vector[8] zeros ;
+  int<lower=1> K;
+	vector[8] zeros;
 	real neglog2pi;
   neglog2pi = -log(2.0 * pi()); // log-probability of uniform component (i.e. data invariant)
 	for(i in 1:8){
-		zeros[i] = 0 ;
+		zeros[i] = 0;
 	}
 	K = max(condition_color);
 }
 parameters{
   // Population Means
-	real population_pss_intercept_mean ;
-	real population_pss_attention_effect_mean ;
+	real population_pss_intercept_mean;
+	real population_pss_attention_effect_mean;
 	// real population_pss_initial_bias_effect_mean;
 	real population_pss_judgement_type_effect_mean;
 	real population_pss_probe_duration_effect_mean;
@@ -75,7 +75,7 @@ transformed parameters{
 	real trial_prob[L_toj] ;
   vector[L_color] p ; // for storing log-probabilities
 	{
-	  // local inits for TOJ
+	  // Local Inits for TOJ
 		real id_pss_intercept[N_toj] ; 
 		real id_pss_effect[N_toj] ; 
 		real id_log_jnd_intercept[N_toj] ; 
@@ -83,14 +83,14 @@ transformed parameters{
 		real trial_pss[L_toj] ; 
 		real trial_log_jnd[L_toj] ; 
 		
-    // local inits for color wheel
+    // Local Inits for Color Wheel
     vector[N_color] id_logit_rho_intercept ;
     vector[N_color] id_logit_rho_effect ;
     vector[N_color] id_logit_rho[K] ;
     vector[N_color] id_log_kappa_intercept ;
     vector[N_color] id_log_kappa_effect ;
     vector[N_color] id_log_kappa[K] ;
-    //useful transformations
+    // useful transformations
     vector[N_color] id_kappa[K] ;
     vector[N_color] id_inv_sqrt_kappa[K] ;
     vector[N_color] id_rho[K] ;
@@ -131,6 +131,7 @@ transformed parameters{
 		}
 		
   	// Computations for Color wheel
+  	// compute unit-level parameters
     for(n in 1:N_color){
       id_logit_rho_intercept[n] = 
       beta[n,5]*population_logit_rho_intercept_sd + population_logit_rho_intercept_mean
@@ -152,7 +153,6 @@ transformed parameters{
       + population_log_kappa_attention_probe_duration_interaction_effect_mean * condition_probe[n] ;
       // + population_log_kappa_attention_initial_bias_interaction_effect_mean * condition_initial_bias[n] ;
       
-      // compute unit-level parameters
       id_logit_rho[1][n] = id_logit_rho_intercept[n] + id_logit_rho_effect[n]/2 ;
       id_logit_rho[2][n] = id_logit_rho_intercept[n] - id_logit_rho_effect[n]/2 ;
       id_log_kappa[1][n] = id_log_kappa_intercept[n] + id_log_kappa_effect[n]/2 ;
@@ -198,29 +198,28 @@ model{
 	population_log_jnd_attention_judgement_type_interaction_effect_mean ~ student_t(4,0,1);	
 	population_log_jnd_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,1);
 	population_logit_rho_intercept_mean ~ student_t(4,3,3);
-  population_logit_rho_attention_effect_mean ~ student_t(4,0,2);
-  population_logit_rho_probe_duration_effect_mean ~ student_t(4,0,2);
-  population_logit_rho_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,2);
-  // population_logit_rho_initial_bias_effect_mean ~ student_t(4,0,2);
-  // population_logit_rho_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,2);
+  population_logit_rho_attention_effect_mean ~ student_t(4,0,3);
+  population_logit_rho_probe_duration_effect_mean ~ student_t(4,0,3);
+  population_logit_rho_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,3);
+  // population_logit_rho_initial_bias_effect_mean ~ student_t(4,0,3);
+  // population_logit_rho_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,3);
   population_log_kappa_intercept_mean ~ student_t(4,3,3);
-  population_log_kappa_attention_effect_mean ~ student_t(4,0,2);
-  population_log_kappa_probe_duration_effect_mean ~ student_t(4,0,2);
-  population_log_kappa_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,2);
-  // population_log_kappa_initial_bias_effect_mean ~ student_t(4,0,2);
-  // population_log_kappa_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,2);
+  population_log_kappa_attention_effect_mean ~ student_t(4,0,3);
+  population_log_kappa_probe_duration_effect_mean ~ student_t(4,0,3);
+  population_log_kappa_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,3);
+  // population_log_kappa_initial_bias_effect_mean ~ student_t(4,0,3);
+  // population_log_kappa_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,3);
 
 	// Population SDs
 	population_pss_intercept_sd ~ student_t(4,0,1);
 	population_pss_effect_sd ~ student_t(4,0,1); 
 	population_log_jnd_intercept_sd ~ student_t(4,0,1);
 	population_log_jnd_effect_sd ~ student_t(4,0,1); 
-  population_logit_rho_intercept_sd ~ student_t(4,0,2);
-  population_log_kappa_intercept_sd ~ student_t(4,0,2);
-  population_logit_rho_effect_sd ~ student_t(4,0,2);
-  population_log_kappa_effect_sd ~ student_t(4,0,2);
+  population_logit_rho_intercept_sd ~ student_t(4,0,3);
+  population_log_kappa_intercept_sd ~ student_t(4,0,3);
+  population_logit_rho_effect_sd ~ student_t(4,0,3);
+  population_log_kappa_effect_sd ~ student_t(4,0,3);
 
-  // prior on correlation matrix 
   cor ~ lkj_corr(4) ;
 
 	// sample the betas from standard multivariate normal
@@ -229,6 +228,7 @@ model{
 	}
 	
 	y_toj ~ bernoulli(trial_prob) ;
-  //update the log-probability from p (defined in transformed parameters)
-  target += p ;//used to be: increment_log_prob(p) ;
+  // update the log-probability from p (defined in transformed parameters)
+  target += p ;
 }
+

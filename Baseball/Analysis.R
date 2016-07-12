@@ -4,7 +4,7 @@ library(ggplot2)
 library(grid)
 library(rstan)
 
-
+setwd("~/Documents/TOJ/Baseball/baseballtojdata")
 
 ##########################################
 ####          Data Import             #### 
@@ -304,7 +304,7 @@ toj_color_data_for_stan = list(
   , condition_toj = ifelse(toj_trials$glove_probe_dist==.8,-1,1)  # glove is -1 and base is +1
   , N_color = length(unique(color_trials$id))
   , L_color = nrow(color_trials)
-  , unit_color = as.numeric(factor(color_trials$id))
+  , id_color = as.numeric(factor(color_trials$id))
   , condition_color = as.numeric(as.factor(color_trials$attended)) # TRUE is 2, FALSE is 1 
   , condition_convention = ifelse(aggregate(know_tie_goes_runner~id,data = toj_trials, FUN =unique)$know_tie_goes_runner, -1, 1) # know ('safe' bias) is -1...
   , y_color = pi+degree_to_rad(color_trials$color_diff)  # want from 0 to 360 instead of -180 to 180
@@ -319,13 +319,13 @@ toj_color_post = sampling(
   object = toj_color_model
   , data = toj_color_data_for_stan
   , iter = 1e2
-  , chains = 1
-  , cores = 1
+  , chains = 4
+  , cores = 4
   , pars = c('trial_prob', 'p')
   , include = FALSE
 )
 print(toj_color_post)
-# save(toj_color_post, "toj_color_post_June16th2016")
+save(toj_color_post, file = "TEST_toj_color_post_July12th2016")
 # save(toj_color_post, file = "FORRAYtoj_color_post")
 
 
