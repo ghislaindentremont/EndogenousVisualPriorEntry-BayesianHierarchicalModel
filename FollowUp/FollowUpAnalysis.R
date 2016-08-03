@@ -115,6 +115,8 @@ table(a$t1_type, a$block_num) # good
 # get experimental blocks (3, 5)
 a_exp = a[a$block_num %in% c(3,5),]
 
+# between-subject variables 
+aggregate(id ~ toj_judgement_type + probe_initial_bias + longprobe, data = a, FUN=unique)
 
 
 ##########################################
