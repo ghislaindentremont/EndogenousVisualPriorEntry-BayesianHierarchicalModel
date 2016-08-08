@@ -5,7 +5,7 @@ library(grid)
 library(rstan)
 
 
-setwd("~/Documents/TOJ/Follow-Up")
+setwd("/Users/ray/Experiments/TOJAnalysis/FollowUp")
 
 
 ##########################################
@@ -317,22 +317,12 @@ toj_color_model = stan_model(
 toj_color_post = sampling(
       object = toj_color_model
       , data = toj_color_data_for_stan
-      , iter = 1e1*5
-      , chains = 4
-      , cores = 4
-      , pars = c('trial_prob', 'p'  # be blind to effects
-                 , 'population_pss_attention_effect_mean'
-                 , 'population_pss_attention_judgement_type_interaction_effect_mean'
-                 , 'population_pss_attention_probe_duration_interaction_effect_mean'
-                 , 'population_log_jnd_attention_effect_mean'
-                 , 'population_log_jnd_attention_judgement_type_interaction_effect_mean'
-                 , 'population_log_jnd_attention_probe_duration_interaction_effect_mean'
-                 , 'population_logit_rho_attention_effect_mean'
-                 , 'population_logit_rho_attention_probe_duration_interaction_effect_mean'
-                 , 'population_log_kappa_attention_effect_mean'
-                 , 'population_log_kappa_attention_probe_duration_interaction_effect_mean')  
+      , iter = 1e4
+      , chains = 8
+      , cores = 8
+      , pars = c('trial_prob', 'p')  
       , control = list(adapt_delta = 0.99)
       , include = FALSE
     )
 print(toj_color_post)
-# save(toj_color_post, file = "FollowUptoj_color_post_June28th2016")
+save(toj_color_post, file = "FollowUptoj_color_post_Aug4th2016")
