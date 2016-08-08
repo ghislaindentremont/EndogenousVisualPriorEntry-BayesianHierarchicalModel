@@ -302,10 +302,10 @@ toj_color_data_for_stan = list(
   , N_color = length(unique(color_trials$id))
   , L_color = nrow(color_trials)
   , id_color = as.numeric(factor(color_trials$id))
-  , condition_color = as.numeric(as.factor(color_trials$attended)) 
+  , condition_color = ifelse(color_trials$attended, 1, 2)
   # , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) 
-  , condition_probe = ifelse(aggregate(longprobe ~ id, data = toj_trials, FUN = unique)$longprobe == "FALSE", -1, 1)   # if longprobe T, then +1
-  , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) 
+  , condition_probe = ifelse(aggregate(longprobe ~ id, data = color_trials, FUN = unique)$longprobe == "FALSE", -1, 1)   # if longprobe T, then +1
+  , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = color_trials_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) 
   , y_color = pi+degree_to_rad(color_trials$p_minus_j)  # want from 0 to 360 instead of -180 to 180
 )
 

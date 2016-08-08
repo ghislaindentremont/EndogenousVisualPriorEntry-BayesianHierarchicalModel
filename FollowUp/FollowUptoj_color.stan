@@ -56,10 +56,10 @@ parameters{
   // real population_log_kappa_attention_initial_bias_interaction_effect_mean;
 
 	// Population SDs
-	real<lower=0> population_pss_intercept_sd ;
-	real<lower=0> population_pss_effect_sd ; 
-	real<lower=0> population_log_jnd_intercept_sd ;
-	real<lower=0> population_log_jnd_effect_sd ; 
+	real<lower=0> population_pss_intercept_sd;
+	real<lower=0> population_pss_effect_sd; 
+	real<lower=0> population_log_jnd_intercept_sd;
+	real<lower=0> population_log_jnd_effect_sd; 
   real<lower=0> population_logit_rho_intercept_sd;
   real<lower=0> population_log_kappa_intercept_sd;
   real<lower=0> population_logit_rho_effect_sd;
