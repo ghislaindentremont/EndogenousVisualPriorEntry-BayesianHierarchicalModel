@@ -34,8 +34,8 @@ parameters{
 	// real population_pss_attention_initial_bias_interaction_effect_mean;
 	real population_pss_attention_judgement_type_interaction_effect_mean;	
 	real population_pss_attention_probe_duration_interaction_effect_mean;
-	real population_log_jnd_intercept_mean ;
-	real population_log_jnd_attention_effect_mean ;
+	real population_log_jnd_intercept_mean;
+	real population_log_jnd_attention_effect_mean;
 	// real population_log_jnd_initial_bias_effect_mean;
 	real population_log_jnd_judgement_type_effect_mean;
 	real population_log_jnd_probe_duration_effect_mean;

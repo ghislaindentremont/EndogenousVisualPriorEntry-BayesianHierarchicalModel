@@ -163,7 +163,7 @@ get_corr = function( cor_val, cor_lab) {
 
 
 # get violin plots
-get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = 1500) {
+get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = 10000/2*6) {
   
   label_vec = NULL
   for (i in 1:length(labels)) {
