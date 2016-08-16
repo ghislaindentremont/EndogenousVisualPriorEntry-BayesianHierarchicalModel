@@ -29,10 +29,10 @@ parameters{
 	real population_pss_effect_mean; 
 	real population_pss_convention_effect_mean;
 	real population_pss_attention_convention_interaction_effect_mean;
-	real population_logjnd_intercept_mean;
-	real population_logjnd_effect_mean;
-	real population_logjnd_convention_effect_mean;
-	real population_logjnd_attention_convention_interaction_effect_mean; 
+	real population_log_jnd_intercept_mean;
+	real population_log_jnd_effect_mean;
+	real population_log_jnd_convention_effect_mean;
+	real population_log_jnd_attention_convention_interaction_effect_mean; 
   real population_logit_rho_intercept_mean;
   real population_logit_rho_attention_effect_mean;
   real population_logit_rho_convention_effect_mean;
@@ -46,8 +46,8 @@ parameters{
   // 'Tan Trick' --> equivalent to half-cauchy with lower bound at zero
 	real<lower=0,upper=pi()/2> zpopulation_pss_intercept_sd;
 	real<lower=0,upper=pi()/2> zpopulation_pss_effect_sd; 
-	real<lower=0,upper=pi()/2> zpopulation_logjnd_intercept_sd;
-	real<lower=0,upper=pi()/2> zpopulation_logjnd_effect_sd; 
+	real<lower=0,upper=pi()/2> zpopulation_log_jnd_intercept_sd;
+	real<lower=0,upper=pi()/2> zpopulation_log_jnd_effect_sd; 
   real<lower=0,upper=pi()/2> zpopulation_logit_rho_intercept_sd;
   real<lower=0,upper=pi()/2> zpopulation_logit_rho_effect_sd;
   real<lower=0,upper=pi()/2> zpopulation_log_kappa_intercept_sd;
@@ -68,11 +68,11 @@ transformed parameters{
 		real id_log_jnd_intercept[N_toj]; 
 		real id_log_jnd_effect[N_toj]; 
 		real trial_pss[L_toj]; 
-		real trial_logjnd[L_toj]; 
+		real trial_log_jnd[L_toj]; 
 		real population_pss_intercept_sd;
 		real population_pss_effect_sd; 
-		real population_logjnd_intercept_sd;
-		real population_logjnd_effect_sd; 
+		real population_log_jnd_intercept_sd;
+		real population_log_jnd_effect_sd; 
 		
     // Local Inits for Color Wheel
     real population_logit_rho_intercept_sd ;
@@ -93,8 +93,8 @@ transformed parameters{
 		// Computations for TOJ
 		population_pss_intercept_sd = tan(zpopulation_pss_intercept_sd) ;
 		population_pss_effect_sd = tan(zpopulation_pss_effect_sd) ;
-		population_logjnd_intercept_sd = tan(zpopulation_logjnd_intercept_sd);
-		population_logjnd_effect_sd = tan(zpopulation_logjnd_effect_sd) ;
+		population_log_jnd_intercept_sd = tan(zpopulation_log_jnd_intercept_sd);
+		population_log_jnd_effect_sd = tan(zpopulation_log_jnd_effect_sd) ;
 		// compute unit-level parameters
 		for(n in 1:N_toj){
 			id_pss_intercept[n] = 
@@ -103,23 +103,23 @@ transformed parameters{
 			
 			id_pss_effect[n] = (
 			beta[n,2]*population_pss_effect_sd + population_pss_effect_mean
-			+ population_pss_attention_convention_interaction_effect_mean*condition_convention[n]
+			+ population_pss_attention_convention_interaction_effect_mean*condition_convention[n]/2
 			)/2 ;
 			
 			id_log_jnd_intercept[n] = 
-			beta[n,3]*population_logjnd_intercept_sd + population_logjnd_intercept_mean 
-			+ population_logjnd_convention_effect_mean*condition_convention[n]/2 ;
+			beta[n,3]*population_log_jnd_intercept_sd + population_log_jnd_intercept_mean 
+			+ population_log_jnd_convention_effect_mean*condition_convention[n]/2 ;
 			
 			id_log_jnd_effect[n] = (
-			beta[n,4]*population_logjnd_effect_sd + population_logjnd_effect_mean
-			+ population_logjnd_attention_convention_interaction_effect_mean*condition_convention[n]
+			beta[n,4]*population_log_jnd_effect_sd + population_log_jnd_effect_mean
+			+ population_log_jnd_attention_convention_interaction_effect_mean*condition_convention[n]/2 
 			)/2 ;
 		}
 		// compute trial-level parameters
 		for(l in 1:L_toj){
 			trial_pss[l] = id_pss_intercept[id_toj[l]] + id_pss_effect[id_toj[l]]*condition_toj[l] ;  
-			trial_logjnd[l] = id_log_jnd_intercept[id_toj[l]] + id_log_jnd_effect[id_toj[l]]*condition_toj[l]; 
-			trial_prob[l] = Phi_approx((x_toj[l]-trial_pss[l])/exp(trial_logjnd[l])) ;
+			trial_log_jnd[l] = id_log_jnd_intercept[id_toj[l]] + id_log_jnd_effect[id_toj[l]]*condition_toj[l]; 
+			trial_prob[l] = Phi_approx((x_toj[l]-trial_pss[l])/exp(trial_log_jnd[l])) ;
 		}
 		
   	// Computations for Color Wheel
@@ -139,11 +139,11 @@ transformed parameters{
       
       id_logit_rho_effect[n] = 
       beta[n,7]*population_logit_rho_effect_sd + population_logit_rho_attention_effect_mean
-      + population_logit_rho_attention_convention_interaction_effect_mean*condition_convention[n] ;
+      + population_logit_rho_attention_convention_interaction_effect_mean*condition_convention[n]/2 ;
       
       id_log_kappa_effect[n] = 
       beta[n,8]*population_log_kappa_effect_sd + population_log_kappa_attention_effect_mean
-      + population_log_kappa_attention_convention_interaction_effect_mean*condition_convention[n] ;
+      + population_log_kappa_attention_convention_interaction_effect_mean*condition_convention[n]/2 ;
       
       id_logit_rho[1][n] = id_logit_rho_intercept[n] + id_logit_rho_effect[n]/2 ;
       id_logit_rho[2][n] = id_logit_rho_intercept[n] - id_logit_rho_effect[n]/2 ;
@@ -177,10 +177,10 @@ model{
 	population_pss_effect_mean ~ normal(0,1) ;
 	population_pss_convention_effect_mean ~ normal(0,1) ;
 	population_pss_attention_convention_interaction_effect_mean ~ normal(0,1) ; 
-	population_logjnd_intercept_mean ~ normal(-1,.5) ;
-	population_logjnd_effect_mean ~ normal(0,1) ;
-	population_logjnd_convention_effect_mean ~ normal(0,1) ;
-	population_logjnd_attention_convention_interaction_effect_mean ~ normal(0,1) ;
+	population_log_jnd_intercept_mean ~ normal(-1,.5) ;
+	population_log_jnd_effect_mean ~ normal(0,1) ;
+	population_log_jnd_convention_effect_mean ~ normal(0,1) ;
+	population_log_jnd_attention_convention_interaction_effect_mean ~ normal(0,1) ;
   population_logit_rho_intercept_mean ~ normal(3,3);
   population_logit_rho_attention_effect_mean ~ normal(0,3) ;
   population_logit_rho_convention_effect_mean ~ normal(0,3);

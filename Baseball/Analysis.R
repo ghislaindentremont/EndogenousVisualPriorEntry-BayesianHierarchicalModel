@@ -158,9 +158,6 @@ a= a[a$id != "delta 8 2014-12-04 14:23:37",]
 length(unique(a$id))
 
 
-# ##### for Ray #####
-# a = a[a$know_tie_goes_runner == FALSE,]
-
 
 ##########################################
 ####             TOJ                  #### 
@@ -182,7 +179,7 @@ toj_trials[toj_trials$soa2 == "240",]$soa2 = 250
 toj_trials$soa2[toj_trials$first_arrival == "ball"] = -toj_trials$soa2[toj_trials$first_arrival == "ball"]
 
 # ### save toj trials for posterior predictive check
-# save(toj_trials, file = "../toj_trials.Rdata")
+save(toj_trials, file = "../toj_trials.Rdata")
 
 
 ### Graph participant-wise psychometric functions 
@@ -253,9 +250,8 @@ ggplot(
 
 
 
-
 ##########################################
-####             Color                  #### 
+####             Color                #### 
 ##########################################
 short_angle = function(x, y)
 {
@@ -288,7 +284,7 @@ color_trials$attended[ (color_trials$base_probe_dist == 0.8 & color_trials$probe
 color_trials$color_diff_radians = color_trials$color_diff*pi/180
 
 ### save color trials for posterior predicitve check 
-# save(color_trials, file = "../color_trials.Rdata")
+save(color_trials, file = "../color_trials.Rdata")
 
 
 
@@ -301,7 +297,7 @@ toj_color_data_for_stan = list(
   , y_toj = as.numeric(toj_trials$safe)  
   , x_toj = (as.numeric(toj_trials$soa2))/250  # we normalize soas, and therefore pss
   , id_toj = as.numeric(factor(toj_trials$id))
-  , condition_toj = ifelse(toj_trials$glove_probe_dist==.8,-1,1)  # glove is -1 and base is +1
+  , condition_toj = ifelse(toj_trials$glove_probe_dist==.2,-1,1)  # base is -1 and glove is +1
   , N_color = length(unique(color_trials$id))
   , L_color = nrow(color_trials)
   , id_color = as.numeric(factor(color_trials$id))
@@ -312,21 +308,24 @@ toj_color_data_for_stan = list(
   
 toj_color_model = stan_model(
   file = '../../EndogenousVisualPriorEntry-BayesianHierarchicalModel/Baseball/toj_color.stan'
-  # file = '../FORRAYtoj_color.stan'
 )
 
 toj_color_post = sampling(
   object = toj_color_model
   , data = toj_color_data_for_stan
-  , iter = 1e2
+#   , iter = 1e4*2
+#   , chains = 8
+#   , cores = 8
+  , iter = 100
   , chains = 4
   , cores = 4
   , pars = c('trial_prob', 'p')
   , include = FALSE
 )
 print(toj_color_post)
-save(toj_color_post, file = "TEST2_toj_color_post_July12th2016")
-# save(toj_color_post, file = "FORRAYtoj_color_post")
+# save(toj_color_post, file = "toj_color_post_June16th2016")
+save(toj_color_post, file = "TESTCLEANCODE_toj_color_post_Aug162016")
+
 
 
 
