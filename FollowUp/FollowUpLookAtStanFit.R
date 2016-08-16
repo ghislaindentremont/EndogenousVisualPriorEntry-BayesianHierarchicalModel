@@ -301,11 +301,11 @@ pos_corr2$id = rownames(pos_corr2)
 pos_corr = melt( pos_corr2 )
 names(pos_corr)[2] = c("parameter")
 
-# (1) population_pss_intercept_mean      
+# (1) population_pss_intercept_mean     *
 # (2) population_pss_attention_effect_mean          
-# (3) population_log_jnd_intercept_mean    
+# (3) population_log_jnd_intercept_mean * ^
 # (4) population_log_jnd_attention_effect_mean     
-# (5) population_logit_rho_intercept_mean                         
+# (5) population_logit_rho_intercept_mean ^                  
 # (6) population_log_kappa_intercept_mean                        
 # (7) population_logit_rho_attention_effect_mean                 
 # (8) population_log_kappa_attention_effect_mean 
@@ -483,6 +483,17 @@ get_95_HDI( ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_
               - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_attention_effect_mean/2  ) ) * 250 
 )
 
+# REDUNDANT: get just PSS! 
+get_violin(
+  c(
+    ( (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_attention_effect_mean/2) 
+      - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_attention_effect_mean/2) ) * 250
+    )
+  , c("PSS\nAttention Effect Mean")
+  , y_lab = "SOA (Right - Left; ms)"
+)
+
+
 # effect of judgement type (Q) on PSS and JND
 get_violin(
   c(
@@ -496,6 +507,21 @@ get_violin(
 get_95_HDI(
   ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 )
              - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2  ) ) * 250
+)
+
+# effect of probe duration on PSS and JND
+get_violin(
+  c(
+    ( ex_toj_color_post$population_pss_probe_duration_effect_mean ) * 250 
+    , ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 )
+        - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2  ) ) * 250
+  )
+  , c("PSS Probe\nDuration Effect Mean"  , "JND Probe\nDuration Effect Mean")
+  , y_lab = "SOA (Long - Short; ms)"
+)
+get_95_HDI(
+  ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 )
+    - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2  ) ) * 250
 )
 
 # # effect of initial bias on PSS and JND
@@ -543,7 +569,7 @@ get_violin(
   - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2
      - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
   )
-  , c("PSS Attention Effect\nGiven Second", "PSS Attention Effect\nGiven First")
+  , c("PSS Attention Effect\nGiven Which Second", "PSS Attention Effect\nGiven Which First")
   , y_lab = "SOA (Right - Left; ms)"
 )
 get_95_HDI(
@@ -553,7 +579,7 @@ get_95_HDI(
      - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
 )
 
-#  effect of interaction between probe duration and attention on PSS 
+#  effect of interaction between probe duration and attention on PSS and JND
 get_violin(
   2* c(  # MULTIPLY INTERACTION BY 2 TO GET DIFFERENCE IN DIFFERENCES (Meaningful)
     (ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean) * 250
@@ -580,7 +606,7 @@ get_violin(
     - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
        - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) *250
   )
-  , c("PSS Attention Effect\nGiven Long", "PSS Attention Effect\nGiven Short")
+  , c("PSS Attention Effect\nGiven Long\nProbe Duration", "PSS Attention Effect\nGiven Short\nProbe Duration")
   , y_lab = "SOA (Right - Left; ms)"
 )
 get_95_HDI(
@@ -621,6 +647,11 @@ get_violin(
   , y_lab = "\u03C1 (Long - Short)"
 )
 
+# GET JUST 'LONG' CONDITION
+get_95_HDI(
+  plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_probe_duration_effect_mean/2 )
+)
+
 # get_violin(
 #   ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_judgement_type_effect_mean/2 )
 #     - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_judgement_type_effect_mean/2 ) )
@@ -657,8 +688,14 @@ get_violin(
     - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_probe_duration_effect_mean/2 
      - (ex_toj_color_post$population_logit_rho_attention_effect_mean - ex_toj_color_post$population_logit_rho_attention_probe_duration_interaction_effect_mean )/2 ) 
   )
-  , c("Probability of Encoding\nAttention Effect \nGiven Long Probe Duration","Probability of Encoding\nAttention Effect\nGiven Short Probe Duration")
+  , c("Probability of Encoding\nAttention Effect \nGiven Long\nProbe Duration","Probability of Encoding\nAttention Effect\nGiven Short\nProbe Duration")
   , y_lab = "\u03C1 (Attended - Unattended)"
+)
+get_95_HDI(
+  plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_probe_duration_effect_mean/2 
+         + (ex_toj_color_post$population_logit_rho_attention_effect_mean - ex_toj_color_post$population_logit_rho_attention_probe_duration_interaction_effect_mean )/2 )
+  - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_probe_duration_effect_mean/2 
+           - (ex_toj_color_post$population_logit_rho_attention_effect_mean - ex_toj_color_post$population_logit_rho_attention_probe_duration_interaction_effect_mean )/2 ) 
 )
 #------------------------------- Two-way Interactions -------------------------------------#
 
@@ -729,8 +766,14 @@ get_violin(
     - exp(ex_toj_color_post$population_log_kappa_intercept_mean - ex_toj_color_post$population_log_kappa_probe_duration_effect_mean/2 
              - (ex_toj_color_post$population_log_kappa_attention_effect_mean - ex_toj_color_post$population_log_kappa_attention_probe_duration_interaction_effect_mean )/2 ) 
   )
-  , c("Fidelity of Encoding\nAttention Effect \nGiven Long Probe Duration","Fidelity of Encoding\nAttention Effect\nGiven Short Probe Duration")
-  , y_lab = "\u03BA"
+  , c("Fidelity of Encoding\nAttention Effect \nGiven Long\nProbe Duration","Fidelity of Encoding\nAttention Effect\nGiven Short\nProbe Duration")
+  , y_lab = "\u03BA (Attended - Unattended)"
+)
+get_95_HDI(
+  exp(ex_toj_color_post$population_log_kappa_intercept_mean - ex_toj_color_post$population_log_kappa_probe_duration_effect_mean/2 
+      + (ex_toj_color_post$population_log_kappa_attention_effect_mean - ex_toj_color_post$population_log_kappa_attention_probe_duration_interaction_effect_mean )/2 )
+  - exp(ex_toj_color_post$population_log_kappa_intercept_mean - ex_toj_color_post$population_log_kappa_probe_duration_effect_mean/2 
+        - (ex_toj_color_post$population_log_kappa_attention_effect_mean - ex_toj_color_post$population_log_kappa_attention_probe_duration_interaction_effect_mean )/2 ) 
 )
 #------------------------------- Two-way Interactions -------------------------------------#
 

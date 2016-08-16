@@ -5,7 +5,8 @@ library(grid)
 library(rstan)
 
 
-setwd("/Users/ray/Experiments/TOJAnalysis/FollowUp")
+# setwd("/Users/ray/Experiments/TOJAnalysis/FollowUp")
+setwd("/Users/ghislaindentremont/Documents/TOJ/Follow-Up")
 
 
 ##########################################
@@ -71,6 +72,13 @@ a = a[a$id %in% keep,]
 
 length(unique(a$id))
 
+### get demographics:
+# age
+median(aggregate(age~id, data = a, FUN = unique)$age)
+# females
+sum(aggregate(sex~id, data = a, FUN = unique)$sex == 'f')
+# males (redundant)
+sum(aggregate(sex~id, data = a, FUN = unique)$sex == 'm')
 
 
 #### Type ####
