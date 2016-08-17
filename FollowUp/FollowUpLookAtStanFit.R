@@ -25,32 +25,24 @@ gg_toj_color_post = ggs(toj_color_post)
 param_list = c(
                "population_pss_intercept_mean"
                , "population_pss_attention_effect_mean"
-               # , "population_pss_initial_bias_effect_mean"
                , "population_pss_judgement_type_effect_mean"
                , "population_pss_probe_duration_effect_mean"
-               # , "population_pss_attention_initial_bias_interaction_effect_mean"
                , "population_pss_attention_judgement_type_interaction_effect_mean"	
                , "population_pss_attention_probe_duration_interaction_effect_mean"
                , "population_log_jnd_intercept_mean"
                , "population_log_jnd_attention_effect_mean"
-               # , "population_log_jnd_initial_bias_effect_mean"
                , "population_log_jnd_judgement_type_effect_mean"
                , "population_log_jnd_probe_duration_effect_mean"
-               # , "population_log_jnd_attention_initial_bias_interaction_effect_mean"
                , "population_log_jnd_attention_judgement_type_interaction_effect_mean"	
                , "population_log_jnd_attention_probe_duration_interaction_effect_mean"
                , "population_logit_rho_intercept_mean"
                , "population_logit_rho_attention_effect_mean"
                , "population_logit_rho_probe_duration_effect_mean"
                , "population_logit_rho_attention_probe_duration_interaction_effect_mean"
-               # , "population_logit_rho_initial_bias_effect_mean"
-               # , "population_logit_rho_attention_initial_bias_interaction_effect_mean"
                , "population_log_kappa_intercept_mean"
                , "population_log_kappa_attention_effect_mean"
                , "population_log_kappa_probe_duration_effect_mean"
                , "population_log_kappa_attention_probe_duration_interaction_effect_mean"
-               # , "population_log_kappa_initial_bias_effect_mean"
-               # , "population_log_kappa_attention_initial_bias_interaction_effect_mean"
                , "population_pss_intercept_sd"
                , "population_pss_effect_sd" 
                , "population_log_jnd_intercept_sd"
@@ -128,9 +120,6 @@ pss_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post
 pss_probe_duration_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_probe_duration_effect_mean",]$value
 pss_probe_duration_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_attention_probe_duration_interaction_effect_mean",]$value
 
-# pss_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_initial_bias_effect_mean",]$value
-# pss_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_pss_attention_initial_bias_interaction_effect_mean",]$value
-
 # judgement type
 pss_right_second_long_mean_reps = get_condition_mean_sample(
   ( pss_intercept_mean 
@@ -157,19 +146,14 @@ log_jnd_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_
 log_jnd_probe_duration_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_probe_duration_effect_mean",]$value
 log_jnd_probe_duration_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_attention_probe_duration_interaction_effect_mean",]$value
 
-# log_jnd_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_initial_bias_effect_mean",]$value
-# log_jnd_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_attention_initial_bias_interaction_effect_mean",]$value
-
 # judgement type
 log_jnd_right_second_long_mean_reps = get_condition_mean_sample(
   ( log_jnd_intercept_mean 
   + log_jnd_judgement_type_effect_mean/2
   + log_jnd_probe_duration_effect_mean/2 )
-  # - log_jnd_initial_bias_effect_mean/2 )
   , ( log_jnd_effect_mean 
      + log_jnd_judgement_type_interaction_effect_mean
      + log_jnd_probe_duration_interaction_effect_mean )
-     # - log_jnd_initial_bias_interaction_effect_mean )
   , TRUE
   , "log"
 )
@@ -203,25 +187,15 @@ hist(color_trials[color_trials$attended == FALSE,]$color_diff_radians, breaks = 
 rho_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_intercept_mean",]$value
 rho_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_attention_effect_mean",]$value
 
-# rho_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_judgement_type_effect_mean",]$value
-# rho_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_attention_judgement_type_interaction_effect_mean",]$value
-
 rho_probe_duration_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_probe_duration_effect_mean",]$value
 rho_probe_duration_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_attention_probe_duration_interaction_effect_mean",]$value
-
-# rho_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoInitialBiasEffectMean",]$value
-# rho_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_rho_attention_probe_duration_interaction_effect_mean",]$value
 
 # get condition combination
 rho_right_long_mean_reps = get_condition_mean_sample(
   ( rho_intercept_mean 
-    # + rho_judgement_type_effect_mean/2 
     + rho_probe_duration_effect_mean/2 )
-#     - rho_initial_bias_effect_mean/2 )
   , ( rho_effect_mean 
-      # + rho_judgement_type_interaction_effect_mean 
       + rho_probe_duration_interaction_effect_mean )
-#       - rho_initial_bias_interaction_effect_mean )
   , TRUE
   , "logit"
 )
@@ -230,25 +204,15 @@ rho_right_long_mean_reps = get_condition_mean_sample(
 kappa_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_kappa_intercept_mean",]$value
 kappa_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_kappa_attention_effect_mean",]$value
 
-# kappa_judgement_type_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaJudgementTypeEffectMean",]$value
-# kappa_judgement_type_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_kappa_attention_judgement_type_interaction_effect_mean",]$value
-
 kappa_probe_duration_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_kappa_probe_duration_effect_mean",]$value
 kappa_probe_duration_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_kappa_attention_probe_duration_interaction_effect_mean",]$value
-
-# kappa_initial_bias_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaInitialBiasEffectMean",]$value
-# kappa_initial_bias_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logKappaAttentionInitialBiasEffectMean",]$value
 
 # get condition combination
 kappa_right_long_mean_reps = get_condition_mean_sample(
   ( kappa_intercept_mean 
     + kappa_probe_duration_effect_mean/2)
-#     - kappa_judgement_type_effect_mean/2 
-#     - kappa_initial_bias_effect_mean/2 )
   , ( kappa_effect_mean 
         + kappa_probe_duration_interaction_effect_mean )
-#       - kappa_judgement_type_interaction_effect_mean 
-#       - kappa_initial_bias_interaction_effect_mean )
   , TRUE
   , "log_free"
 )
@@ -331,150 +295,141 @@ betas$participant = rep(c(1:length(unique(toj_trials$id))), times = 8, each = nr
 #-------------------------------------- Get Betas -----------------------------------------#
 
 
-#---------------------------- Rho vs. PSS Effects -----------------------------------------#
-psseffect = extract_samples("population_pss_attention_effect_mean")
-
-psseffectsd = extract_samples("population_pss_effect_sd")
-
-pssjudgementinteraction = extract_samples("population_pss_attention_judgement_type_interaction_effect_mean")
-
-pssinitialbiasinteraction = extract_samples("population_pss_attention_initial_bias_interaction_effect_mean")
-
-pssprobeinteraction = extract_samples("population_pss_attention_probe_duration_interaction_effect_mean")
-
-judgementfactor = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1)
-
-probefactor = ifelse(aggregate(longprobe ~ id, data = color_trials, FUN = unique)$longprobe == "FALSE", -1, 1)
-
-psseffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter ==  "population_pss_attention_effect_mean",]$value
-    psseffect_use = median(psseffect)  + median(psseffectsd)*median(x_use)  + median(pssjudgementinteraction)*judgementfactor[i]+ median(pssprobeinteraction)*probefactor[i]
-    df = data.frame(psseffect_use*250, judgementfactor[i], probefactor[i])
-    names(df) = c("psseffect",  "judgementfactor", "probefactor")
-    return(df)
-  }
-)
-
-logitrhoeffect = extract_samples("population_logit_rho_attention_effect_mean")
-
-logitrhoeffectsd = extract_samples("population_logit_rho_effect_sd")
-
-# logitrhojudgementinteractioneffect = extract_samples("population_logit_rho_attention_judgement_type_interaction_effect_mean")
-
-logitrhoprobeinteractioneffect = extract_samples("population_logit_rho_attention_probe_duration_interaction_effect_mean")
-
-rhoeffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter == "population_logit_rho_attention_effect_mean",]$value
-    logitrhoeffect_use =  median(logitrhoeffect) + median(logitrhoeffectsd)*median(x_use)+ median(logitrhoprobeinteractioneffect)*probefactor[i] #+ median(logitrhojudgementinteractioneffect)*judgementfactor[i]
-    df = data.frame(logitrhoeffect_use, probefactor[i])
-    names(df) = c("logitrhoeffect", "probefactor")
-    return(df)
-  }
-)
-
-psseffect_v_rhoeffect = merge(rhoeffect_ids, psseffect_ids)
-
-ggplot(data = psseffect_v_rhoeffect, aes(y = psseffect, x = logitrhoeffect, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(probefactor)))+
-  scale_y_continuous(name = "PSS Effect Mean")+
-  scale_x_continuous(name = "Logit \u03C1 Effect Mean")+
-  geom_vline(xintercept = 0, linetype = 2, size = 1)+
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  geom_point(size = 4)+
-  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
-  scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
-  scale_fill_manual(name = "Probe\nDuration", labels = c("Short", "Long"), values = c("black", "white")) +
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1))
-
-# NOTE: RECALL THAT COR BELOW IS FOR ATTENTION EFFECT ONLY
-# get_corr(
-#   "value.2.7"
-#   , "Logit \u03C1 vs. PSS Effect Means"
+# #---------------------------- Rho vs. PSS Effects -----------------------------------------#
+# psseffect = extract_samples("population_pss_attention_effect_mean")
+# 
+# psseffectsd = extract_samples("population_pss_effect_sd")
+# 
+# pssjudgementinteraction = extract_samples("population_pss_attention_judgement_type_interaction_effect_mean")
+# 
+# pssinitialbiasinteraction = extract_samples("population_pss_attention_initial_bias_interaction_effect_mean")
+# 
+# pssprobeinteraction = extract_samples("population_pss_attention_probe_duration_interaction_effect_mean")
+# 
+# judgementfactor = ifelse(aggregate(toj_judgement_type ~ id, data = toj_trials, FUN = unique)$toj_judgement_type == "first", -1, 1)
+# 
+# probefactor = ifelse(aggregate(longprobe ~ id, data = color_trials, FUN = unique)$longprobe == "FALSE", -1, 1)
+# 
+# psseffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter ==  "population_pss_attention_effect_mean",]$value
+#     psseffect_use = median(psseffect)  + median(psseffectsd)*median(x_use)  + median(pssjudgementinteraction)*judgementfactor[i]+ median(pssprobeinteraction)*probefactor[i]
+#     df = data.frame(psseffect_use*250, judgementfactor[i], probefactor[i])
+#     names(df) = c("psseffect",  "judgementfactor", "probefactor")
+#     return(df)
+#   }
 # )
-#---------------------------- Rho vs. PSS Effects -----------------------------------------#
-
-
-#---------------------------- Kappa vs. PSS Effects ---------------------------------------#
-logkappaeffect = extract_samples("population_log_kappa_attention_effect_mean")
-
-logkappaeffectsd = extract_samples("population_log_kappa_effect_sd")
-
-# logkappajudgementinteractioneffect = extract_samples("population_log_kappa_attention_judgement_type_interaction_effect_mean")
-
-logkappaprobeinteractioneffect = extract_samples("population_log_kappa_attention_probe_duration_interaction_effect_mean")
-
-kappaeffect_ids = ddply(
-  .data = betas
-  , .variables = .(participant)
-  , .fun = function(x){
-    i = unique(x$participant)
-    x_use = x[x$parameter == "population_log_kappa_attention_effect_mean",]$value
-    logkappaeffect_use =  median(logkappaeffect) + median(logkappaeffectsd)*median(x_use) + median(logkappaprobeinteractioneffect)*probefactor[i] # + median(logkappajudgementinteractioneffect)*judgementfactor[i]
-    df = data.frame(logkappaeffect_use, probefactor[i])
-    names(df) = c("kappaeffect", "probefactor")
-    return(df)
-  }
-)
-
-psseffect_v_kappaeffect = merge(kappaeffect_ids, psseffect_ids)
-
-ggplot(data = psseffect_v_kappaeffect, aes(y = psseffect, x = kappaeffect, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(probefactor)))+ 
-  scale_y_continuous(name = "PSS Effect Mean")+
-  scale_x_continuous(name = "Log \u03BA Effect Mean")+
-  geom_vline(xintercept = 0, linetype = 2, size = 1)+
-  geom_hline(yintercept = 0, linetype = 2, size = 1)+
-  geom_point(size = 4)+
-  scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
-  scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
-  scale_fill_manual(name = "Probe\nDuration", labels = c("Short", "Long"), values = c("black", "white")) +
-  theme_gray(base_size = 30)+
-  theme(panel.grid.major = element_line(size = 1.5)
-        ,panel.grid.minor = element_line(size = 1))
-
-# get_corr(
-#   "value.2.8"
-#   , "Log \u03BA vs. PSS Effect Means"
-# )        
-#---------------------------- Kappa vs. PSS Effects ---------------------------------------#
+# 
+# logitrhoeffect = extract_samples("population_logit_rho_attention_effect_mean")
+# 
+# logitrhoeffectsd = extract_samples("population_logit_rho_effect_sd")
+# 
+# # logitrhojudgementinteractioneffect = extract_samples("population_logit_rho_attention_judgement_type_interaction_effect_mean")
+# 
+# logitrhoprobeinteractioneffect = extract_samples("population_logit_rho_attention_probe_duration_interaction_effect_mean")
+# 
+# rhoeffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter == "population_logit_rho_attention_effect_mean",]$value
+#     logitrhoeffect_use =  median(logitrhoeffect) + median(logitrhoeffectsd)*median(x_use)+ median(logitrhoprobeinteractioneffect)*probefactor[i] #+ median(logitrhojudgementinteractioneffect)*judgementfactor[i]
+#     df = data.frame(logitrhoeffect_use, probefactor[i])
+#     names(df) = c("logitrhoeffect", "probefactor")
+#     return(df)
+#   }
+# )
+# 
+# psseffect_v_rhoeffect = merge(rhoeffect_ids, psseffect_ids)
+# 
+# ggplot(data = psseffect_v_rhoeffect, aes(y = psseffect, x = logitrhoeffect, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(probefactor)))+
+#   scale_y_continuous(name = "PSS Effect Mean")+
+#   scale_x_continuous(name = "Logit \u03C1 Effect Mean")+
+#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   geom_point(size = 4)+
+#   scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
+#   scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
+#   scale_fill_manual(name = "Probe\nDuration", labels = c("Short", "Long"), values = c("black", "white")) +
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1))
+# 
+# # NOTE: RECALL THAT COR BELOW IS FOR ATTENTION EFFECT ONLY
+# # get_corr(
+# #   "value.2.7"
+# #   , "Logit \u03C1 vs. PSS Effect Means"
+# # )
+# #---------------------------- Rho vs. PSS Effects -----------------------------------------#
+# 
+# 
+# #---------------------------- Kappa vs. PSS Effects ---------------------------------------#
+# logkappaeffect = extract_samples("population_log_kappa_attention_effect_mean")
+# 
+# logkappaeffectsd = extract_samples("population_log_kappa_effect_sd")
+# 
+# # logkappajudgementinteractioneffect = extract_samples("population_log_kappa_attention_judgement_type_interaction_effect_mean")
+# 
+# logkappaprobeinteractioneffect = extract_samples("population_log_kappa_attention_probe_duration_interaction_effect_mean")
+# 
+# kappaeffect_ids = ddply(
+#   .data = betas
+#   , .variables = .(participant)
+#   , .fun = function(x){
+#     i = unique(x$participant)
+#     x_use = x[x$parameter == "population_log_kappa_attention_effect_mean",]$value
+#     logkappaeffect_use =  median(logkappaeffect) + median(logkappaeffectsd)*median(x_use) + median(logkappaprobeinteractioneffect)*probefactor[i] # + median(logkappajudgementinteractioneffect)*judgementfactor[i]
+#     df = data.frame(logkappaeffect_use, probefactor[i])
+#     names(df) = c("kappaeffect", "probefactor")
+#     return(df)
+#   }
+# )
+# 
+# psseffect_v_kappaeffect = merge(kappaeffect_ids, psseffect_ids)
+# 
+# ggplot(data = psseffect_v_kappaeffect, aes(y = psseffect, x = kappaeffect, colour = factor(judgementfactor), shape = factor(judgementfactor), fill = factor(probefactor)))+ 
+#   scale_y_continuous(name = "PSS Effect Mean")+
+#   scale_x_continuous(name = "Log \u03BA Effect Mean")+
+#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
+#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
+#   geom_point(size = 4)+
+#   scale_shape_manual(name = "Judgement\nType", labels = c("First", "Second") , values = c(21,22) )+
+#   scale_colour_manual(name = "Judgement\nType", labels =c("First", "Second"), values = c("red", "blue") )+
+#   scale_fill_manual(name = "Probe\nDuration", labels = c("Short", "Long"), values = c("black", "white")) +
+#   theme_gray(base_size = 30)+
+#   theme(panel.grid.major = element_line(size = 1.5)
+#         ,panel.grid.minor = element_line(size = 1))
+# 
+# # get_corr(
+# #   "value.2.8"
+# #   , "Log \u03BA vs. PSS Effect Means"
+# # )        
+# #---------------------------- Kappa vs. PSS Effects ---------------------------------------#
 
 
 
 #------------------------------------------------------------------------------------------#
-#--------------------------------- SOA Scale ----------------------------------------------#
+#--------------------------------- PSS Scale ----------------------------------------------#
 #------------------------------------------------------------------------------------------#
 
-#---------------------------------- SOA Intercepts ----------------------------------------#
+#---------------------------------- PSS Intercept -----------------------------------------#
 get_violin(
-  c(
     ex_toj_color_post$population_pss_intercept_mean * 250
-    , exp( ex_toj_color_post$population_log_jnd_intercept_mean ) * 250
-    )
-  , c("PSS Intercept Mean", "JND Intercept Mean")
+  , "PSS Intercept Mean"
   , y_lab = "SOA (ms)"
-  , hline = FALSE
-  , facet = TRUE
+  , hline = TRUE
 )
-get_95_HDI(exp( ex_toj_color_post$population_log_jnd_intercept_mean ) * 250)
-#---------------------------------- SOA Intercepts ----------------------------------------#
+#---------------------------------- PSS Intercept -----------------------------------------#
 
 
 #---------------------------------- Main Effects ------------------------------------------#
-### PSS
 # effect of attention on PSS
 get_violin(
-  c(
-    ( (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_attention_effect_mean/2) 
-      - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_attention_effect_mean/2) ) * 250
-  )
+  ( ex_toj_color_post$population_pss_attention_effect_mean ) * 250
   , c("PSS\nAttention Effect Mean")
   , y_lab = "SOA (Right - Left; ms)"
 )
@@ -492,136 +447,6 @@ get_violin(
   , "PSS Probe\nDuration Effect Mean" 
   , y_lab = "SOA (Long - Short; ms)"
 )
-
-
-### JND
-pos_attn_pos_judge_pos_probe = 
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-    + (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
-pos_attn_pos_judge_neg_probe = 
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-      + (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
-pos_attn_neg_judge_neg_probe = 
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-      + (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
-pos_attn_neg_judge_pos_probe = 
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-      + (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
-neg_attn_pos_judge_pos_probe =
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-      - (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
-neg_attn_pos_judge_neg_probe = 
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-      - (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
-neg_attn_neg_judge_neg_probe =
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-      - (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
-neg_attn_neg_judge_pos_probe =
-  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
-      - (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-    
-# BAD: effect of attention on JND
-get_violin(
-  ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_attention_effect_mean/2 )
-  - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_attention_effect_mean/2  ) ) * 250 
-  , "JND\nAttention Effect Mean"
-  , y_lab = "SOA (Right - Left; ms)"
-)
-
-# GOOD: effect of attention on JND
-get_violin(
-  ( 
-    ( pos_attn_neg_judge_pos_probe
-    + pos_attn_neg_judge_neg_probe
-    + pos_attn_pos_judge_neg_probe
-    + pos_attn_pos_judge_pos_probe
-    )/4 
-  - 
-    ( neg_attn_neg_judge_pos_probe
-    + neg_attn_neg_judge_neg_probe
-    + neg_attn_pos_judge_neg_probe
-    + neg_attn_pos_judge_pos_probe
-    )/4 
-  ) *250
-  , "JND\nAttention Effect Mean"
-  , y_lab = "SOA (Right - Left; ms)"
-)
-
-# BAD: effect of judgement type (Q) on JND
-get_violin(
-  ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 )
-    - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2  ) ) * 250
-  , "JND Judgement\nType Effect Mean"
-  , y_lab = "SOA (Second - First; ms)"
-)
-
-# GOOD: effect of judgement type (Q) on JND
-get_violin(
-  ( 
-    ( pos_attn_pos_judge_neg_probe
-    + pos_attn_pos_judge_pos_probe
-    + neg_attn_pos_judge_neg_probe
-    + neg_attn_pos_judge_pos_probe
-    )/4 
-  - 
-    ( pos_attn_neg_judge_neg_probe
-    + pos_attn_neg_judge_pos_probe
-    + neg_attn_neg_judge_neg_probe
-    + neg_attn_neg_judge_pos_probe
-    )/4 
-  ) *250  
-  , "JND Judgement\nType Effect Mean"
-  , y_lab = "SOA (Second - First; ms)"
-)
-
-# BAD: effect of probe duration on JND
-get_violin(
-  ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 )
-        - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2  ) ) * 250
-  , "JND Probe\nDuration Effect Mean"
-  , y_lab = "SOA (Long - Short; ms)"
-)
-
-# GOOD: effect of probe duration on JND
-get_violin(
-  ( 
-    ( pos_attn_pos_judge_pos_probe
-    + neg_attn_neg_judge_pos_probe
-    + neg_attn_pos_judge_pos_probe
-    + pos_attn_neg_judge_pos_probe
-    )/4 
-  - 
-    ( pos_attn_pos_judge_neg_probe
-    + pos_attn_neg_judge_neg_probe
-    + neg_attn_neg_judge_neg_probe
-    + neg_attn_pos_judge_neg_probe
-    )/4 
-  ) *250  
-  , "JND Probe\nDuration Effect Mean"
-  , y_lab = "SOA (Long - Short; ms)"
-)
-
-# # effect of initial bias on PSS and JND
-# get_violin(
-#   c(
-#   ( ex_toj_color_post$population_pss_initial_bias_effect_mean ) * 250
-#   , ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_initial_bias_effect_mean/2 )
-#       - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_initial_bias_effect_mean/2  ) ) * 250 
-#   )
-#   , c("PSS Initial Probe\nBias Effect Mean"  , "JND Initial Probe\nBias Effect Mean")
-#   , y_lab = "SOA (Left - Right; ms)"
-# )
-# get_95_HDI(
-#   ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_initial_bias_effect_mean/2 )
-#     - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_initial_bias_effect_mean/2  ) ) * 250 
-# )
 #---------------------------------- Main Effects ---------------------=--------------------#
 
 
@@ -656,7 +481,7 @@ get_95_HDI(
      - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean)/2 ) *250
 )
 
-#  effect of interaction between probe duration and attention on PSS and JND
+#  effect of interaction between probe duration and attention on PSS 
 get_violin(
   # MULTIPLY BY TWO because not properly calculated in .stan
   2 * (ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean) * 250
@@ -685,13 +510,169 @@ get_95_HDI(
   - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
      - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) *250
 )
+#------------------------------- Two-way Interactions -------------------------------------#
 
+
+
+#------------------------------------------------------------------------------------------#
+#--------------------------------- JND Scale ----------------------------------------------#
+#------------------------------------------------------------------------------------------#
+
+
+#---------------------------------- JND Conditions ----------------------------------------#
+pos_attn_pos_judge_pos_probe = 
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      + (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+pos_attn_pos_judge_neg_probe = 
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      + (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+pos_attn_neg_judge_neg_probe = 
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      + (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+pos_attn_neg_judge_pos_probe = 
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      + (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+neg_attn_pos_judge_pos_probe =
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      - (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+neg_attn_pos_judge_neg_probe = 
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      - (ex_toj_color_post$population_log_jnd_attention_effect_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+neg_attn_neg_judge_neg_probe =
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      - (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+neg_attn_neg_judge_pos_probe =
+  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
+      - (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
+
+#---------------------------------- JND Conditions ----------------------------------------#
+
+
+#---------------------------------- JND Intercept -----------------------------------------#
+# BAD:
+get_violin(
+  exp( ex_toj_color_post$population_log_jnd_intercept_mean ) * 250
+  , "JND Intercept Mean"
+  , y_lab = "SOA (ms)"
+  , hline = FALSE
+)
+
+# GOOD:
+get_violin(
+   ( pos_attn_neg_judge_pos_probe
+   + pos_attn_neg_judge_neg_probe
+   + pos_attn_pos_judge_neg_probe
+   + pos_attn_pos_judge_pos_probe
+   + neg_attn_neg_judge_pos_probe
+   + neg_attn_neg_judge_neg_probe
+   + neg_attn_pos_judge_neg_probe
+   + neg_attn_pos_judge_pos_probe
+   )/8 * 250
+  , "JND Intercept Mean"
+  , y_lab = "SOA (ms)"
+  , hline = FALSE
+)
+#---------------------------------- JND Intercept -----------------------------------------#
+
+
+#---------------------------------- Main Effects ------------------------------------------#
+# BAD: effect of attention on JND
+get_violin(
+  ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_attention_effect_mean/2 )
+    - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_attention_effect_mean/2  ) ) * 250 
+  , "JND\nAttention Effect Mean"
+  , y_lab = "SOA (Right - Left; ms)"
+)
+
+# GOOD: effect of attention on JND
+get_violin(
+  ( 
+    ( pos_attn_neg_judge_pos_probe
+      + pos_attn_neg_judge_neg_probe
+      + pos_attn_pos_judge_neg_probe
+      + pos_attn_pos_judge_pos_probe
+    )/4 
+    - 
+      ( neg_attn_neg_judge_pos_probe
+        + neg_attn_neg_judge_neg_probe
+        + neg_attn_pos_judge_neg_probe
+        + neg_attn_pos_judge_pos_probe
+      )/4 
+  ) *250
+  , "JND\nAttention Effect Mean"
+  , y_lab = "SOA (Right - Left; ms)"
+)
+
+# BAD: effect of judgement type (Q) on JND
+get_violin(
+  ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 )
+    - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2  ) ) * 250
+  , "JND Judgement\nType Effect Mean"
+  , y_lab = "SOA (Second - First; ms)"
+)
+
+# GOOD: effect of judgement type (Q) on JND
+get_violin(
+  ( 
+    ( pos_attn_pos_judge_neg_probe
+      + pos_attn_pos_judge_pos_probe
+      + neg_attn_pos_judge_neg_probe
+      + neg_attn_pos_judge_pos_probe
+    )/4 
+    - 
+      ( pos_attn_neg_judge_neg_probe
+        + pos_attn_neg_judge_pos_probe
+        + neg_attn_neg_judge_neg_probe
+        + neg_attn_neg_judge_pos_probe
+      )/4 
+  ) *250  
+  , "JND Judgement\nType Effect Mean"
+  , y_lab = "SOA (Second - First; ms)"
+)
+
+# BAD: effect of probe duration on JND
+get_violin(
+  ( exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 )
+    - exp( ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2  ) ) * 250
+  , "JND Probe\nDuration Effect Mean"
+  , y_lab = "SOA (Long - Short; ms)"
+)
+
+# GOOD: effect of probe duration on JND
+get_violin(
+  ( 
+    ( pos_attn_pos_judge_pos_probe
+      + neg_attn_neg_judge_pos_probe
+      + neg_attn_pos_judge_pos_probe
+      + pos_attn_neg_judge_pos_probe
+    )/4 
+    - 
+      ( pos_attn_pos_judge_neg_probe
+        + pos_attn_neg_judge_neg_probe
+        + neg_attn_neg_judge_neg_probe
+        + neg_attn_pos_judge_neg_probe
+      )/4 
+  ) *250  
+  , "JND Probe\nDuration Effect Mean"
+  , y_lab = "SOA (Long - Short; ms)"
+)
+#---------------------------------- Main Effects ---------------------=--------------------#
+
+
+#------------------------------- Two-way Interactions -------------------------------------#
 #  BAD: effect of interaction between judgement type and attention on JND 
 get_violin(
   # don't devide effects by two...
   ( 
-  exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean)
-  - exp(  ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean)
+    exp( ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean)
+    - exp(  ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean)
   ) *250 
   , "JND Attention\n& Judgement Type\nInteraction Effect Mean"
   , y_lab = "SOA (ms)"
@@ -702,13 +683,13 @@ get_violin(
   ( 
     # average attention effect for positive judgement across probe conditions 
     ( pos_attn_pos_judge_pos_probe - neg_attn_pos_judge_pos_probe
-    + pos_attn_pos_judge_neg_probe - neg_attn_pos_judge_neg_probe
+      + pos_attn_pos_judge_neg_probe - neg_attn_pos_judge_neg_probe
     )/2 
-  -
-    # average attention effect for negative judgement across probe conditions 
-    ( pos_attn_neg_judge_pos_probe - neg_attn_neg_judge_pos_probe
-    + pos_attn_neg_judge_neg_probe - neg_attn_neg_judge_neg_probe
-    )/2
+    -
+      # average attention effect for negative judgement across probe conditions 
+      ( pos_attn_neg_judge_pos_probe - neg_attn_neg_judge_pos_probe
+        + pos_attn_neg_judge_neg_probe - neg_attn_neg_judge_neg_probe
+      )/2
   ) *250 
   , "JND Attention\n& Judgement Type\nInteraction Effect Mean"
   , y_lab = "SOA (ms)"
@@ -730,13 +711,13 @@ get_violin(
   ( 
     # average attention effect for positive probe across judgement conditions 
     ( pos_attn_pos_judge_pos_probe - neg_attn_pos_judge_pos_probe
-    + pos_attn_neg_judge_pos_probe - neg_attn_neg_judge_pos_probe 
+      + pos_attn_neg_judge_pos_probe - neg_attn_neg_judge_pos_probe 
     )/2 
-  -
-    # average attention effect for negative probe across judgement conditions 
-    ( pos_attn_pos_judge_neg_probe - neg_attn_pos_judge_neg_probe
-    + pos_attn_neg_judge_neg_probe - neg_attn_neg_judge_neg_probe
-    )/2
+    -
+      # average attention effect for negative probe across judgement conditions 
+      ( pos_attn_pos_judge_neg_probe - neg_attn_pos_judge_neg_probe
+        + pos_attn_neg_judge_neg_probe - neg_attn_neg_judge_neg_probe
+      )/2
   ) *250 
   , "JND Attention\n& Probe Duration\nInteraction Effect Mean"
   , y_lab = "SOA (ms)"
@@ -744,22 +725,12 @@ get_violin(
 #------------------------------- Two-way Interactions -------------------------------------#
 
 
+
 #------------------------------------------------------------------------------------------#
 #--------------------------------- Rho Scale ----------------------------------------------#
 #------------------------------------------------------------------------------------------#
 
-#---------------------------------- Rho Intercept -----------------------------------------#
-get_violin(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean)
-  , "Probability of Encoding Intercept Mean"
-  , y_lab = "\u03C1"
-  , hline = FALSE
-)
-#---------------------------------- Rho Intercept -----------------------------------------#
-
-
-#-------------------------------- Main Effects --------------------------------------------#
-# define condition-wise posteriors 
+#--------------------------------- Rho Conditions -----------------------------------------#
 rho_pos_attn_pos_probe = 
   plogis(
     ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_probe_duration_effect_mean/2
@@ -783,7 +754,33 @@ rho_neg_attn_pos_probe =
     ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_probe_duration_effect_mean/2
     - (ex_toj_color_post$population_logit_rho_attention_effect_mean + ex_toj_color_post$population_logit_rho_attention_probe_duration_interaction_effect_mean)/2
   )
+#--------------------------------- Rho Conditions -----------------------------------------#
 
+
+#---------------------------------- Rho Intercept -----------------------------------------#
+# BAD:
+get_violin(
+  plogis(ex_toj_color_post$population_logit_rho_intercept_mean)
+  , "Probability of Encoding Intercept Mean"
+  , y_lab = "\u03C1"
+  , hline = FALSE
+)
+
+# GOOD:
+get_violin(
+  ( rho_neg_attn_pos_probe
+    + rho_neg_attn_neg_probe
+    + rho_pos_attn_neg_probe
+    + rho_pos_attn_pos_probe
+  )/4
+  , "Probability of Encoding Intercept Mean"
+  , y_lab = "\u03C1"
+  , hline = FALSE
+)
+#---------------------------------- Rho Intercept -----------------------------------------#
+
+
+#-------------------------------- Main Effects --------------------------------------------#
 # BAD: attention effect
 get_violin(
   ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_attention_effect_mean/2 )
@@ -817,20 +814,6 @@ get_violin(
   , "Probability of Encoding\nProbe Duration Effect Mean"
   , y_lab = "\u03C1 (Long - Short)"
 )
-
-# get_violin(
-#   ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_judgement_type_effect_mean/2 )
-#     - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_judgement_type_effect_mean/2 ) )
-#   , "Probability of Memory\nJudgement Type Effect Mean"
-#   , y_lab = "\u03C1 (Second - First)"
-# )
-# 
-# get_violin(
-#   ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$logitRhoInitialBiasEffectMean/2 )
-#     - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$logitRhoInitialBiasEffectMean/2 ) )
-#   , "Probability of Memory\nInitial Probe Bias Effect Mean"
-#   , y_lab = "\u03C1 (Left - Right)"
-# )
 #-------------------------------- Main Effects --------------------------------------------#
 
 
@@ -888,18 +871,7 @@ get_violin(
 #--------------------------------- Kappa Scale --------------------------------------------#
 #------------------------------------------------------------------------------------------#
  
-#---------------------------------- Kappa Intercept ---------------------------------------#
-get_violin(
-  exp(ex_toj_color_post$population_log_kappa_intercept_mean)
-  , "Fidelity of Memory Intercept Mean"
-  , y_lab = "\u03BA"
-  , hline = FALSE
-)
-#---------------------------------- Kappa Intercept ---------------------------------------#
-
-
-#-------------------------------- Main Effects --------------------------------------------#
-# define condition-wise posteriors 
+#---------------------------------- Kappa Conditions --------------------------------------#
 kappa_pos_attn_pos_probe = 
   exp(
     ex_toj_color_post$population_log_kappa_intercept_mean + ex_toj_color_post$population_log_kappa_probe_duration_effect_mean/2
@@ -923,7 +895,33 @@ kappa_neg_attn_pos_probe =
     ex_toj_color_post$population_log_kappa_intercept_mean + ex_toj_color_post$population_log_kappa_probe_duration_effect_mean/2
     - (ex_toj_color_post$population_log_kappa_attention_effect_mean + ex_toj_color_post$population_log_kappa_attention_probe_duration_interaction_effect_mean)/2
   )
+#---------------------------------- Kappa Conditions --------------------------------------#
 
+
+#---------------------------------- Kappa Intercept ---------------------------------------#
+# BAD:
+get_violin(
+  exp(ex_toj_color_post$population_log_kappa_intercept_mean)
+  , "Fidelity of Memory Intercept Mean"
+  , y_lab = "\u03BA"
+  , hline = FALSE
+)
+
+# GOOD:
+get_violin(
+  ( kappa_neg_attn_pos_probe
+  + kappa_neg_attn_neg_probe
+  + kappa_pos_attn_neg_probe
+  + kappa_pos_attn_pos_probe
+  )/4
+  , "Fidelity of Memory Intercept Mean"
+  , y_lab = "\u03BA"
+  , hline = FALSE
+)
+#---------------------------------- Kappa Intercept ---------------------------------------#
+
+
+#-------------------------------- Main Effects --------------------------------------------#
 # BAD: attention effect
 get_violin(
   ( exp(ex_toj_color_post$population_log_kappa_intercept_mean + ex_toj_color_post$population_log_kappa_attention_effect_mean/2 )
@@ -957,20 +955,6 @@ get_violin(
   , "Fidelity of Encoding Probe Duration Effect Mean"
   , y_lab = "\u03BA (Long - Short)"
 )
-
-# get_violin(
-#   ( exp(ex_toj_color_post$population_log_kappa_intercept_mean + ex_toj_color_post$logKappaJudgementTypeEffectMean/2 )
-#     - exp(ex_toj_color_post$population_log_kappa_intercept_mean - ex_toj_color_post$logKappaJudgementTypeEffectMean/2 ) )
-#   , "Fidelity of Memory\nJudgement Type Effect Mean"
-#   , y_lab = "\u03BA (Second - First)"
-# )
-# 
-# get_violin(
-#   ( exp(ex_toj_color_post$population_log_kappa_intercept_mean + ex_toj_color_post$logKappaInitialBiasEffectMean/2 )
-#     - exp(ex_toj_color_post$population_log_kappa_intercept_mean - ex_toj_color_post$logKappaInitialBiasEffectMean/2 ) )
-#   , "Fidelity of Memory\nInitial Probe Bias Effect Mean"
-#   , y_lab = "\u03BA (Left - Right)"
-# )
 #-------------------------------- Main Effects --------------------------------------------#
 
 
@@ -1030,6 +1014,7 @@ get_violin(
 #------------------------------------------------------------------------------------------#
 
 #---------------------------------- NCFs --------------------------------------------------#
+###BADS:
 # including effects 
 yLeftFirst = pnorm(
   -250:250
@@ -1103,6 +1088,77 @@ yRightSecond = pnorm(
   ) ) * 250
 )
 
+
+### GOODs:
+yLeftFirst = pnorm(
+  -250:250
+  , mean = ( 
+      median(
+      (
+        ( ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2 + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+        - ( ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+      + ( ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2 - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+        - ( ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+      )/2 * 250 
+    )
+  )
+  , sd = median(
+     (neg_attn_neg_judge_neg_probe + neg_attn_neg_judge_pos_probe)/2 * 250
+    )
+)
+
+yLeftSecond = pnorm(
+  -250:250
+  , mean = ( 
+      median(
+      (
+        ( ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_judgement_type_effect_mean/2 + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+          - ( ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+        + ( ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_judgement_type_effect_mean/2 - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+            - ( ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+      )/2 * 250 
+    )
+  )
+  , sd = median(
+    (neg_attn_pos_judge_neg_probe + neg_attn_pos_judge_pos_probe)/2 * 250
+    ) 
+)
+
+yRightFirst = pnorm(
+  -250:250
+  , mean = ( 
+      median(
+      (
+        ( ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2 + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+          + ( ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+        + ( ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_judgement_type_effect_mean/2 - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+            + ( ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+      )/2 * 250 
+    )
+  )
+  , sd = median(
+    (pos_attn_neg_judge_neg_probe + pos_attn_neg_judge_pos_probe)/2 * 250
+  )
+)
+
+yRightSecond = pnorm(
+  -250:250
+  , mean = ( 
+    median(
+      (
+        ( ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_judgement_type_effect_mean/2 + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+          + ( ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+        + ( ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_judgement_type_effect_mean/2 - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+            + ( ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_judgement_type_interaction_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2)
+      )/2 * 250 
+    )
+  )
+  , sd =  median( 
+    (pos_attn_pos_judge_neg_probe + pos_attn_pos_judge_pos_probe)/2 * 250
+  )
+)
+
+### Execute
 df = data.frame(SOA = -250:250
                 , Prop = c(yRightFirst, yRightSecond, yLeftFirst, yLeftSecond)
                 , Attend = c(rep("Right",1002), rep("Left", 1002))
