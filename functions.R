@@ -120,7 +120,6 @@ get_50_HDI = function(y) {
 }
 
 
-
 # get samples for given parameter from extract(stan) object 
 extract_samples = function(parameter, SD = FALSE) {
   if (SD) {
@@ -163,7 +162,7 @@ get_corr = function( cor_val, cor_lab) {
 
 
 # get violin plots
-get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = 10000/2*6) {
+get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = 10000*8) {
   
   label_vec = NULL
   for (i in 1:length(labels)) {
