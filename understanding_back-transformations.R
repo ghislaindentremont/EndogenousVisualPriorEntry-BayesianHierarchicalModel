@@ -10,9 +10,14 @@ library(grid)
 # to get get_violin function
 source('/Users/ghislaindentremont/Documents/TOJ/EndogenousVisualPriorEntry-BayesianHierarchicalModel/functions.R')
 
-#### logit space (rho) ####
-curve(plogis(x), -5 ,5)
 
+#### See curves ####
+# curve(plogis(x), -5 ,5)
+curve(qlogis(x), 0,1)
+curve(log(x), 0, 1)
+
+
+#### logit space (rho) ####
 # input intercept and effect in prob space
 logit_rho_effect_backtransformation = function(intercept, effect, quasi_SD){
   logit_intercept = qlogis(intercept)
