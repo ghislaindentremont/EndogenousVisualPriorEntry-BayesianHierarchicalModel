@@ -690,6 +690,14 @@ get_violin(
   , y_lab = "SOA (ms)"
   , hline = FALSE
 )
+
+# BETTER:
+get_violin(
+  ex_toj_color_post$population_logjnd_intercept_mean
+  , "JND Intercept Mean"
+  , y_lab = "Log of SOA (ms)"
+  , hline = FALSE
+)
 #---------------------------------- JND Intercept -----------------------------------------#
 
 
@@ -710,11 +718,18 @@ get_violin(
   , "JND Attention Effect Mean"
   , y_lab = "SOA (Glove - Base; ms)"
 )
+
+# BETTER:
+get_violin(
+  ex_toj_color_post$population_logjnd_effect_mean
+  , "JND Attention Effect Mean"
+  , y_lab = "Log of SOA (Glove - Base; ms)"
+)
 #---------------------------------- JND Attention Effects ---------------------------------#
 
 
 #--------------------------------- JND Convention Effects ---------------------------------#
-# BAD:
+### BAD:
 get_violin(
   ( exp( ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 )
         - exp( ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_convention_effect_mean/2  ) ) * 250 
@@ -747,7 +762,23 @@ get_95_HDI(
   (jnd_neg_attn_neg_conv + jnd_pos_attn_neg_conv)/2 * 250
 )
 
-# BAD: effect of interaction between convention knowledge and attention on JND
+# BETTER:
+get_violin(
+  ex_toj_color_post$population_logjnd_convention_effect_mean
+  ,  "JND Convention\nEffect Mean"
+  , y_lab = "Log of SOA (Don't Know - Know; ms)"
+)
+# DK 
+get_95_HDI(
+  ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2
+)
+# K
+get_95_HDI(
+  ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_convention_effect_mean/2
+)
+
+
+### BAD: effect of interaction between convention knowledge and attention on JND
 get_violin(
   ( exp(ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean/2) 
     - exp(ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean/2) ) * 250
@@ -765,17 +796,30 @@ get_violin(
   , y_lab = "SOA (ms)"
 )
 
-#  effect of attention on JND by knowledge of convention
+# BETTER: effect of interaction between convention knowledge and attention on JND
+get_violin(
+  2 * ex_toj_color_post$population_logjnd_convention_interaction_effect_mean
+  , "JND Convention Knowledge\nInteraction Effect Mean"
+  , y_lab = "Log of SOA (ms)"
+)
+
+
+### GOOD:  effect of attention on JND by knowledge of convention
 get_violin(
   c(
-    ( (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
-      - (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
-    , ( (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
-        - (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) ) * 250
+    exp(ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) *250
+      - exp(ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) * 250
+    , exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) * 250
+        - exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 )  * 250
   )
   , c("JND Attention Effect\nGiven Don't Know"  , "JND Attention Effect\nGiven Know")
   , y_lab = "SOA (Glove - Base; ms)"
 )
+get_95_HDI(
+  exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) * 250
+  - exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 )  * 250
+)
+
 # DK + A
 get_95_HDI(
   exp(ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) * 250
@@ -792,6 +836,35 @@ get_95_HDI(
 get_95_HDI(
   exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 )  * 250
 )
+
+# BETTER:  effect of attention on JND by knowledge of convention
+get_violin(
+  c(
+    (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
+    - (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 ) 
+    , (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
+    - (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 )
+  )
+  , c("JND Attention Effect\nGiven Don't Know"  , "JND Attention Effect\nGiven Know")
+  , y_lab = "Log of SOA (Glove - Base; ms)"
+)
+# DK + A
+get_95_HDI(
+  (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
+)
+# DK + U
+get_95_HDI(
+  (ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2  ) 
+)
+# K + A
+get_95_HDI(
+  (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) 
+)
+# K + U
+get_95_HDI(
+  (ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 )
+)
+
 #--------------------------------- SOA Convention Effects ---------------------------------#
 
 
@@ -841,6 +914,14 @@ get_violin(
   , y_lab = "\u03C1"
   , hline = FALSE
 )
+
+# BETTER: 
+get_violin(
+  ex_toj_color_post$logitRhoMean
+  , "Probability of Encoding Intercept Mean"
+  , y_lab = "Log-odds of \u03C1"
+  , hline = FALSE
+)
 #---------------------------------- Rho Intercept -----------------------------------------#
 
 
@@ -861,11 +942,18 @@ get_violin(
   , "Probability of Encoding Effect Mean"
   , y_lab = "\u03C1 (Attended - Unattended)"
 )
+
+# BETTER:
+get_violin(
+  ex_toj_color_post$logitRhoEffectMean
+  , "Probability of Encoding Effect Mean"
+  , y_lab = "Log-odds of \u03C1 (Attended - Unattended)"
+)
 #-------------------------------- Rho Attention Effect ------------------------------------#
 
 
 #-------------------------------- Rho Convention Effects ----------------------------------#
-# BAD:
+### BAD:
 get_violin(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2 )
     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2 ) )
@@ -898,7 +986,23 @@ get_95_HDI(
   (rho_neg_attn_neg_conv + rho_pos_attn_neg_conv)/2
 )
 
-# BAD: interaction
+# BETTER:
+get_violin(
+  ex_toj_color_post$logitRhoConventionEffectMean
+  , "Probability of Encoding\nConvention Effect Mean"
+  , y_lab = "Log-odds of \u03C1 (Don't Know - Know)"
+)
+# DK
+get_95_HDI(
+  (ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2)
+)
+# K
+get_95_HDI(
+  (ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2 )
+)
+
+
+### BAD: interaction
 get_violin(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean/2 )
     - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean/2 ) )
@@ -914,7 +1018,14 @@ get_violin(
   , y_lab = "\u03C1"
 )
 
-# effect of attention on rho for each convention knowledge level
+# BETTER: interaction
+get_violin(
+  2 * ex_toj_color_post$logitRhoConventionInteractionEffectMean
+  , "Probability of Encoding\nConvention Knowledge\nInteraction Effect Mean"
+  , y_lab = "Log-odds of \u03C1"
+)
+
+### GOOD: effect of attention on rho for each convention knowledge level
 get_violin(
   c(
   ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
@@ -957,6 +1068,51 @@ get_95_HDI(
   plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
          - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) 
   )
+
+# BETTER:
+get_violin(
+  c(
+    ( (ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+             + (ex_toj_color_post$logitRhoEffectMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+      - (ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+               - (ex_toj_color_post$logitRhoEffectMean +  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) )
+    , ( (ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+               + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+        - (ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+                 - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) )
+  )
+  , c("Probability of Encoding\nAttention Effect\nGiven Don't Know"  , "Probability of Encoding\nAttention Effect\nGiven Know")
+  , y_lab = "Log-odds of \u03C1 (Attended - Unattended)"
+)
+# Know condition estimate 
+get_95_HDI(
+  ( (ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+           + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+    - (ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+             - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) )
+)
+
+# A + DK
+get_95_HDI(
+  (ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+         + (ex_toj_color_post$logitRhoEffectMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+)
+# U + DK
+get_95_HDI(
+  (ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+         - (ex_toj_color_post$logitRhoEffectMean +  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) 
+)
+# A + K
+get_95_HDI(
+  (ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+         + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 )
+)
+# U + K
+get_95_HDI(
+  (ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+         - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean)/2 ) 
+)
+
 #-------------------------------- Rho Convention Effects ----------------------------------#
 
 
@@ -1006,6 +1162,14 @@ get_violin(
   , y_lab = "\u03BA"
   , hline = FALSE
 )
+
+# BETTER:
+get_violin(
+  ex_toj_color_post$logKappaMean
+  , "Fidelity of Encoding Intercept Mean"
+  , y_lab = "Log of \u03BA"
+  , hline = FALSE
+)
 #---------------------------------- Kappa Intercept -----------------------------------------#
 
 
@@ -1026,11 +1190,18 @@ get_violin(
   , "Fidelity of Encoding Effect Mean"
   , y_lab = "\u03BA (Attended - Unattended)"
 )
+
+# BETTER:
+get_violin(
+  ex_toj_color_post$logKappaEffectMean
+  , "Fidelity of Encoding Effect Mean"
+  , y_lab = "Log of \u03BA (Attended - Unattended)"
+)
 #-------------------------------- Kappa Attention Effect ------------------------------------#
 
 
 #-------------------------------- Kappa Convention Effects ----------------------------------#
-# BAD:
+### BAD:
 get_violin(
   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2 )
     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2 ) )
@@ -1063,7 +1234,24 @@ get_95_HDI(
   (Kappa_neg_attn_neg_conv + Kappa_pos_attn_neg_conv)/2
 )
 
-# BAD: interaction
+# BETTER:
+get_violin(
+  ( (ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2 )
+    - (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2 ) )
+  , "Fidelity of Encoding\nConvention Effect Mean"
+  , y_lab = "Log of \u03BA (Don't Know - Know)"
+)
+# DK
+get_95_HDI(
+  (ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2)
+)
+# K
+get_95_HDI(
+  (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2 )
+)
+
+
+### BAD: interaction
 get_violin(
   ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionInteractionEffectMean/2 )
     - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionInteractionEffectMean/2 ) )
@@ -1079,7 +1267,15 @@ get_violin(
   , y_lab = "\u03BA"
 )
 
-# effect of attention on Kappa for each convention knowledge level
+# BETTER: interaction
+get_violin(
+  2 * ex_toj_color_post$logKappaConventionInteractionEffectMean
+  , "Fidelity of Encoding\nConvention Knowledge\nInteraction Effect Mean"
+  , y_lab = "Log of \u03BA"
+)
+
+
+### GOOD: effect of attention on Kappa for each convention knowledge level
 get_violin(
   c(
     ( exp(ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
@@ -1122,132 +1318,249 @@ get_95_HDI(
   exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
          - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) 
 )
+
+# BETTER: effect of attention on Kappa for each convention knowledge level
+get_violin(
+  c(
+    ( (ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
+          + (ex_toj_color_post$logKappaEffectMean + ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+      - (ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
+            - (ex_toj_color_post$logKappaEffectMean +  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) )
+    , ( (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+            + (ex_toj_color_post$logKappaEffectMean - ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+        - (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+              - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) )
+  )
+  , c("Fidelity of Encoding\nAttention Effect\nGiven Don't Know"  , "Fidelity of Encoding\nAttention Effect\nGiven Know")
+  , y_lab = "Log of \u03BA (Attended - Unattended)"
+)
+# Know condition estimate 
+get_95_HDI(
+  ( (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+        + (ex_toj_color_post$logKappaEffectMean - ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+    - (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+          - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) )
+)
+
+# A + DK
+get_95_HDI(
+  (ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
+      + (ex_toj_color_post$logKappaEffectMean + ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+)
+# U + DK
+get_95_HDI(
+  (ex_toj_color_post$logKappaMean + ex_toj_color_post$logKappaConventionEffectMean/2
+      - (ex_toj_color_post$logKappaEffectMean +  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) 
+)
+# A + K
+get_95_HDI(
+  (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+      + (ex_toj_color_post$logKappaEffectMean - ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 )
+)
+# U + K
+get_95_HDI(
+  (ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
+      - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) 
+)
 #-------------------------------- Kappa Convention Effects ----------------------------------#
 
 
 
-# #------------------------------------------------------------------------------------------#
-# #--------------------------------- Graphs -------------------------------------------------#
-# #------------------------------------------------------------------------------------------#
-# 
-# #---------------------------------- NCFs --------------------------------------------------#
-# # including effects 
-# yGloveDontKnow = pnorm(
-#   -250:250
-#   , mean = ( 
-#     median(ex_toj_color_post$population_pss_intercept_mean) + median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
-#     + (
-#      median(ex_toj_color_post$population_pss_effect_mean) 
-#      + median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
-#      )/2 
-#   )* 250
-#   , sd = ( exp( 
-#     median(ex_toj_color_post$population_logjnd_intercept_mean) + median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
-#     + (
-#       median(ex_toj_color_post$population_logjnd_effect_mean) 
-#       + median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
-#       ) /2
-#   ) ) * 250
-# )
-# 
-# yGloveKnow = pnorm(
-#   -250:250
-#   , mean = ( 
-#     median(ex_toj_color_post$population_pss_intercept_mean) - median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
-#     + (
-#       median(ex_toj_color_post$population_pss_effect_mean) 
-#       - median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
-#     )/2 
-#   )* 250
-#   , sd = ( exp( 
-#     median(ex_toj_color_post$population_logjnd_intercept_mean) - median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
-#     + (
-#       median(ex_toj_color_post$population_logjnd_effect_mean) 
-#       - median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
-#     ) /2
-#   ) ) * 250
-# )
-# 
-# yBaseDontKnow = pnorm(
-#   -250:250
-#   , mean = ( 
-#     median(ex_toj_color_post$population_pss_intercept_mean) + median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
-#     - (
-#       median(ex_toj_color_post$population_pss_effect_mean) 
-#       + median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
-#     )/2 
-#   )* 250
-#   , sd = ( exp( 
-#     median(ex_toj_color_post$population_logjnd_intercept_mean) + median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
-#     - (
-#       median(ex_toj_color_post$population_logjnd_effect_mean) 
-#       + median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
-#     ) /2
-#   ) ) * 250
-# )
-# 
-# yBaseKnow = pnorm(
-#   -250:250
-#   , mean = ( 
-#     median(ex_toj_color_post$population_pss_intercept_mean) - median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
-#     - (
-#       median(ex_toj_color_post$population_pss_effect_mean) 
-#       - median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
-#     )/2 
-#   )* 250
-#   , sd = ( exp( 
-#     median(ex_toj_color_post$population_logjnd_intercept_mean) - median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
-#     - (
-#       median(ex_toj_color_post$population_logjnd_effect_mean) 
-#       - median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
-#     ) /2
-#   ) ) * 250
-# )
-# 
-# df = data.frame(SOA = -250:250
-#                 , Prop = c(yGloveDontKnow, yGloveKnow, yBaseDontKnow, yBaseKnow)
-#                 , Attend = c(rep("Glove",1002), rep("Base", 1002))
-#                 , Convention = c(rep( c(rep("Don't Know", 501), rep("Know", 501)), 2) )
-# )
-# 
-# toj_means_by_id_by_condition2 = ddply(
-#   .data = toj_trials
-#   , .variables = .(base_probe_dist, know_tie_goes_runner, soa2)
-#   , .fun = function(x){
-#     to_return = data.frame(
-#       Prop = mean(x$safe)
-#       , Attend = paste( unique(x$base_probe_dist) )
-#       , Convention = paste( unique(x$know_tie_goes_runner) )
-#       , SOA = unique(x$soa2)
-#     )
-#     return(to_return)
-#   }
-# )
-# 
-# levels(toj_means_by_id_by_condition2$Attend) = c("Glove", "Base")
-# levels(toj_means_by_id_by_condition2$Convention) = c("Don't Know", "Know")
-# 
-# 
-# gg = ggplot(data = df, aes(y = Prop, x = SOA, colour = Attend))+
-#   geom_line(size = 1.25)+
-#   # scale_color_manual("Attend", values = c("red", "blue"))+
-#   scale_color_hue("Attend", l = c(60, 15), c = c(100, 50), h = c(240, 360) ) +
-#   labs(x = "SOA (ms)", y = "Proportion of 'Safe' Responses")+
-#   geom_point(data = toj_means_by_id_by_condition2, aes(y = Prop, x = SOA, colour = Attend), size = 4)+
-#   geom_point(data = toj_means_by_id_by_condition2, aes(y = Prop, x = SOA), size = 2.5, colour = "grey90")+
-#   facet_grid(Convention~.)+
-#   theme_gray(base_size = 30)+
-#   theme(panel.grid.major = element_line(size = 1.5)
-#         ,panel.grid.minor = element_line(size = 1))
-#   # define text to add
-#   Text1 = textGrob(label = paste("Out"), gp = gpar(fontsize= 30))
-#   Text2 = textGrob(label = paste("Safe"), gp = gpar(fontsize= 30)) 
-#   gg = gg+
-#   annotation_custom(grob = Text1,  xmin = -200, xmax = -200, ymin = -0.25, ymax = -0.25)+
-#   annotation_custom(grob = Text2,  xmin = 200, xmax = 200, ymin = -0.25, ymax = -0.25)
-#   # Code to override clipping
-#   gg2 <- ggplot_gtable(ggplot_build(gg))
-#   gg2$layout$clip[gg2$layout$name=="panel"] <- "off"
-#   grid.draw(gg2)
-# #---------------------------------- NCFs --------------------------------------------------#
+#------------------------------------------------------------------------------------------#
+#--------------------------------- Graphs -------------------------------------------------#
+#------------------------------------------------------------------------------------------#
+
+#---------------------------------- NCFs --------------------------------------------------#
+### BAD:
+yGloveDontKnow = pnorm(
+  -250:250
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) + median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    + (
+     median(ex_toj_color_post$population_pss_effect_mean) 
+     + median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+     )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) + median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    + (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      + median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+      ) /2
+  ) ) * 250
+)
+
+yGloveKnow = pnorm(
+  -250:250
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) - median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    + (
+      median(ex_toj_color_post$population_pss_effect_mean) 
+      - median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+    )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) - median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    + (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      - median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+    ) /2
+  ) ) * 250
+)
+
+yBaseDontKnow = pnorm(
+  -250:250
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) + median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_pss_effect_mean) 
+      + median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+    )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) + median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      + median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+    ) /2
+  ) ) * 250
+)
+
+yBaseKnow = pnorm(
+  -250:250
+  , mean = ( 
+    median(ex_toj_color_post$population_pss_intercept_mean) - median(ex_toj_color_post$population_pss_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_pss_effect_mean) 
+      - median(ex_toj_color_post$population_pss_convention_interaction_effect_mean)
+    )/2 
+  )* 250
+  , sd = ( exp( 
+    median(ex_toj_color_post$population_logjnd_intercept_mean) - median(ex_toj_color_post$population_logjnd_convention_effect_mean)/2 
+    - (
+      median(ex_toj_color_post$population_logjnd_effect_mean) 
+      - median(ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)
+    ) /2
+  ) ) * 250
+)
+
+# GOOD:
+yGloveDontKnow = pnorm(
+  -250:250
+  , mean = median(
+    ( ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 
+    + (
+      ex_toj_color_post$population_pss_effect_mean
+      + ex_toj_color_post$population_pss_convention_interaction_effect_mean
+    )/2 ) * 250
+  )
+  , sd = median( exp( 
+    ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 
+    + (
+     ex_toj_color_post$population_logjnd_effect_mean
+      + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean
+    ) /2 ) * 250 
+  )
+)
+
+yGloveKnow = pnorm(
+  -250:250
+  , mean = median(
+    ( ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_convention_effect_mean/2 
+      + (
+        ex_toj_color_post$population_pss_effect_mean
+        - ex_toj_color_post$population_pss_convention_interaction_effect_mean
+      )/2 ) * 250
+  )
+  , sd = median( exp( 
+    ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_convention_effect_mean/2 
+    + (
+      ex_toj_color_post$population_logjnd_effect_mean
+      - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean
+    ) /2 ) * 250 
+  )
+)
+
+yBaseDontKnow = pnorm(
+  -250:250
+  , mean = median(
+    ( ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_convention_effect_mean/2 
+      - (
+        ex_toj_color_post$population_pss_effect_mean
+        + ex_toj_color_post$population_pss_convention_interaction_effect_mean
+      )/2 ) * 250
+  )
+  , sd = median( exp( 
+    ex_toj_color_post$population_logjnd_intercept_mean + ex_toj_color_post$population_logjnd_convention_effect_mean/2 
+    - (
+      ex_toj_color_post$population_logjnd_effect_mean
+      + ex_toj_color_post$population_logjnd_convention_interaction_effect_mean
+    ) /2 ) * 250 
+  )
+)
+
+yBaseKnow = pnorm(
+  -250:250
+  , mean = median(
+    ( ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_convention_effect_mean/2 
+      - (
+        ex_toj_color_post$population_pss_effect_mean
+        - ex_toj_color_post$population_pss_convention_interaction_effect_mean
+      )/2 ) * 250
+  )
+  , sd = median( exp( 
+    ex_toj_color_post$population_logjnd_intercept_mean - ex_toj_color_post$population_logjnd_convention_effect_mean/2 
+    - (
+      ex_toj_color_post$population_logjnd_effect_mean
+      - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean
+    ) /2 ) * 250 
+  )
+)
+
+df = data.frame(SOA = -250:250
+                , Prop = c(yGloveDontKnow, yGloveKnow, yBaseDontKnow, yBaseKnow)
+                , Attend = c(rep("Glove",1002), rep("Base", 1002))
+                , Convention = c(rep( c(rep("Don't Know", 501), rep("Know", 501)), 2) )
+)
+
+toj_means_by_id_by_condition2 = ddply(
+  .data = toj_trials
+  , .variables = .(base_probe_dist, know_tie_goes_runner, soa2)
+  , .fun = function(x){
+    to_return = data.frame(
+      Prop = mean(x$safe)
+      , Attend = paste( unique(x$base_probe_dist) )
+      , Convention = paste( unique(x$know_tie_goes_runner) )
+      , SOA = unique(x$soa2)
+    )
+    return(to_return)
+  }
+)
+
+levels(toj_means_by_id_by_condition2$Attend) = c("Glove", "Base")
+levels(toj_means_by_id_by_condition2$Convention) = c("Don't Know", "Know")
+
+
+gg = ggplot(data = df, aes(y = Prop, x = SOA, colour = Attend))+
+  geom_line(size = 1.25)+
+  # scale_color_manual("Attend", values = c("red", "blue"))+
+  scale_color_hue("Attend", l = c(60, 15), c = c(100, 50), h = c(240, 360) ) +
+  labs(x = "SOA (ms)", y = "Proportion of 'Safe' Responses")+
+  geom_point(data = toj_means_by_id_by_condition2, aes(y = Prop, x = SOA, colour = Attend), size = 4)+
+  geom_point(data = toj_means_by_id_by_condition2, aes(y = Prop, x = SOA), size = 2.5, colour = "grey90")+
+  facet_grid(Convention~.)+
+  theme_gray(base_size = 30)+
+  theme(panel.grid.major = element_line(size = 1.5)
+        ,panel.grid.minor = element_line(size = 1))
+  # define text to add
+  Text1 = textGrob(label = paste("Out"), gp = gpar(fontsize= 30))
+  Text2 = textGrob(label = paste("Safe"), gp = gpar(fontsize= 30)) 
+  gg = gg+
+  annotation_custom(grob = Text1,  xmin = -200, xmax = -200, ymin = -0.25, ymax = -0.25)+
+  annotation_custom(grob = Text2,  xmin = 200, xmax = 200, ymin = -0.25, ymax = -0.25)
+  # Code to override clipping
+  gg2 <- ggplot_gtable(ggplot_build(gg))
+  gg2$layout$clip[gg2$layout$name=="panel"] <- "off"
+  grid.draw(gg2)
+#---------------------------------- NCFs --------------------------------------------------#
 

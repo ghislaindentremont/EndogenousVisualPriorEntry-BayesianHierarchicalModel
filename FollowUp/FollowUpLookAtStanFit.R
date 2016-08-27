@@ -825,6 +825,16 @@ get_violin(
   , hline = FALSE
 )
 
+# with long condition only 
+get_violin(
+  ( rho_neg_attn_pos_probe
+    + rho_pos_attn_pos_probe
+  )/2
+  , "Probability of Encoding\nLong Probe Duration\nIntercept Mean"
+  , y_lab = "\u03C1"
+  , hline = FALSE
+)
+
 # BETTER:
 get_violin(
   ex_toj_color_post$population_logit_rho_intercept_mean
