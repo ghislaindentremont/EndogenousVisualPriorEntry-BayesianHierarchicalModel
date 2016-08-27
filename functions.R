@@ -120,7 +120,6 @@ get_50_HDI = function(y) {
 }
 
 
-
 # get samples for given parameter from extract(stan) object 
 extract_samples = function(parameter, SD = FALSE) {
   if (SD) {
@@ -162,10 +161,14 @@ get_corr = function( cor_val, cor_lab) {
 
 
 
-# get violin plots
-samps = readline("How many usable samples (non-warm-up) in total? ")
-get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = samps) {
+iters = as.numeric( 
+  readline(prompt = "How many usable iterations total? ") 
+  )
+
+
   
+# get violin plots
+get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = iters) {
   label_vec = NULL
   for (i in 1:length(labels)) {
     label = rep(labels[i], samps)
