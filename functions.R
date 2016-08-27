@@ -160,9 +160,12 @@ get_corr = function( cor_val, cor_lab) {
 }
 
 
+
 iters = as.numeric( 
   readline(prompt = "How many usable iterations total? ") 
   )
+
+
   
 # get violin plots
 get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps = iters) {
