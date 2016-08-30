@@ -27,6 +27,7 @@ gg_toj_color_post
 # look at structure
 str(gg_toj_color_post)
 
+# THIS LIST IS ADAPTED FOR FUTURE ANALYSES
 # list of parameters to examine
 param_list = c("population_logit_rho_attention_effect_mean"
                , "population_logit_rho_intercept_mean"
@@ -53,6 +54,7 @@ param_list = c("population_logit_rho_attention_effect_mean"
                , "zpopulation_pss_effect_sd"
               , "zpopulation_pss_intercept_sd"
               )
+# THIS LIST IS ADAPTED FOR FUTURE ANALYSES
 
 # look at posteriors
 for (param in param_list) {
@@ -121,63 +123,63 @@ pss_convention_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Par
 
 pss_glove_know_mean_reps = get_condition_mean_sample(
   pss_intercept_mean - pss_convention_effect_mean/2
-  , (pss_effect_mean - pss_convention_interaction_effect_mean/2 )
+  , (pss_effect_mean - pss_convention_interaction_effect_mean )
   , FALSE
   , "null"
 )
 
 pss_glove_dontknow_mean_reps = get_condition_mean_sample(
   pss_intercept_mean + pss_convention_effect_mean/2
-  , (pss_effect_mean + pss_convention_interaction_effect_mean/2 )
+  , (pss_effect_mean + pss_convention_interaction_effect_mean )
   , FALSE
   , "null"
 )
 
 pss_base_know_mean_reps = get_condition_mean_sample(
   pss_intercept_mean - pss_convention_effect_mean/2
-  , (pss_effect_mean - pss_convention_interaction_effect_mean/2 )
+  , (pss_effect_mean - pss_convention_interaction_effect_mean )
   , TRUE
   , "null"
 )
 
 pss_base_dontknow_mean_reps = get_condition_mean_sample(
   pss_intercept_mean + pss_convention_effect_mean/2
-  , (pss_effect_mean + pss_convention_interaction_effect_mean/2 )
+  , (pss_effect_mean + pss_convention_interaction_effect_mean )
   , TRUE
   , "null"
 )
 
 
 ### Get JND Parameters
-jnd_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_intercept_mean",]$value
-jnd_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_effect_mean",]$value
-jnd_convention_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_convention_effect_mean",]$value
-jnd_convention_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_log_jnd_convention_interaction_effect_mean",]$value
+jnd_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_intercept_mean",]$value
+jnd_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_effect_mean",]$value
+jnd_convention_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_convention_effect_mean",]$value
+jnd_convention_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_convention_interaction_effect_mean",]$value
 
 jnd_glove_know_mean_reps = get_condition_mean_sample(
   jnd_intercept_mean - jnd_convention_effect_mean/2
-  , (jnd_effect_mean - jnd_convention_interaction_effect_mean/2 )
+  , (jnd_effect_mean - jnd_convention_interaction_effect_mean )
   , FALSE
   , "log"
 )
 
 jnd_glove_dontknow_mean_reps = get_condition_mean_sample(
   jnd_intercept_mean + jnd_convention_effect_mean/2
-  , (jnd_effect_mean + jnd_convention_interaction_effect_mean/2 )
+  , (jnd_effect_mean + jnd_convention_interaction_effect_mean )
   , FALSE
   , "log"
 )
 
 jnd_base_know_mean_reps = get_condition_mean_sample(
   jnd_intercept_mean - jnd_convention_effect_mean/2
-  , (jnd_effect_mean - jnd_convention_interaction_effect_mean/2 )
+  , (jnd_effect_mean - jnd_convention_interaction_effect_mean )
   , TRUE
   , "log"
 )
 
 jnd_base_dontknow_mean_reps = get_condition_mean_sample(
   jnd_intercept_mean + jnd_convention_effect_mean/2
-  , (jnd_effect_mean + jnd_convention_interaction_effect_mean/2 )
+  , (jnd_effect_mean + jnd_convention_interaction_effect_mean )
   , TRUE
   , "log"
 )
@@ -225,6 +227,61 @@ do_toj_ppc(
 #-------------------------------------- Do TOJ PPC ----------------------------------------#
 
 
+#---------------------------------------- TOJ SDs -----------------------------------------#
+id_all = unique(toj_trials$id)
+get_pss_jnd = function(id_list) {
+  toj_by_condition = ddply(
+    .data = toj_trials[toj_trials$id %in% id_list,]
+    , .variables = .(id, base_probe_dist, know_tie_goes_runner)
+    , .fun = function(x){
+      fit = glm(
+        formula = safe~soa2
+        , data = x
+        # NOTE: The results change trivially depending on the link used
+        , family = binomial(link = "probit")  # default is logit, but I used probit (normal cdf) for Bayesian analysis
+      )
+      to_return = data.frame(
+        id = x$id[1]
+        , pss = -coef(fit)[1]/coef(fit)[2]
+        , slope = coef(fit)[2]
+        , jnd = qnorm(0.84)/coef(fit)[2]  # mathematically the same as half the difference between .16 and .84 points 
+      )
+      return(to_return)
+    }
+  )
+  return(toj_by_condition)
+}
+toj_by_condition = get_pss_jnd(id_all)
+
+toj_pss_SD =  sd(aggregate(pss ~ id, data = toj_by_condition, FUN = mean)$pss)
+
+get_violin( 
+  tan(gg_toj_color_post[gg_toj_color_post$Parameter == "zpopulation_pss_intercept_sd",]$value) * 250
+  , "PSS Intercept sd"
+  , y_lab = "PSS (ms)"
+  , hline = F
+)
+
+# JND
+toj_jnd_SD =  sd(aggregate(jnd ~ id, data = toj_by_condition, FUN = mean)$jnd)
+
+get_violin( 
+  (
+  exp(  # ROUGH ESTIMATE
+    gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_intercept_mean",]$value 
+     + tan(gg_toj_color_post[gg_toj_color_post$Parameter == "zpopulation_logjnd_intercept_sd",]$value) 
+    ) - 
+      exp(
+        gg_toj_color_post[gg_toj_color_post$Parameter == "population_logjnd_intercept_mean",]$value 
+      ) 
+  ) * 250
+  , "JND Intercept sd"
+  , y_lab = "JND (ms)"
+  , hline = F
+)
+#---------------------------------------- TOJ SDs -----------------------------------------#
+
+
 #-------------------------------------- Color Actual Data ---------------------------------#
 hist(color_trials[color_trials$attended == TRUE,]$color_diff_radians, breaks = 30, freq = F, col = rgb(.1,.1,.1,.5))
 hist(color_trials[color_trials$attended == FALSE,]$color_diff_radians, breaks = 30, freq = F, col = rgb(.9,.9,.9,.5), add = T)
@@ -240,28 +297,28 @@ rho_convention_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Par
 
 rho_attend_know_reps = get_condition_mean_sample(
   rho_intercept_mean - rho_convention_effect_mean/2
-  , (rho_effect_mean - rho_convention_interaction_effect_mean/2)
+  , (rho_effect_mean - rho_convention_interaction_effect_mean)
   , TRUE
   , "logit"
   )
 
 rho_attend_dontknow_reps = get_condition_mean_sample(
   rho_intercept_mean + rho_convention_effect_mean/2
-  , (rho_effect_mean + rho_convention_interaction_effect_mean/2)
+  , (rho_effect_mean + rho_convention_interaction_effect_mean)
   , TRUE
   , "logit"
 )
 
 rho_unattend_know_reps = get_condition_mean_sample(
   rho_intercept_mean - rho_convention_effect_mean/2
-  , (rho_effect_mean - rho_convention_interaction_effect_mean/2)
+  , (rho_effect_mean - rho_convention_interaction_effect_mean)
   , FALSE
   , "logit"
 )
 
 rho_unattend_dontknow_reps = get_condition_mean_sample(
   rho_intercept_mean + rho_convention_effect_mean/2
-  , (rho_effect_mean + rho_convention_interaction_effect_mean/2)
+  , (rho_effect_mean + rho_convention_interaction_effect_mean)
   , FALSE
   , "logit"
 )
@@ -274,28 +331,28 @@ kappa_convention_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$P
 
 kappa_attend_know_reps = get_condition_mean_sample(
   kappa_intercept_mean - kappa_convention_effect_mean/2
-  , (kappa_effect_mean - kappa_convention_interaction_effect_mean/2)
+  , (kappa_effect_mean - kappa_convention_interaction_effect_mean)
   , TRUE
   , "log_free"
 )
 
 kappa_attend_dontknow_reps = get_condition_mean_sample(
   kappa_intercept_mean + kappa_convention_effect_mean/2
-  , (kappa_effect_mean + kappa_convention_interaction_effect_mean/2)
+  , (kappa_effect_mean + kappa_convention_interaction_effect_mean)
   , TRUE
   , "log_free"
 )
 
 kappa_unattend_know_reps = get_condition_mean_sample(
   kappa_intercept_mean - kappa_convention_effect_mean/2
-  , (kappa_effect_mean - kappa_convention_interaction_effect_mean/2)
+  , (kappa_effect_mean - kappa_convention_interaction_effect_mean)
   , FALSE
   , "log_free"
 )
 
 kappa_unattend_dontknow_reps = get_condition_mean_sample(
   kappa_intercept_mean + kappa_convention_effect_mean/2
-  , (kappa_effect_mean + kappa_convention_interaction_effect_mean/2)
+  , (kappa_effect_mean + kappa_convention_interaction_effect_mean)
   , FALSE
   , "log_free"
 )
@@ -364,14 +421,24 @@ ggs_caterpillar(gg_toj_color_post, family = "cor", thick_ci = c(0.25, 0.75) ) + 
 detach('package:rstan', unload = T)  # to ensure 
 library(rstan)
 
+# FOR ANALYSIS USED FOR SUBMISSION
 # version so nothing gets flipped twice by accident 
-ex_toj_color_post = extract(toj_color_post)
+ex_toj_color_post2 = extract(toj_color_post)
+
+# flip pss and jnd effects to make positive values indicate predicted results
+ex_toj_color_post = ex_toj_color_post2
+ex_toj_color_post$population_pss_effect_mean = -ex_toj_color_post2$population_pss_effect_mean
+ex_toj_color_post$population_pss_convention_interaction_effect_mean = -ex_toj_color_post2$population_pss_convention_interaction_effect_mean
+ex_toj_color_post$population_logjnd_effect_mean = -ex_toj_color_post2$population_logjnd_effect_mean
+ex_toj_color_post$population_logjnd_convention_interaction_effect_mean = -ex_toj_color_post2$population_logjnd_convention_interaction_effect_mean
+# FOR ANALYSIS USED FOR SUBMISSION
 
 # get correlation posteriors 
 pos_corr2 = data.frame(value = ex_toj_color_post$cor)
 pos_corr2$id = rownames(pos_corr2)
 pos_corr = melt( pos_corr2 )
 names(pos_corr)[2] = c("parameter")
+# WARNING: CORRELATIONS CONTAINING 2s OR (EXCLUSIVE) 4s WILL BE IN THE WRONG DIRECTION
 
 # (1) population_pss_intercept_mean      
 # (2) population_pss_effect_mean          
@@ -392,8 +459,8 @@ proc.time() - ptm
 betas3$parameter = rep( c(
   "population_pss_intercept_mean"      
   , "population_pss_effect_mean"          
-  , "population_log_jnd_intercept_mean"    
-  , "population_log_jnd_effect_mean"     
+  , "population_logjnd_intercept_mean"    
+  , "population_logjnd_effect_mean"     
   , "population_logit_rho_intercept_mean"                       
   , "population_log_kappa_intercept_mean"                       
   , "population_logit_rho_attention_effect_mean"                 
@@ -403,7 +470,90 @@ betas3$parameter = rep( c(
 , each = nrow(betas2)*length(unique(betas3$variable))/8  # 8 is number of parameters 
 )  
 betas3$participant = rep(c(1:length(unique(toj_trials$id))), times = 8, each = nrow(betas2))
+
+# flip betas 
+betas = betas3
+betas[betas$parameter=="population_pss_effect_mean",]$value = -betas3[betas3$parameter=="population_pss_effect_mean" ,]$value
+betas[betas$parameter=="population_logjnd_effect_mean",]$value = -betas3[betas3$parameter=="population_logjnd_effect_mean",]$value
 #-------------------------------------- Get Betas -----------------------------------------#
+
+
+#--------------------------- PSS Intercept Shrinkage --------------------------------------#
+pssinterceptmean = extract_samples("population_pss_intercept_mean")
+
+pssinterceptsd = extract_samples("zpopulation_pss_intercept_sd", TRUE)
+
+pssconventioneffect = extract_samples("population_pss_convention_effect_mean")
+
+conventionfactor = ifelse(aggregate(know_tie_goes_runner~id,data = toj_trials, FUN =unique)$know_tie_goes_runner, -1, 1)
+
+pssintercept_ids = ddply(
+  .data = betas
+  , .variables = .(participant)
+  , .fun = function(x){
+    i = unique(x$participant)
+    x_use = x[x$parameter ==  "population_pss_intercept_mean",]$value
+    pssintercept = median(
+      pssinterceptmean + pssinterceptsd*x_use 
+    + pssconventioneffect*conventionfactor[i]/2
+    )
+    df = data.frame(pssintercept*250, conventionfactor[i])
+    names(df) = c("pssintercept", "conventionfactor")
+    return(df)
+  }
+)
+
+realpssintercept_ids = aggregate(pss ~ id, data = toj_by_condition, FUN = mean)
+  
+plot(as.numeric(realpssintercept_ids$id), realpssintercept_ids$pss, col = 'red')
+abline(h = mean(realpssintercept_ids$pss), col = 'red')
+points(pssintercept_ids$pssintercept, col = 'blue')
+abline(h = mean(pssintercept_ids$pssintercept), col = 'blue')
+
+# compare sd values computed in this way
+sd(realpssintercept_ids$pss)
+sd(pssintercept_ids$pssintercept)
+#--------------------------- PSS Intercept Shrinkage --------------------------------------#
+
+
+#--------------------------- JND Intercept Shrinkage --------------------------------------#
+jndinterceptmean = extract_samples("population_logjnd_intercept_mean")
+
+jndinterceptsd = extract_samples("zpopulation_logjnd_intercept_sd", TRUE)
+
+jndconventioneffect = extract_samples("population_logjnd_convention_effect_mean")
+
+conventionfactor = ifelse(aggregate(know_tie_goes_runner~id,data = toj_trials, FUN =unique)$know_tie_goes_runner, -1, 1)
+
+jndintercept_ids = ddply(
+  .data = betas
+  , .variables = .(participant)
+  , .fun = function(x){
+    i = unique(x$participant)
+    x_use = x[x$parameter ==  "population_logjnd_intercept_mean",]$value
+    jndintercept = median(
+      exp(
+        jndinterceptmean + jndinterceptsd*x_use 
+        + jndconventioneffect*conventionfactor[i]/2
+      )
+    ) 
+    df = data.frame(jndintercept*250, conventionfactor[i])
+    names(df) = c("jndintercept", "conventionfactor")
+    return(df)
+  }
+)
+
+realjndintercept_ids = aggregate(jnd ~ id, data = toj_by_condition, FUN = mean)
+
+plot(as.numeric(realjndintercept_ids$id), realjndintercept_ids$jnd, col = 'red')
+abline(h = mean(realjndintercept_ids$jnd), col = 'red')
+points(jndintercept_ids$jndintercept, col = 'blue')
+abline(h = mean(jndintercept_ids$jndintercept), col = 'blue')
+
+# compare sd values computed in this way
+sd(realjndintercept_ids$jnd)
+sd(jndintercept_ids$jndintercept)
+#--------------------------- JND Intercept Shrinkage --------------------------------------#
 
 
 
