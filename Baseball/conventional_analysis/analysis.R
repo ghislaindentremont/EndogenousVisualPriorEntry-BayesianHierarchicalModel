@@ -222,59 +222,70 @@ medsd = function(x){
   sqrt(   median((x-median(x))^2)    )
 }
 
-#Assesing the bias of particpants (accross conditions).
-toj_means_by_id = ddply(
-  .data = toj_trials
-  , .variables = .(id)
-  , .fun = function(x){
-    fit = glm(
-      formula = safe~soa2
-      , data = x
-      , family = binomial
-    )
-    to_return = data.frame(
-      id = x$id[1]
-      , pss = -coef(fit)[1]/coef(fit)[2]
-      , slope = coef(fit)[2]
-    )
-    return(to_return)
-  }
-)
+# get pss and jnd
+id_all = unique(toj_trials$id)
+get_pss_jnd = function(id_list) {
+  toj_by_condition = ddply(
+    .data = toj_trials[toj_trials$id %in% id_list,]
+    , .variables = .(id, base_probe_dist, know_tie_goes_runner)
+    , .fun = function(x){
+      fit = glm(
+        formula = safe~soa2
+        , data = x
+        # NOTE: The results change trivially depending on the link used
+        , family = binomial(link = "probit")  # default is logit, but I used probit (normal cdf) for Bayesian analysis
+      )
+      to_return = data.frame(
+        id = x$id[1]
+        , pss = -coef(fit)[1]/coef(fit)[2]
+        , slope = coef(fit)[2]
+        , jnd = qnorm(0.84)/coef(fit)[2]  # mathematically the same as half the difference between .16 and .84 points 
+      )
+      return(to_return)
+    }
+  )
+  return(toj_by_condition)
+}
+
+toj_by_condition = get_pss_jnd(id_all)
+
+toj_means_by_id = aggregate(pss~id, data = toj_by_condition, FUN = mean)
+toj_means_by_id$jnd = aggregate(jnd~id, data = toj_by_condition, FUN = mean)$jnd
 
 hist(toj_means_by_id$pss,br=100)
 
-# #### PSS Cutoff ####
-# pss_cuttoff = medsd(toj_means_by_id$pss)*5
-# abline(v=-pss_cuttoff)
-# abline(v=pss_cuttoff)
-# 
-# toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
-# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-# 
-# hist(toj_means_by_id$slope,br=100)
-# slope_cutoff = with(
-#   toj_means_by_id[!toj_means_by_id$toss,]
-# #### SLOPE Cutoff ####
-#   , median(slope)-medsd(slope)*5
-# )
-# abline(v=slope_cutoff)
-# toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$slope[!toj_means_by_id$toss]<slope_cutoff
-# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-# 
-# ggplot(
-#   data = toj_means_by_id
-#   , mapping = aes(
-#     x = pss
-#     , y = slope
-#     , label = id
-#     , colour = toss
-#   )
-# )+
-#   geom_text()
-# 
-# toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
-# print("TOJ Tossed Count:")
-# length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
+#### PSS Cutoff ####
+pss_cuttoff = medsd(toj_means_by_id$pss)*5
+abline(v=-pss_cuttoff)
+abline(v=pss_cuttoff)
+
+toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
+unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+
+hist(toj_means_by_id$jnd,br=100)
+jnd_cutoff = with(
+  toj_means_by_id[!toj_means_by_id$toss,]
+#### JND Cutoff ####
+  , median(jnd)+medsd(jnd)*5
+)
+abline(v=jnd_cutoff)
+toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$jnd[!toj_means_by_id$toss]>jnd_cutoff
+unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+
+ggplot(
+  data = toj_means_by_id
+  , mapping = aes(
+    x = pss
+    , y = jnd
+    , label = id
+    , colour = toss
+  )
+)+
+  geom_text()
+
+toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
+print("TOJ Tossed Count:")
+length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
 
 
 
@@ -312,44 +323,46 @@ hist(color_trials$abs_color_diff, br = 100)
 color_trials$attended = FALSE
 color_trials$attended[ (color_trials$base_probe_dist == 0.8 & color_trials$probe_location == "base") | (color_trials$base_probe_dist == 0.2 & color_trials$probe_location == "glove")] = TRUE
 
-# color_trials$toj_tossed = color_trials$id %in% unique(toj_trials$id[toj_trials$toss])
-# 
-# ggplot(
-#   data = color_trials
-#   , mapping = aes(
-#     x = color_diff
-#     , fill = toj_tossed
-#   )
-# )+
-#   facet_wrap(
-#     ~ id
-#   )+
-#   geom_histogram()
-# 
-# ggplot(
-# 	data = color_trials
-# 	, mapping = aes(
-# 		x = abs_color_diff
-# 		, fill = toj_tossed
-# 	)
-# )+
-# 	facet_wrap(
-# 		~ id
-# 	)+
-# 	geom_histogram()
-# 
-# # toss outlier participants 
-# color_trials = color_trials[!color_trials$toj_tossed,]
-# toj_trials = toj_trials[!toj_trials$toss,]
-# 
-# # make sure we exclude the same participants for each task data set 
-# if (length(unique(color_trials$id)) == length(unique(toj_trials$id)) ){
-#   print("Final Count")
-#   length(unique(color_trials$id))  # what is the participant count?
-# } else {
-#   print("Error: uneven final color wheel and toj trial counts")
-# }
+color_trials$toj_tossed = color_trials$id %in% unique(toj_trials$id[toj_trials$toss])
 
+ggplot(
+  data = color_trials
+  , mapping = aes(
+    x = color_diff
+    , fill = toj_tossed
+  )
+)+
+  facet_wrap(
+    ~ id
+  )+
+  geom_histogram()
+
+ggplot(
+	data = color_trials
+	, mapping = aes(
+		x = abs_color_diff
+		, fill = toj_tossed
+	)
+)+
+	facet_wrap(
+		~ id
+	)+
+	geom_histogram()
+
+# toss outlier participants 
+color_trials = color_trials[!color_trials$toj_tossed,]
+toj_trials = toj_trials[!toj_trials$toss,]
+
+# make sure we exclude the same participants for each task data set 
+if (length(unique(color_trials$id)) == length(unique(toj_trials$id)) ){
+  print("Final Count")
+  length(unique(color_trials$id))  # what is the participant count?
+} else {
+  print("Error: uneven final color wheel and toj trial counts")
+}
+# WITH 5 TIMES MEDIAN SD AWAY FROM MEDIAN EXCLUSION FOR PSS AND JNF:
+# [1] "Final Count"
+# [1] 39
  
 
 ###############################################################################
@@ -384,9 +397,9 @@ color_tot_SD = aggregate(abs_color_diff ~ attended, data=color_means, FUN=sd)
 #   , var.equal = T 
 # )
 # 
-# ### with convention knowledge 
-# color_know = aggregate(abs_color_diff ~ attended + know_tie_goes_runner + id, data=color_trials, FUN = mean)
-# color_know$know_tie_goes_runner = as.factor(as.character(color_know$know_tie_goes_runner))
+### with convention knowledge 
+color_know = aggregate(abs_color_diff ~ attended + know_tie_goes_runner + id, data=color_trials, FUN = mean)
+color_know$know_tie_goes_runner = as.factor(as.character(color_know$know_tie_goes_runner))
 
 # descriptive 
 color_know_means = aggregate(abs_color_diff ~ attended + know_tie_goes_runner, data = color_know, FUN = mean)
@@ -414,6 +427,7 @@ color_know_SD =  aggregate(abs_color_diff ~ attended + know_tie_goes_runner, dat
 
 #----------------------------------- Log Degrees -----------------------------#
 color_means$log_abs_color_diff = log(color_means$abs_color_diff)
+hist(color_means$log_abs_color_diff)
 
 # descriptive statistics 
 color_log_tot_means = aggregate(log_abs_color_diff ~ attended, data=color_means, FUN=mean)
@@ -465,15 +479,6 @@ summary(m)
 #----------------------------------- Log Degrees -----------------------------#
 
 
-
-# #### Median Split Subgroup ####
-# color_means_diff = aggregate(abs_color_diff ~ id, data = color_means, FUN = diff)
-# color_means_diff$abs_color_diff = -color_means_diff$abs_color_diff  # make unattended - attended 
-# med = median(color_means_diff$abs_color_diff)
-# id_keep = color_means_diff[color_means_diff$abs_color_diff > med,]$id
-
-
-
 #-----------------------------------------------------------------------------#
 #                             Mixture Model                                   #
 #-----------------------------------------------------------------------------#
@@ -487,11 +492,15 @@ fitted = ddply(
     , .variables = .(id, attended, know_tie_goes_runner)
     , .fun = function(piece_of_df){
       fit = fit_uvm(piece_of_df$color_diff_radians, do_mu = TRUE)
+      if (fit$rho == 1) {
+        n = length(piece_of_df$color_diff_radians)
+        fit$rho = (2*n-1)/(2*n)
+      }
       to_return = data.frame(
         kappa_prime = fit$kappa_prime
         , kappa = exp(fit$kappa_prime)
         , rho = fit$rho
-        , logit_rho = qlogis(fit$rho - 0.000001) # This is PROBLEMATIC
+        , logit_rho = qlogis(fit$rho)
       )
       return(to_return)
     }
@@ -504,11 +513,15 @@ fitted_id = ddply(
   , .variables = .(id)
   , .fun = function(piece_of_df){
     fit = fit_uvm(piece_of_df$color_diff_radians, do_mu = TRUE)
+    if (fit$rho == 1) {
+      n = length(piece_of_df$color_diff_radians)
+      fit$rho = (2*n-1)/(2*n)
+    }
     to_return = data.frame(
       kappa_prime = fit$kappa_prime
       , kappa = exp(fit$kappa_prime)
       , rho = fit$rho
-      , logit_rho = qlogis(fit$rho - 0.000001) # This is PROBLEMATIC 
+      , logit_rho = qlogis(fit$rho)
     )
     return(to_return)
   }
@@ -556,8 +569,8 @@ color_kappa_prime = aggregate(kappa_prime ~ attended + know_tie_goes_runner + id
 color_kappa_prime$know_tie_goes_runner = as.factor(as.character(color_kappa_prime$know_tie_goes_runner))
 
 # descriptve 
-color_kappa_prime_means = aggregate(kappa_prime ~ attended + know_tie_goes_runner, data = color_kappa, FUN = mean)
-color_kappa_prime_SD =  aggregate(kappa_prime ~ attended + know_tie_goes_runner, data = color_kappa, FUN = sd)
+color_kappa_prime_means = aggregate(kappa_prime ~ attended + know_tie_goes_runner, data = color_kappa_prime, FUN = mean)
+color_kappa_prime_SD =  aggregate(kappa_prime ~ attended + know_tie_goes_runner, data = color_kappa_prime, FUN = sd)
 
 # ASSUMPTIONS
 # (1) Normality 
@@ -571,7 +584,7 @@ color_kappa_prime_SD =  aggregate(kappa_prime ~ attended + know_tie_goes_runner,
 # model
 m = aov(
   formula = kappa_prime ~ attended*know_tie_goes_runner + Error(id/(attended))
-  , dat = color_kappa
+  , dat = color_kappa_prime
 )
 
 # anova
@@ -581,7 +594,7 @@ summary(m)
 
 
 #------------------------- Fidelity (kappa) ----------------------------------#
-kappa_tot_means = aggregate(kappa ~ attended, data = fitted_attn, FUN = mean)
+kappa_tot_means = aggregate(kappa ~ attended, data = fitted, FUN = mean)
 kappa_tot_SD = aggregate(kappa ~ attended, data = fitted, FUN = sd)
 
 # # ASSUMPTIONS
@@ -615,9 +628,9 @@ kappa_tot_SD = aggregate(kappa ~ attended, data = fitted, FUN = sd)
 #   , var.equal = T  # equal variances doesn't make difference
 # )
 # 
-# ### with convention knowledge 
-# color_kappa = aggregate(kappa ~ attended + know_tie_goes_runner + id, data=fitted, FUN = mean)
-# color_kappa$know_tie_goes_runner = as.factor(as.character(color_kappa$know_tie_goes_runner))
+### with convention knowledge 
+color_kappa = aggregate(kappa ~ attended + know_tie_goes_runner + id, data=fitted, FUN = mean)
+color_kappa$know_tie_goes_runner = as.factor(as.character(color_kappa$know_tie_goes_runner))
 
 # descriptve 
 color_kappa_means = aggregate(kappa ~ attended + know_tie_goes_runner, data = color_kappa, FUN = mean)
@@ -647,48 +660,48 @@ color_kappa_SD =  aggregate(kappa ~ attended + know_tie_goes_runner, data = colo
 rho_tot_means = aggregate(rho ~ attended, data = fitted, FUN = mean)
 rho_tot_SD = aggregate(rho ~ attended, data = fitted, FUN = sd)
 
-# ASSUMPTIONS
-# (1) Normality
-m = lm(rho ~ attended, data = fitted)
-plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
-# NOT NORMALLY DISTRIBUTED! 
-# (2) Equal variance
-rho_vars =  aggregate(rho ~ attended, data = fitted, FUN = var)
-# close enough, perhaps...
-
-# how many participants are perfect across the board?
-perfection_count = sum(fitted_all$rho == 1)
-perfection_rate = perfection_count/nrow(fitted_all)
-
-ggplot(
-  data = fitted_all
-  , mapping = aes(rho)  #, fill = attended)
-)+ 
-  geom_histogram(bins = 30)+
-  labs(x = "Probability of Memory", y = "Number of Occurences")+
-  theme_gray(base_size = 18)
-
-ggplot(
-  data = fitted
-  , mapping = aes(rho, fill = attended)
-)+
-  geom_histogram(bins = 20)+
-  # geom_histogram(alpha = 0.5, position = "identity")+
-  scale_fill_discrete(name = "", labels = c("Unattended", "Attended"))+
-  labs(x = "Probability of Memory", y = "Number of Occurences")+
-  theme_gray(base_size = 18)+
-#   geom_vline(xintercept = 0.952, colour = "red")+
-#   geom_vline(xintercept= 0.967, colour = "blue") 
-  facet_grid(attended~.) +
-  theme(strip.background = element_blank(), strip.text = element_blank()) 
-
-# test 
-t.test(
-  formula = rho ~ attended
-  , data = fitted
-  , paired = TRUE
-  , var.equal = T
-)
+# # ASSUMPTIONS
+# # (1) Normality
+# m = lm(rho ~ attended, data = fitted)
+# plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
+# # NOT NORMALLY DISTRIBUTED! 
+# # (2) Equal variance
+# rho_vars =  aggregate(rho ~ attended, data = fitted, FUN = var)
+# # close enough, perhaps...
+# 
+# # how many participants are perfect across the board?
+# perfection_count = sum(fitted_all$rho == 1)
+# perfection_rate = perfection_count/nrow(fitted_all)
+# 
+# ggplot(
+#   data = fitted_all
+#   , mapping = aes(rho)  #, fill = attended)
+# )+ 
+#   geom_histogram(bins = 30)+
+#   labs(x = "Probability of Memory", y = "Number of Occurences")+
+#   theme_gray(base_size = 18)
+# 
+# ggplot(
+#   data = fitted
+#   , mapping = aes(rho, fill = attended)
+# )+
+#   geom_histogram(bins = 20)+
+#   # geom_histogram(alpha = 0.5, position = "identity")+
+#   scale_fill_discrete(name = "", labels = c("Unattended", "Attended"))+
+#   labs(x = "Probability of Memory", y = "Number of Occurences")+
+#   theme_gray(base_size = 18)+
+# #   geom_vline(xintercept = 0.952, colour = "red")+
+# #   geom_vline(xintercept= 0.967, colour = "blue") 
+#   facet_grid(attended~.) +
+#   theme(strip.background = element_blank(), strip.text = element_blank()) 
+# 
+# # test 
+# t.test(
+#   formula = rho ~ attended
+#   , data = fitted
+#   , paired = TRUE
+#   , var.equal = T
+# )
 
 ### with convention knowledge 
 color_rho = aggregate(rho ~ attended + know_tie_goes_runner + id, data=fitted, FUN = mean)
@@ -698,76 +711,9 @@ color_rho$know_tie_goes_runner = as.factor(as.character(color_rho$know_tie_goes_
 color_rho_means = aggregate(rho ~ attended + know_tie_goes_runner, data = color_rho, FUN = mean)
 color_rho_SD =  aggregate(rho ~ attended + know_tie_goes_runner, data = color_rho, FUN = sd)
 
-# ASSUMPTIONS
-# (1) Normality 
-# NOT SURE HOW TO GET RESIDUALS
-# res_list = NULL
-# res_list = c(m$id$residuals, m$`id:know_tie_goes_runner`$residuals, m$`id:attended`$residuals, m$`id:attended:know_tie_goes_runner`$residuals)
-# qqnorm(res_list)
-# qqline(res_list)
-# (2) Sphericity - cannot check because only two levels by factor 
-
-# model
-m = aov(
-  formula = rho ~ attended*know_tie_goes_runner + Error(id/(attended))
-  , dat = color_rho
-)
-
-# anova
-summary(m)
-
-# Count how many P = 1 by condition
-fitted$new_rho = fitted$rho == 1
-fitted$new_rho
-table(fitted$attended, fitted$new_rho)  # pretty clear effect here
-
-# look at effects: attended - unattended 
-# positive means attention increases rho
-rho_effects = aggregate(rho ~ id, data = fitted, FUN = diff) 
-positive_effects_ratio = sum(rho_effects$rho > 0)/nrow(rho_effects) 
-negative_effects_ratio= sum(rho_effects$rho < 0)/nrow(rho_effects) 
-null_effects_ratio = sum(rho_effects$rho == 0)/nrow(rho_effects)
-
-ggplot(
-  data = rho_effects
-  , mapping = aes(rho)  #, fill = attended)
-)+ 
-  geom_histogram(bins = 15)+
-  labs(x = "Probability of Memory Differences: Attended - Unattended", y = "Number of Occurences")+
-  theme_gray(base_size = 18)+
-  scale_x_continuous(breaks = seq(-0.1, 0.2, 0.05))
-#------------------------ Probability (rho) ----------------------------------# 
-
-
-# NOTE: What to do with ceilings as per EM method? 
-# #------------------------ Prob. (logit rho) ----------------------------------#
-# logit_rho_tot_means = aggregate(logit_rho ~ attended, data = fitted, FUN = mean)
-# logit_rho_tot_SD = aggregate(logit_rho ~ attended, data = fitted, FUN = sd)
-# 
-# # ASSUMPTIONS
-# # (1) Normality
-# m = lm(logit_rho ~ attended, data = fitted)
-# plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
-# 
-# # test 
-# t.test(
-#   formula = logit_rho ~ attended
-#   , data = fitted
-#   , paired = TRUE
-#   , var.equal = T
-# )
-# 
-# ### with convention knowledge 
-# color_logit_rho = aggregate(logit_rho ~ attended + know_tie_goes_runner + id, data=fitted, FUN = mean)
-# color_logit_rho$know_tie_goes_runner = as.factor(as.character(color_logit_rho$know_tie_goes_runner))
-# 
-# # descriptive 
-# color_logit_rho_means = aggregate(logit_rho ~ attended + know_tie_goes_runner, data = color_logit_rho, FUN = mean)
-# color_logit_rho_SD =  aggregate(logit_rho ~ attended + know_tie_goes_runner, data = color_logit_rho, FUN = sd)
-# 
 # # ASSUMPTIONS
 # # (1) Normality 
-# # NA NA NA
+# # NOT SURE HOW TO GET RESIDUALS
 # # res_list = NULL
 # # res_list = c(m$id$residuals, m$`id:know_tie_goes_runner`$residuals, m$`id:attended`$residuals, m$`id:attended:know_tie_goes_runner`$residuals)
 # # qqnorm(res_list)
@@ -776,13 +722,80 @@ ggplot(
 # 
 # # model
 # m = aov(
-#   formula = logit_rho ~ attended*know_tie_goes_runner + Error(id/(attended*know_tie_goes_runner))
-#   , dat = color_logit_rho
+#   formula = rho ~ attended*know_tie_goes_runner + Error(id/(attended))
+#   , dat = color_rho
 # )
 # 
 # # anova
 # summary(m)
-# #------------------------ Prob. (logit rho) ----------------------------------# 
+# 
+# # Count how many P = 1 by condition
+# fitted$new_rho = fitted$rho == 1
+# fitted$new_rho
+# table(fitted$attended, fitted$new_rho)  # pretty clear effect here
+# 
+# # look at effects: attended - unattended 
+# # positive means attention increases rho
+# rho_effects = aggregate(rho ~ id, data = fitted, FUN = diff) 
+# positive_effects_ratio = sum(rho_effects$rho > 0)/nrow(rho_effects) 
+# negative_effects_ratio= sum(rho_effects$rho < 0)/nrow(rho_effects) 
+# null_effects_ratio = sum(rho_effects$rho == 0)/nrow(rho_effects)
+# 
+# ggplot(
+#   data = rho_effects
+#   , mapping = aes(rho)  #, fill = attended)
+# )+ 
+#   geom_histogram(bins = 15)+
+#   labs(x = "Probability of Memory Differences: Attended - Unattended", y = "Number of Occurences")+
+#   theme_gray(base_size = 18)+
+#   scale_x_continuous(breaks = seq(-0.1, 0.2, 0.05))
+#------------------------ Probability (rho) ----------------------------------# 
+
+
+
+#------------------------ Prob. (logit rho) ----------------------------------#
+logit_rho_tot_means = aggregate(logit_rho ~ attended, data = fitted, FUN = mean)
+logit_rho_tot_SD = aggregate(logit_rho ~ attended, data = fitted, FUN = sd)
+
+# ASSUMPTIONS
+# (1) Normality
+m = lm(logit_rho ~ attended, data = fitted)
+plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
+
+# test 
+t.test(
+  formula = logit_rho ~ attended
+  , data = fitted
+  , paired = TRUE
+  , var.equal = T
+)
+
+### with convention knowledge 
+color_logit_rho = aggregate(logit_rho ~ attended + know_tie_goes_runner + id, data=fitted, FUN = mean)
+color_logit_rho$know_tie_goes_runner = as.factor(as.character(color_logit_rho$know_tie_goes_runner))
+
+# descriptive 
+color_logit_rho_means = aggregate(logit_rho ~ attended + know_tie_goes_runner, data = color_logit_rho, FUN = mean)
+color_logit_rho_SD =  aggregate(logit_rho ~ attended + know_tie_goes_runner, data = color_logit_rho, FUN = sd)
+
+# ASSUMPTIONS
+# (1) Normality 
+# NA NA NA
+# res_list = NULL
+# res_list = c(m$id$residuals, m$`id:know_tie_goes_runner`$residuals, m$`id:attended`$residuals, m$`id:attended:know_tie_goes_runner`$residuals)
+# qqnorm(res_list)
+# qqline(res_list)
+# (2) Sphericity - cannot check because only two levels by factor 
+
+# model
+m = aov(
+  formula = logit_rho ~ attended*know_tie_goes_runner + Error(id/(attended))
+  , dat = color_logit_rho
+)
+
+# anova
+summary(m)
+#------------------------ Prob. (logit rho) ----------------------------------# 
 
 
 
@@ -853,33 +866,11 @@ get_psycho_function = function(id_list) {
 id_all = unique(toj_trials$id)
 get_psycho_function(id_all)
 
-# function for pss and slope extraction
-get_pss_slope = function(id_list) {
-  toj_by_condition = ddply(
-    .data = toj_trials[toj_trials$id %in% id_list,]
-    , .variables = .(id, base_probe_dist, know_tie_goes_runner)
-    , .fun = function(x){
-      fit = glm(
-        formula = safe~soa2
-        , data = x
-        , family = binomial
-      )
-      to_return = data.frame(
-        id = x$id[1]
-        , pss = -coef(fit)[1]/coef(fit)[2]
-        , slope = coef(fit)[2]
-        , jnd = qlogis(0.84)/coef(fit)[2]  # mathematicall the same as half the difference between .16 and .84 points 
-      )
-      return(to_return)
-    }
-  )
-  return(toj_by_condition)
-}
+# NOTE: should now be down to 39 Ps
+toj_by_condition = get_pss_jnd(id_all)
 
  
 #------------------------------- PSS -----------------------------------------# 
-toj_by_condition = get_pss_slope(id_all)
-
 # descriptive 
 TOJ_pss_means = aggregate(pss ~ base_probe_dist, data = toj_by_condition, FUN = mean)
 TOJ_pss_SD = aggregate(pss ~ base_probe_dist, data = toj_by_condition, FUN = sd)
@@ -934,61 +925,6 @@ summary(m)
 #------------------------------- PSS -----------------------------------------# 
 
 
-#------------------------------- slope ---------------------------------------# 
-# descriptive 
-TOJ_slope_means = aggregate(slope ~ base_probe_dist, data = toj_by_condition, FUN = mean)
-TOJ_slope_SD = aggregate(slope ~ base_probe_dist, data = toj_by_condition, FUN = sd)
-
-# ASSUMPTIONS
-# (1) Normality
-m = lm(slope ~ base_probe_dist, data = toj_by_condition)
-plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
-# (2) Equal variance
-slope_varz = aggregate(slope ~ base_probe_dist, data = toj_by_condition, FUN = var)
-diffreal = slope_varz$slope[1] - slope_varz$slope[2]
-# these seem quite close 
-# but how close?
-# randomization test:
-slope = toj_by_condition$slope
-varz = NULL
-for (i in 1:10000) {
-  samp = sample(slope)
-  len = length(slope)
-  one = samp[1:(len/2)]
-  two = samp[(len/2 + 1):len]
-  temp = var(one) - var(two)
-  varz = c(varz, temp)
-}
-hist(varz, br = 100)
-abline(v = diffreal, col = 'red') # definately within range of what is possible with population equal variances
-
-# slope
-t.test(
-  formula = slope ~ base_probe_dist
-  , dat = toj_by_condition
-  , paired = T
-  , var.equal = T
-)
-
-### with convention knowledge 
-toj_jnd = aggregate(slope ~ base_probe_dist + know_tie_goes_runner + id, data=toj_by_condition, FUN = mean)
-toj_jnd$know_tie_goes_runner = as.factor(as.character(toj_jnd$know_tie_goes_runner))
-
-# descriptive 
-toj_jnd_means = aggregate(slope ~ base_probe_dist + know_tie_goes_runner, data = toj_jnd, FUN = mean)
-toj_jnd_SD =  aggregate(slope ~ base_probe_dist + know_tie_goes_runner, data = toj_jnd, FUN = sd)
-
-# model
-m = aov(
-  formula = slope ~ base_probe_dist*know_tie_goes_runner + Error(id/(base_probe_dist))
-  , dat = toj_jnd
-)
-
-# anova
-summary(m)
-#------------------------------- slope ---------------------------------------# 
-
-
 #-------------------------------- JND ----------------------------------------# 
 # descriptive 
 TOJ_jnd_means = aggregate(jnd ~ base_probe_dist, data = toj_by_condition, FUN = mean)
@@ -1026,14 +962,14 @@ TOJ_jnd_SD = aggregate(jnd ~ base_probe_dist, data = toj_by_condition, FUN = sd)
 #   , var.equal = T
 # )
 # 
-# ### with convention knowledge 
-# toj_jnd = aggregate(jnd ~ base_probe_dist + know_tie_goes_runner + id, data=toj_by_condition, FUN = mean)
-# toj_jnd$know_tie_goes_runner = as.factor(as.character(toj_jnd$know_tie_goes_runner))
-# 
+### with convention knowledge 
+toj_jnd = aggregate(jnd ~ base_probe_dist + know_tie_goes_runner + id, data=toj_by_condition, FUN = mean)
+toj_jnd$know_tie_goes_runner = as.factor(as.character(toj_jnd$know_tie_goes_runner))
+
 # descriptive 
 toj_jnd_means = aggregate(jnd ~ base_probe_dist + know_tie_goes_runner, data = toj_jnd, FUN = mean)
 toj_jnd_SD =  aggregate(jnd ~ base_probe_dist + know_tie_goes_runner, data = toj_jnd, FUN = sd)
-# 
+
 # # model
 # m = aov(
 #   formula = jnd ~ base_probe_dist*know_tie_goes_runner + Error(id/(base_probe_dist))
