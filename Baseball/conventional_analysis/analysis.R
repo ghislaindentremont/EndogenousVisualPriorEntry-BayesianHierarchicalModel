@@ -4,6 +4,7 @@ library(ggplot2)
 # library(grid)
 library(rstan)
 library(ez)
+library(corrplot)
 
 setwd("~/Documents/TOJ/Baseball/baseballtojdata")
 
@@ -262,38 +263,38 @@ toj_means_by_id$jnd = aggregate(jnd~id, data = toj_by_condition, FUN = mean)$jnd
 
 hist(toj_means_by_id$pss,br=100)
 
-# #### PSS Cutoff ####
-# pss_cuttoff = medsd(toj_means_by_id$pss)*5
-# abline(v=-pss_cuttoff)
-# abline(v=pss_cuttoff)
-# 
-# toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
-# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-# 
-# hist(toj_means_by_id$jnd,br=100)
-# jnd_cutoff = with(
-#   toj_means_by_id[!toj_means_by_id$toss,]
-# #### JND Cutoff ####
-#   , median(jnd)+medsd(jnd)*5
-# )
-# abline(v=jnd_cutoff)
-# toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$jnd[!toj_means_by_id$toss]>jnd_cutoff
-# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-# 
-# ggplot(
-#   data = toj_means_by_id
-#   , mapping = aes(
-#     x = pss
-#     , y = jnd
-#     , label = id
-#     , colour = toss
-#   )
-# )+
-#   geom_text()
-# 
-# toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
-# print("TOJ Tossed Count:")
-# length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
+#### PSS Cutoff ####
+pss_cuttoff = medsd(toj_means_by_id$pss)*5
+abline(v=-pss_cuttoff)
+abline(v=pss_cuttoff)
+
+toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
+unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+
+hist(toj_means_by_id$jnd,br=100)
+jnd_cutoff = with(
+  toj_means_by_id[!toj_means_by_id$toss,]
+#### JND Cutoff ####
+  , median(jnd)+medsd(jnd)*5
+)
+abline(v=jnd_cutoff)
+toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$jnd[!toj_means_by_id$toss]>jnd_cutoff
+unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+
+ggplot(
+  data = toj_means_by_id
+  , mapping = aes(
+    x = pss
+    , y = jnd
+    , label = id
+    , colour = toss
+  )
+)+
+  geom_text()
+
+toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
+print("TOJ Tossed Count:")
+length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
 
 
 
@@ -1108,18 +1109,21 @@ ezANOVA(
 
 #----------------------- Correlation Matrix ----------------------------------# 
 corrs = data.frame(
-  pss_intercept = aggregate(pss ~ id, data = toj_by_condition, FUN = mean)$pss
-  , log_jnd_intercept = aggregate(log_jnd ~ id, data = toj_by_condition, FUN = mean)$log_jnd
-  , logit_rho_intercept = fitted_id$logit_rho
-  , log_kappa_intercept = fitted_id$kappa_prime
+  "PSS Intercept" = aggregate(pss ~ id, data = toj_by_condition, FUN = mean)$pss
+  , "JND Intercept" = aggregate(log_jnd ~ id, data = toj_by_condition, FUN = mean)$log_jnd
+  , "Probability Intercept" = fitted_id$logit_rho
+  , "Fidelity Intercept" = fitted_id$kappa_prime
   # negative to get glove - base
-  , pss_effect = -aggregate(pss ~ id, data = toj_by_condition, FUN = diff)$pss
-  , log_jnd_effect = -aggregate(log_jnd ~ id, data = toj_by_condition, FUN = diff)$log_jnd
+  , "PSS Effect" = -aggregate(pss ~ id, data = toj_by_condition, FUN = diff)$pss
+  , "JND Effect" = -aggregate(log_jnd ~ id, data = toj_by_condition, FUN = diff)$log_jnd
   # this is attended - unattended, naturally
-  , logit_rho_effect = aggregate(logit_rho ~ id, data = fitted, FUN = diff)$logit_rho
-  , log_kappa_effect = aggregate(kappa_prime ~ id, data = fitted, FUN = diff)$kappa_prime
+  , "Probability Effect" = aggregate(logit_rho ~ id, data = fitted, FUN = diff)$logit_rho
+  , "Fidelity Effect" = aggregate(kappa_prime ~ id, data = fitted, FUN = diff)$kappa_prime
 )
 
 # get matrix
-cor(corrs)
+M = cor(corrs)
+
+# plot
+corrplot(M, method = "number", type = "lower")
 #----------------------- Correlation Matrix ----------------------------------# 
