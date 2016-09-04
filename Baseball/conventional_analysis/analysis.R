@@ -1,7 +1,7 @@
 #### Libraries ####
 library(plyr)
 library(ggplot2)
-library(grid)
+# library(grid)
 library(rstan)
 library(ez)
 
@@ -182,6 +182,9 @@ toj_trials[toj_trials$soa2 == "240",]$soa2 = 250
 # Negative SOAs means Ball first 
 toj_trials$soa2[toj_trials$first_arrival == "ball"] = -toj_trials$soa2[toj_trials$first_arrival == "ball"]
 
+# normalized soas
+toj_trials$soa3 = toj_trials$soa2/250
+
 toj_means_by_id_by_condition = ddply(
   .data = toj_trials
   , .variables = .(id,base_probe_dist, soa2)
@@ -224,13 +227,18 @@ medsd = function(x){
 
 # get pss and jnd
 id_all = unique(toj_trials$id)
-get_pss_jnd = function(id_list) {
+get_pss_jnd = function(id_list, norma = F) {
+  if (norma) {
+    toj_trials$soa_use = toj_trials$soa3
+  } else {
+    toj_trials$soa_use = toj_trials$soa2
+  }
   toj_by_condition = ddply(
     .data = toj_trials[toj_trials$id %in% id_list,]
     , .variables = .(id, base_probe_dist, know_tie_goes_runner)
     , .fun = function(x){
       fit = glm(
-        formula = safe~soa2
+        formula = safe~soa_use
         , data = x
         # NOTE: The results change trivially depending on the link used
         , family = binomial(link = "probit")  # default is logit, but I used probit (normal cdf) for Bayesian analysis
@@ -254,38 +262,38 @@ toj_means_by_id$jnd = aggregate(jnd~id, data = toj_by_condition, FUN = mean)$jnd
 
 hist(toj_means_by_id$pss,br=100)
 
-#### PSS Cutoff ####
-pss_cuttoff = medsd(toj_means_by_id$pss)*5
-abline(v=-pss_cuttoff)
-abline(v=pss_cuttoff)
-
-toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
-unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-
-hist(toj_means_by_id$jnd,br=100)
-jnd_cutoff = with(
-  toj_means_by_id[!toj_means_by_id$toss,]
-#### JND Cutoff ####
-  , median(jnd)+medsd(jnd)*5
-)
-abline(v=jnd_cutoff)
-toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$jnd[!toj_means_by_id$toss]>jnd_cutoff
-unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-
-ggplot(
-  data = toj_means_by_id
-  , mapping = aes(
-    x = pss
-    , y = jnd
-    , label = id
-    , colour = toss
-  )
-)+
-  geom_text()
-
-toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
-print("TOJ Tossed Count:")
-length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
+# #### PSS Cutoff ####
+# pss_cuttoff = medsd(toj_means_by_id$pss)*5
+# abline(v=-pss_cuttoff)
+# abline(v=pss_cuttoff)
+# 
+# toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
+# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+# 
+# hist(toj_means_by_id$jnd,br=100)
+# jnd_cutoff = with(
+#   toj_means_by_id[!toj_means_by_id$toss,]
+# #### JND Cutoff ####
+#   , median(jnd)+medsd(jnd)*5
+# )
+# abline(v=jnd_cutoff)
+# toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$jnd[!toj_means_by_id$toss]>jnd_cutoff
+# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+# 
+# ggplot(
+#   data = toj_means_by_id
+#   , mapping = aes(
+#     x = pss
+#     , y = jnd
+#     , label = id
+#     , colour = toss
+#   )
+# )+
+#   geom_text()
+# 
+# toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
+# print("TOJ Tossed Count:")
+# length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
 
 
 
@@ -473,9 +481,20 @@ m = aov(
   formula = log_abs_color_diff ~ attended*know_tie_goes_runner + Error(id/(attended)) # not devided by between subject..
   , dat = color_log_know
 )
-
 # anova
 summary(m)
+
+# ez
+ezANOVA(
+  color_log_know
+  , wid = id
+  , dv = log_abs_color_diff
+  , within = attended
+  , between = know_tie_goes_runner
+#   , return_aov = T
+#   , detailed = T
+  , type = 2
+  )
 #----------------------------------- Log Degrees -----------------------------#
 
 
@@ -589,6 +608,18 @@ m = aov(
 
 # anova
 summary(m)
+
+# ez
+ezANOVA(
+  color_kappa_prime
+  , wid = id
+  , dv = kappa_prime
+  , within = attended
+  , between = know_tie_goes_runner
+  #   , return_aov = T
+  #   , detailed = T
+  , type = 2
+)
 #----------------------- Fidelity (kappa prime) ------------------------------#
 
 
@@ -795,6 +826,18 @@ m = aov(
 
 # anova
 summary(m)
+
+# ez
+ezANOVA(
+  color_logit_rho
+  , wid = id
+  , dv = logit_rho
+  , within = attended
+  , between = know_tie_goes_runner
+  #   , return_aov = T
+  #   , detailed = T
+  , type = 2
+)
 #------------------------ Prob. (logit rho) ----------------------------------# 
 
 
@@ -867,8 +910,10 @@ id_all = unique(toj_trials$id)
 get_psycho_function(id_all)
 
 # NOTE: should now be down to 39 Ps
-toj_by_condition = get_pss_jnd(id_all)
-
+toj_by_condition = get_pss_jnd(id_all, norma = T)
+toj_by_condition$pss = toj_by_condition$pss * 250
+toj_by_condition$log_jnd = log(toj_by_condition$jnd)
+toj_by_condition$jnd = toj_by_condition$jnd * 250
  
 #------------------------------- PSS -----------------------------------------# 
 # descriptive 
@@ -922,6 +967,18 @@ m = aov(
 
 # anova
 summary(m)
+
+# ez
+ezANOVA(
+  toj_pss
+  , wid = id
+  , dv = pss
+  , within = base_probe_dist
+  , between = know_tie_goes_runner
+  #   , return_aov = T
+  #   , detailed = T
+  , type = 2
+)
 #------------------------------- PSS -----------------------------------------# 
 
 
@@ -982,8 +1039,6 @@ toj_jnd_SD =  aggregate(jnd ~ base_probe_dist + know_tie_goes_runner, data = toj
 
 
 #-------------------------------- log JND ------------------------------------# 
-toj_by_condition$log_jnd = log(toj_by_condition$jnd)
-
 # descriptive 
 TOJ_log_jnd_means = aggregate(log_jnd ~ base_probe_dist, data = toj_by_condition, FUN = mean)
 TOJ_log_jnd_SD = aggregate(log_jnd ~ base_probe_dist, data = toj_by_condition, FUN = sd)
@@ -1036,4 +1091,16 @@ m = aov(
 
 # anova
 summary(m)
+
+# ez
+ezANOVA(
+  toj_log_jnd
+  , wid = id
+  , dv = log_jnd
+  , within = base_probe_dist
+  , between = know_tie_goes_runner
+  #   , return_aov = T
+  #   , detailed = T
+  , type = 2
+)
 #-------------------------------- log JND ------------------------------------# 

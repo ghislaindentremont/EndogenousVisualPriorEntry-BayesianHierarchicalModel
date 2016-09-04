@@ -29,10 +29,10 @@ str(gg_toj_color_post)
 
 # THIS LIST IS ADAPTED FOR FUTURE ANALYSES
 # list of parameters to examine
-param_list = c("population_logit_rho_attention_effect_mean"
-               , "population_logit_rho_intercept_mean"
-               , "population_logit_rho_convention_effect_mean"
-               , "population_logit_rho_attention_convention_interaction_effect_mean"
+param_list = c("logitRhoEffectMean"
+               , "logitRhoMean"
+               , "logitRhoConventionEffectMean"
+               , "logitRhoConventionInteractionEffectMean"
                , "population_log_kappa_attention_effect_mean"
                , "population_log_kappa_convention_effect_mean"
                , "population_log_kappa_attention_convention_interaction_effect_mean"
@@ -290,10 +290,10 @@ hist(color_trials[color_trials$attended == FALSE,]$color_diff_radians, breaks = 
 
 #-------------------------------------- Color Simulated Data ------------------------------#
 ### Get Rho Parameters 
-rho_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_intercept_mean",]$value
-rho_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_attention_effect_mean",]$value
-rho_convention_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_convention_effect_mean",]$value
-rho_convention_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "population_logit_rho_attention_convention_interaction_effect_mean",]$value
+rho_intercept_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoMean",]$value
+rho_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoEffectMean",]$value
+rho_convention_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoConventionEffectMean",]$value
+rho_convention_interaction_effect_mean = gg_toj_color_post[gg_toj_color_post$Parameter == "logitRhoConventionInteractionEffectMean",]$value
 
 rho_attend_know_reps = get_condition_mean_sample(
   rho_intercept_mean - rho_convention_effect_mean/2
@@ -407,11 +407,12 @@ do_color_ppc(
 # (2) population_pss_effect_mean          
 # (3) population_log_jnd_intercept_mean    
 # (4) population_log_jnd_effect_mean     
-# (5) population_logit_rho_intercept_mean                         
+# (5) logitRhoMean                         
 # (6) population_log_kappa_intercept_mean                        
-# (7) population_logit_rho_attention_effect_mean                 
-# (8) population_log_kappa_attention_effect_mean                   
+# (7) logitRhoEffectMean                 
+# (8) population_log_kappa_attention_effect_mean  
 
+# IMP NOTE: effects for PSS and JND are flipped
 # for quick look
 ggs_caterpillar(gg_toj_color_post, family = "cor", thick_ci = c(0.25, 0.75) ) + geom_vline(xintercept = 0, col = "red")
 
@@ -424,6 +425,7 @@ library(rstan)
 # FOR ANALYSIS USED FOR SUBMISSION
 # version so nothing gets flipped twice by accident 
 ex_toj_color_post2 = extract(toj_color_post)
+rm(toj_color_post)
 
 # flip pss and jnd effects to make positive values indicate predicted results
 ex_toj_color_post = ex_toj_color_post2
@@ -431,12 +433,14 @@ ex_toj_color_post$population_pss_effect_mean = -ex_toj_color_post2$population_ps
 ex_toj_color_post$population_pss_convention_interaction_effect_mean = -ex_toj_color_post2$population_pss_convention_interaction_effect_mean
 ex_toj_color_post$population_logjnd_effect_mean = -ex_toj_color_post2$population_logjnd_effect_mean
 ex_toj_color_post$population_logjnd_convention_interaction_effect_mean = -ex_toj_color_post2$population_logjnd_convention_interaction_effect_mean
+rm( ex_toj_color_post2 )
 # FOR ANALYSIS USED FOR SUBMISSION
 
 # get correlation posteriors 
 pos_corr2 = data.frame(value = ex_toj_color_post$cor)
 pos_corr2$id = rownames(pos_corr2)
 pos_corr = melt( pos_corr2 )
+rm(pos_corr2)
 names(pos_corr)[2] = c("parameter")
 # WARNING: CORRELATIONS CONTAINING 2s OR (EXCLUSIVE) 4s WILL BE IN THE WRONG DIRECTION
 
@@ -444,9 +448,9 @@ names(pos_corr)[2] = c("parameter")
 # (2) population_pss_effect_mean          
 # (3) population_log_jnd_intercept_mean    
 # (4) population_log_jnd_effect_mean     
-# (5) population_logit_rho_intercept_mean                         
+# (5) logitRhoMean                         
 # (6) population_log_kappa_intercept_mean                        
-# (7) population_logit_rho_attention_effect_mean                 
+# (7) logitRhoEffectMean                 
 # (8) population_log_kappa_attention_effect_mean 
 betas2 = data.frame(value = ex_toj_color_post$beta)
 betas2$iteration = rownames(betas2)
@@ -461,9 +465,9 @@ betas3$parameter = rep( c(
   , "population_pss_effect_mean"          
   , "population_logjnd_intercept_mean"    
   , "population_logjnd_effect_mean"     
-  , "population_logit_rho_intercept_mean"                       
+  , "logitRhoMean"                       
   , "population_log_kappa_intercept_mean"                       
-  , "population_logit_rho_attention_effect_mean"                 
+  , "logitRhoEffectMean"                 
   , "population_log_kappa_attention_effect_mean"
 )
 , times = 1
@@ -476,6 +480,126 @@ betas = betas3
 betas[betas$parameter=="population_pss_effect_mean",]$value = -betas3[betas3$parameter=="population_pss_effect_mean" ,]$value
 betas[betas$parameter=="population_logjnd_effect_mean",]$value = -betas3[betas3$parameter=="population_logjnd_effect_mean",]$value
 #-------------------------------------- Get Betas -----------------------------------------#
+
+
+#-------------------------------------- Get Corr ------------------------------------------#
+pos_corr_use = data.frame(
+  value = 
+  pos_corr[pos_corr$parameter == "value.1.2"
+  | pos_corr$parameter == "value.1.3"
+  | pos_corr$parameter == "value.1.4"
+  | pos_corr$parameter == "value.1.5"
+  | pos_corr$parameter == "value.1.6"
+  | pos_corr$parameter == "value.1.7"
+  | pos_corr$parameter == "value.1.8"
+  
+  | pos_corr$parameter == "value.2.3"
+  | pos_corr$parameter == "value.2.4"
+  | pos_corr$parameter == "value.2.5"
+  | pos_corr$parameter == "value.2.6"
+  | pos_corr$parameter == "value.2.7"
+  | pos_corr$parameter == "value.2.8"
+  
+  | pos_corr$parameter == "value.3.4"
+  | pos_corr$parameter == "value.3.5"
+  | pos_corr$parameter == "value.3.6"
+  | pos_corr$parameter == "value.3.7"
+  | pos_corr$parameter == "value.3.8"
+  
+  | pos_corr$parameter == "value.4.5"
+  | pos_corr$parameter == "value.4.6"
+  | pos_corr$parameter == "value.4.7"
+  | pos_corr$parameter == "value.4.8"
+  
+  | pos_corr$parameter == "value.5.6"
+  | pos_corr$parameter == "value.5.7"
+  | pos_corr$parameter == "value.5.8"
+  
+  | pos_corr$parameter == "value.6.7"
+  | pos_corr$parameter == "value.6.8"
+  
+  | pos_corr$parameter == "value.7.8"
+  ,]$value
+)
+
+pos_corr_use$parameter = c(
+ rep("PSS Intercept v. PSS Effect", 80000)
+ ,rep("PSS Intercept v. JND Intercept", 80000)
+ , rep("PSS Intercept v. JND Effect", 80000)
+ , rep("PSS Intercept v. Probability Intercept", 80000)
+ , rep("PSS Intercept v. Fidelity Intercept", 80000)
+ , rep("PSS Intercept v. Probability Effect", 80000)
+ , rep("PSS Intercept v. Fidelity Effect", 80000)
+ 
+ , rep("PSS Effect v. JND Intercept", 80000)
+ , rep("PSS Effect v. JND Effect", 80000)
+ , rep("PSS Effect v. Probability Intercept", 80000)
+ , rep("PSS Effect v. Fidelity Intercept", 80000)
+ , rep("PSS Effect v. Probability Effect", 80000)
+ , rep("PSS Effect v. Fidelity Effect", 80000)
+ 
+ , rep("JND Intercept v. JND Effect", 80000)
+ , rep("JND Intercept v. Probability Intercept", 80000)
+ , rep("JND Intercept v. Fidelity Intercept", 80000)
+ , rep("JND Intercept v. Probability Effect", 80000)
+ , rep("JND Intercept v. Fidelity Effect", 80000)
+ 
+ , rep("JND Effect v. Probability Intercept", 80000)
+ , rep("JND Effect v. Fidelity Intercept", 80000)
+ , rep("JND Effect v. Probability Effect", 80000)
+ , rep("JND Effect v. Fidelity Effect", 80000)
+ 
+ , rep("Probability Intercept v. Fidelity Intercept", 80000)
+ , rep("Probability Intercept v. Probability Effect", 80000)
+ , rep("Probability Intercept v. Fidelity Effect", 80000)
+ 
+ , rep("Fidelity Intercept v. Probability Effect", 80000)
+ , rep("Fidelity Intercept v. Fidelity Effect", 80000)
+ 
+ , rep("Probability Effect v. Fidelity Effect", 80000)
+)
+
+# HERE: REMEMBER TO FLIP NECESSARY SIGNS
+pos_corr_use[pos_corr_use$parameter=="PSS Intercept v. PSS Effect"
+             | pos_corr_use$parameter=="PSS Intercept v. JND Effect"
+             | pos_corr_use$parameter=="PSS Effect v. JND Intercept"
+             | pos_corr_use$parameter=="PSS Effect v. Probability Intercept"
+             | pos_corr_use$parameter=="PSS Effect v. Fidelity Intercept"
+             | pos_corr_use$parameter=="PSS Effect v. Probability Effect"
+             | pos_corr_use$parameter=="PSS Effect v. Fidelity Effect"
+             | pos_corr_use$parameter=="JND Intercept v. JND Effect"
+             | pos_corr_use$parameter=="JND Effect v. Probability Intercept"
+             | pos_corr_use$parameter=="JND Effect v. Fidelity Intercept"
+             | pos_corr_use$parameter=="JND Effect v. Probability Effect"
+             | pos_corr_use$parameter=="JND Effect v. Fidelity Effect"
+             , ]$value = -pos_corr_use[pos_corr_use$parameter=="PSS Intercept v. PSS Effect"
+                                       | pos_corr_use$parameter=="PSS Intercept v. JND Effect"
+                                       | pos_corr_use$parameter=="PSS Effect v. JND Intercept"
+                                       | pos_corr_use$parameter=="PSS Effect v. Probability Intercept"
+                                       | pos_corr_use$parameter=="PSS Effect v. Fidelity Intercept"
+                                       | pos_corr_use$parameter=="PSS Effect v. Probability Effect"
+                                       | pos_corr_use$parameter=="PSS Effect v. Fidelity Effect"
+                                       | pos_corr_use$parameter=="JND Intercept v. JND Effect"
+                                       | pos_corr_use$parameter=="JND Effect v. Probability Intercept"
+                                       | pos_corr_use$parameter=="JND Effect v. Fidelity Intercept"
+                                       | pos_corr_use$parameter=="JND Effect v. Probability Effect"
+                                       | pos_corr_use$parameter=="JND Effect v. Fidelity Effect"
+                                       , ]$value
+
+ggplot(
+  data = pos_corr_use
+)+
+  labs(x = "", y = "Correlation Coefficient (r)")+
+  stat_summary(aes(x = parameter, y = value), fun.data = get_95_HDI, size = 0.7)+
+  stat_summary(aes(x = parameter, y = value), fun.data = get_50_HDI, size = 2.5)+  
+  geom_hline(yintercept = 0, linetype = 2, size = 1)+
+  coord_flip()+
+  theme_gray(base_size = 30)+
+  theme(panel.grid.major = element_line(size = 1.5)
+        ,panel.grid.minor = element_line(size = 1)
+        , axis.ticks.x = element_blank()) 
+#-------------------------------------- Get Corr ------------------------------------------#
+
 
 
 #--------------------------- PSS Intercept Shrinkage --------------------------------------#
@@ -617,8 +741,9 @@ get_violin(
   , ( (ex_toj_color_post$population_pss_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 + (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2) 
       - (ex_toj_color_post$population_pss_intercept_mean -  ex_toj_color_post$population_pss_convention_effect_mean/2 - (ex_toj_color_post$population_pss_effect_mean - ex_toj_color_post$population_pss_convention_interaction_effect_mean)/2 ) ) * 250
   )
-  , c("PSS Attention Effect\nGiven Don't Know", "PSS Attention Effect\nGiven Know")
-  , y_lab = "SOA (Glove - Base; ms)"
+  , c("Don't Know", "Know")
+  , y_lab = "PSS (Glove - Base; ms)"
+  # , y_lab = "Better Accurary\nAttending Base"  # for paper
 )
 # DK + A
 get_95_HDI(
@@ -807,8 +932,8 @@ get_violin(
     , exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) * 250
         - exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 - (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2 )  * 250
   )
-  , c("JND Attention Effect\nGiven Don't Know"  , "JND Attention Effect\nGiven Know")
-  , y_lab = "SOA (Glove - Base; ms)"
+  , c("Don't Know"  , "Know")
+  , y_lab = "JND (Glove - Base; ms)"
 )
 get_95_HDI(
   exp(ex_toj_color_post$population_logjnd_intercept_mean -  ex_toj_color_post$population_logjnd_convention_effect_mean/2 + (ex_toj_color_post$population_logjnd_effect_mean - ex_toj_color_post$population_logjnd_convention_interaction_effect_mean)/2) * 250
@@ -892,7 +1017,7 @@ rho_neg_attn_neg_conv =
 #---------------------------------- Rho Intercept -----------------------------------------#
 # BAD:
 get_violin(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean)
+  plogis(ex_toj_color_post$logitRhoMean)
   , "Probability of Encoding Intercept Mean"
   , y_lab = "\u03C1"
   , hline = FALSE
@@ -923,8 +1048,8 @@ get_violin(
 #-------------------------------- Rho Attention Effect ------------------------------------#
 # BAD:
 get_violin(
-  ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_attention_effect_mean/2 )
-    - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_attention_effect_mean/2 ) )
+  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoEffectMean/2 )
+    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoEffectMean/2 ) )
   , "Probability of Encoding Effect Mean"
   , y_lab = "\u03C1 (Attended - Unattended)"
 )
@@ -950,18 +1075,18 @@ get_violin(
 #-------------------------------- Rho Convention Effects ----------------------------------#
 ### BAD:
 get_violin(
-  ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_convention_effect_mean/2 )
-    - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2 ) )
+  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2 )
+    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2 ) )
   , "Probability of Encoding\nConvention Effect Mean"
   , y_lab = "\u03C1 (Don't Know - Know)"
 )
 # DK
 get_95_HDI(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_convention_effect_mean/2)
+  plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2)
   )
 # K
 get_95_HDI(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2 )
+  plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2 )
 )
 
 # GOOD:
@@ -999,8 +1124,8 @@ get_95_HDI(
 
 ### BAD: interaction
 get_violin(
-  ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2 )
-    - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2 ) )
+  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean/2 )
+    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean/2 ) )
   , "Probability of Encoding\nConvention Knowledge\nInteraction Effect Mean"
   , y_lab = "\u03C1"
 )
@@ -1023,45 +1148,45 @@ get_violin(
 ### GOOD: effect of attention on rho for each convention knowledge level
 get_violin(
   c(
-  ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-           + (ex_toj_color_post$population_logit_rho_attention_effect_mean + ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 )
-    - plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-             - (ex_toj_color_post$population_logit_rho_attention_effect_mean +  ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 ) )
-  , ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-             + (ex_toj_color_post$population_logit_rho_attention_effect_mean - ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 )
-      - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-               - (ex_toj_color_post$population_logit_rho_attention_effect_mean -  ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 ) )
+  ( plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+           + (ex_toj_color_post$logitRhoEffectMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 )
+    - plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+             - (ex_toj_color_post$logitRhoEffectMean +  ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 ) )
+  , ( plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+             + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 )
+      - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+               - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 ) )
   )
-  , c("Probability of Encoding\nAttention Effect\nGiven Don't Know"  , "Probability of Encoding\nAttention Effect\nGiven Know")
+  , c("Don't Know"  , "Know")
   , y_lab = "\u03C1 (Attended - Unattended)"
 )
 # Know condition estimate 
 get_95_HDI(
-  ( plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-           + (ex_toj_color_post$population_logit_rho_attention_effect_mean - ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 )
-    - plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-             - (ex_toj_color_post$population_logit_rho_attention_effect_mean -  ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 ) )
+  ( plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+           + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 )
+    - plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+             - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 ) )
 )
 
 # A + DK
 get_95_HDI(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-                     + (ex_toj_color_post$population_logit_rho_attention_effect_mean + ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 )
+  plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+                     + (ex_toj_color_post$logitRhoEffectMean + ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 )
 )
 # U + DK
 get_95_HDI(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-         - (ex_toj_color_post$population_logit_rho_attention_effect_mean +  ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 ) 
+  plogis(ex_toj_color_post$logitRhoMean + ex_toj_color_post$logitRhoConventionEffectMean/2
+         - (ex_toj_color_post$logitRhoEffectMean +  ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 ) 
 )
 # A + K
 get_95_HDI(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-         + (ex_toj_color_post$population_logit_rho_attention_effect_mean - ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 )
+  plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+         + (ex_toj_color_post$logitRhoEffectMean - ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 )
 )
 # U + K
 get_95_HDI(
-  plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_convention_effect_mean/2
-         - (ex_toj_color_post$population_logit_rho_attention_effect_mean -  ex_toj_color_post$population_logit_rho_attention_convention_interaction_effect_mean/2)/2 ) 
+  plogis(ex_toj_color_post$logitRhoMean - ex_toj_color_post$logitRhoConventionEffectMean/2
+         - (ex_toj_color_post$logitRhoEffectMean -  ex_toj_color_post$logitRhoConventionInteractionEffectMean/2)/2 ) 
   )
 
 # BETTER:
@@ -1282,7 +1407,7 @@ get_violin(
         - exp(ex_toj_color_post$logKappaMean - ex_toj_color_post$logKappaConventionEffectMean/2
                  - (ex_toj_color_post$logKappaEffectMean -  ex_toj_color_post$logKappaConventionInteractionEffectMean)/2 ) )
   )
-  , c("Fidelity of Encoding\nAttention Effect\nGiven Don't Know"  , "Fidelity of Encoding\nAttention Effect\nGiven Know")
+  , c("Don't Know"  , "Know")
   , y_lab = "\u03BA (Attended - Unattended)"
 )
 # Know condition estimate 
@@ -1557,5 +1682,52 @@ gg = ggplot(data = df, aes(y = Prop, x = SOA, colour = Attend))+
   gg2 <- ggplot_gtable(ggplot_build(gg))
   gg2$layout$clip[gg2$layout$name=="panel"] <- "off"
   grid.draw(gg2)
+ 
+   
+# now with know vs. don't know
+yDontKnow = (yBaseDontKnow + yGloveDontKnow)/2
+yKnow = (yBaseKnow + yGloveKnow)/2
+  
+df2 = data.frame(SOA = -250:250
+                , Prop = c(yDontKnow, yKnow)
+                , Convention = c(rep("Don't Know", 501), rep("Know", 501))
+)
+
+toj_means_by_id_by_condition3 = ddply(
+  .data = toj_trials
+  , .variables = .(know_tie_goes_runner, soa2)
+  , .fun = function(x){
+    to_return = data.frame(
+      Prop = mean(x$safe)
+      , Convention = paste( unique(x$know_tie_goes_runner) )
+      , SOA = unique(x$soa2)
+    )
+    return(to_return)
+  }
+)
+
+levels(toj_means_by_id_by_condition3$Convention) = c("Don't Know", "Know")
+
+gg = ggplot(data = df2, aes(y = Prop, x = SOA, color = Convention))+
+  geom_line(size = 1.25)+
+  # scale_color_manual("Attend", values = c("red", "blue"))+
+  scale_color_hue("Convention\nKnowledge", l = c(60, 15), c = c(100, 50), h = c(240, 360) ) +
+  labs(x = "SOA (ms)", y = "Proportion of 'Safe' Responses")+
+  geom_point(data = toj_means_by_id_by_condition3, aes(y = Prop, x = SOA, color = Convention), size = 4)+
+  geom_point(data = toj_means_by_id_by_condition3, aes(y = Prop, x = SOA, color = Convention), size = 2.5, colour = "grey90")+
+  # facet_grid(Convention~.)+
+  theme_gray(base_size = 30)+
+  theme(panel.grid.major = element_line(size = 1.5)
+        ,panel.grid.minor = element_line(size = 1))
+# define text to add
+Text1 = textGrob(label = paste("Out"), gp = gpar(fontsize= 30))
+Text2 = textGrob(label = paste("Safe"), gp = gpar(fontsize= 30)) 
+gg = gg+
+  annotation_custom(grob = Text1,  xmin = -200, xmax = -200, ymin = -0.15, ymax = -0.15)+
+  annotation_custom(grob = Text2,  xmin = 200, xmax = 200, ymin = -0.15, ymax = -0.15)
+# Code to override clipping
+gg2 <- ggplot_gtable(ggplot_build(gg))
+gg2$layout$clip[gg2$layout$name=="panel"] <- "off"
+grid.draw(gg2)
 #---------------------------------- NCFs --------------------------------------------------#
 
