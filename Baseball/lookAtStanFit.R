@@ -483,115 +483,82 @@ betas[betas$parameter=="population_logjnd_effect_mean",]$value = -betas3[betas3$
 
 
 #-------------------------------------- Get Corr ------------------------------------------#
-pos_corr_use = data.frame(
-  value = 
-  pos_corr[pos_corr$parameter == "value.1.2"
-  | pos_corr$parameter == "value.1.3"
-  | pos_corr$parameter == "value.1.4"
-  | pos_corr$parameter == "value.1.5"
-  | pos_corr$parameter == "value.1.6"
-  | pos_corr$parameter == "value.1.7"
-  | pos_corr$parameter == "value.1.8"
+pos_corr_use2 = data.frame(
+  "PSS Intercept v PSS Effect" = pos_corr[pos_corr$parameter == "value.1.2",]$value
+  , "PSS Intercept v JND Intercept" = pos_corr[pos_corr$parameter == "value.1.3",]$value
+  , "PSS Intercept v JND Effect" =  pos_corr[pos_corr$parameter == "value.1.4",]$value
+  , "PSS Intercept v Probability Intercept" =  pos_corr[pos_corr$parameter == "value.1.5",]$value
+  , "PSS Intercept v Fidelity Intercept" = pos_corr[pos_corr$parameter == "value.1.6",]$value
+  , "PSS Intercept v Probability Effect" = pos_corr[pos_corr$parameter == "value.1.7",]$value
+  , "PSS Intercept v Fidelity Effect" =  pos_corr[pos_corr$parameter == "value.1.8",]$value
   
-  | pos_corr$parameter == "value.2.3"
-  | pos_corr$parameter == "value.2.4"
-  | pos_corr$parameter == "value.2.5"
-  | pos_corr$parameter == "value.2.6"
-  | pos_corr$parameter == "value.2.7"
-  | pos_corr$parameter == "value.2.8"
+  , "PSS Effect v JND Intercept" = pos_corr[pos_corr$parameter == "value.2.3",]$value
+  , "PSS Effect v JND Effect" = pos_corr[pos_corr$parameter == "value.2.4",]$value
+  , "PSS Effect v Probability Intercept" = pos_corr[pos_corr$parameter == "value.2.5",]$value
+  , "PSS Effect v Fidelity Intercept" = pos_corr[pos_corr$parameter == "value.2.6",]$value
+  , "PSS Effect v Probability Effect" = pos_corr[pos_corr$parameter == "value.2.7",]$value
+  , "PSS Effect v Fidelity Effect" = pos_corr[pos_corr$parameter == "value.2.8",]$value
+ 
+  , "JND Intercept v JND Effect" = pos_corr[pos_corr$parameter == "value.3.4",]$value
+  , "JND Intercept v Probability Intercept" = pos_corr[pos_corr$parameter == "value.3.5",]$value
+  , "JND Intercept v Fidelity Intercept" = pos_corr[pos_corr$parameter == "value.3.6",]$value
+  , "JND Intercept v Probability Effect" = pos_corr[pos_corr$parameter == "value.3.7",]$value
+  , "JND Intercept v Fidelity Effect" = pos_corr[pos_corr$parameter == "value.3.8",]$value
   
-  | pos_corr$parameter == "value.3.4"
-  | pos_corr$parameter == "value.3.5"
-  | pos_corr$parameter == "value.3.6"
-  | pos_corr$parameter == "value.3.7"
-  | pos_corr$parameter == "value.3.8"
+  , "JND Effect v Probability Intercept" = pos_corr[pos_corr$parameter == "value.4.5",]$value
+  , "JND Effect v Fidelity Intercept" = pos_corr[pos_corr$parameter == "value.4.6",]$value
+  , "JND Effect v Probability Effect" = pos_corr[pos_corr$parameter == "value.4.7",]$value
+  , "JND Effect v Fidelity Effect" = pos_corr[pos_corr$parameter == "value.4.8",]$value
   
-  | pos_corr$parameter == "value.4.5"
-  | pos_corr$parameter == "value.4.6"
-  | pos_corr$parameter == "value.4.7"
-  | pos_corr$parameter == "value.4.8"
+  , "Probability Intercept v Fidelity Intercept" = pos_corr[pos_corr$parameter == "value.5.6",]$value
+  , "Probability Intercept v Probability Effect" = pos_corr[pos_corr$parameter == "value.5.7",]$value
+  , "Probability Intercept v Fidelity Effect" = pos_corr[pos_corr$parameter == "value.5.8",]$value
   
-  | pos_corr$parameter == "value.5.6"
-  | pos_corr$parameter == "value.5.7"
-  | pos_corr$parameter == "value.5.8"
+  , "Fidelity Intercept v Probability Effect" = pos_corr[pos_corr$parameter == "value.6.7",]$value
+  , "Fidelity Intercept v Fidelity Effect" = pos_corr[pos_corr$parameter == "value.6.8",]$value
   
-  | pos_corr$parameter == "value.6.7"
-  | pos_corr$parameter == "value.6.8"
+  , "Probability Effect v Fidelity Effect" = pos_corr[pos_corr$parameter == "value.7.8",]$value
   
-  | pos_corr$parameter == "value.7.8"
-  ,]$value
-)
+  , check.names = FALSE
+  )
 
-pos_corr_use$parameter = c(
- rep("PSS Intercept v. PSS Effect", 80000)
- ,rep("PSS Intercept v. JND Intercept", 80000)
- , rep("PSS Intercept v. JND Effect", 80000)
- , rep("PSS Intercept v. Probability Intercept", 80000)
- , rep("PSS Intercept v. Fidelity Intercept", 80000)
- , rep("PSS Intercept v. Probability Effect", 80000)
- , rep("PSS Intercept v. Fidelity Effect", 80000)
- 
- , rep("PSS Effect v. JND Intercept", 80000)
- , rep("PSS Effect v. JND Effect", 80000)
- , rep("PSS Effect v. Probability Intercept", 80000)
- , rep("PSS Effect v. Fidelity Intercept", 80000)
- , rep("PSS Effect v. Probability Effect", 80000)
- , rep("PSS Effect v. Fidelity Effect", 80000)
- 
- , rep("JND Intercept v. JND Effect", 80000)
- , rep("JND Intercept v. Probability Intercept", 80000)
- , rep("JND Intercept v. Fidelity Intercept", 80000)
- , rep("JND Intercept v. Probability Effect", 80000)
- , rep("JND Intercept v. Fidelity Effect", 80000)
- 
- , rep("JND Effect v. Probability Intercept", 80000)
- , rep("JND Effect v. Fidelity Intercept", 80000)
- , rep("JND Effect v. Probability Effect", 80000)
- , rep("JND Effect v. Fidelity Effect", 80000)
- 
- , rep("Probability Intercept v. Fidelity Intercept", 80000)
- , rep("Probability Intercept v. Probability Effect", 80000)
- , rep("Probability Intercept v. Fidelity Effect", 80000)
- 
- , rep("Fidelity Intercept v. Probability Effect", 80000)
- , rep("Fidelity Intercept v. Fidelity Effect", 80000)
- 
- , rep("Probability Effect v. Fidelity Effect", 80000)
-)
+pos_corr_use = melt(pos_corr_use2)
+names(pos_corr_use)[1] = "parameter" 
 
 # HERE: REMEMBER TO FLIP NECESSARY SIGNS
-pos_corr_use[pos_corr_use$parameter=="PSS Intercept v. PSS Effect"
-             | pos_corr_use$parameter=="PSS Intercept v. JND Effect"
-             | pos_corr_use$parameter=="PSS Effect v. JND Intercept"
-             | pos_corr_use$parameter=="PSS Effect v. Probability Intercept"
-             | pos_corr_use$parameter=="PSS Effect v. Fidelity Intercept"
-             | pos_corr_use$parameter=="PSS Effect v. Probability Effect"
-             | pos_corr_use$parameter=="PSS Effect v. Fidelity Effect"
-             | pos_corr_use$parameter=="JND Intercept v. JND Effect"
-             | pos_corr_use$parameter=="JND Effect v. Probability Intercept"
-             | pos_corr_use$parameter=="JND Effect v. Fidelity Intercept"
-             | pos_corr_use$parameter=="JND Effect v. Probability Effect"
-             | pos_corr_use$parameter=="JND Effect v. Fidelity Effect"
-             , ]$value = -pos_corr_use[pos_corr_use$parameter=="PSS Intercept v. PSS Effect"
-                                       | pos_corr_use$parameter=="PSS Intercept v. JND Effect"
-                                       | pos_corr_use$parameter=="PSS Effect v. JND Intercept"
-                                       | pos_corr_use$parameter=="PSS Effect v. Probability Intercept"
-                                       | pos_corr_use$parameter=="PSS Effect v. Fidelity Intercept"
-                                       | pos_corr_use$parameter=="PSS Effect v. Probability Effect"
-                                       | pos_corr_use$parameter=="PSS Effect v. Fidelity Effect"
-                                       | pos_corr_use$parameter=="JND Intercept v. JND Effect"
-                                       | pos_corr_use$parameter=="JND Effect v. Probability Intercept"
-                                       | pos_corr_use$parameter=="JND Effect v. Fidelity Intercept"
-                                       | pos_corr_use$parameter=="JND Effect v. Probability Effect"
-                                       | pos_corr_use$parameter=="JND Effect v. Fidelity Effect"
+pos_corr_use[pos_corr_use$parameter=="PSS Intercept v PSS Effect"
+             | pos_corr_use$parameter=="PSS Intercept v JND Effect"
+             | pos_corr_use$parameter=="PSS Effect v JND Intercept"
+             | pos_corr_use$parameter=="PSS Effect v Probability Intercept"
+             | pos_corr_use$parameter=="PSS Effect v Fidelity Intercept"
+             | pos_corr_use$parameter=="PSS Effect v Probability Effect"
+             | pos_corr_use$parameter=="PSS Effect v Fidelity Effect"
+             | pos_corr_use$parameter=="JND Intercept v JND Effect"
+             | pos_corr_use$parameter=="JND Effect v Probability Intercept"
+             | pos_corr_use$parameter=="JND Effect v Fidelity Intercept"
+             | pos_corr_use$parameter=="JND Effect v Probability Effect"
+             | pos_corr_use$parameter=="JND Effect v Fidelity Effect"
+             , ]$value = -pos_corr_use[pos_corr_use$parameter=="PSS Intercept v PSS Effect"
+                                       | pos_corr_use$parameter=="PSS Intercept v JND Effect"
+                                       | pos_corr_use$parameter=="PSS Effect v JND Intercept"
+                                       | pos_corr_use$parameter=="PSS Effect v Probability Intercept"
+                                       | pos_corr_use$parameter=="PSS Effect v Fidelity Intercept"
+                                       | pos_corr_use$parameter=="PSS Effect v Probability Effect"
+                                       | pos_corr_use$parameter=="PSS Effect v Fidelity Effect"
+                                       | pos_corr_use$parameter=="JND Intercept v JND Effect"
+                                       | pos_corr_use$parameter=="JND Effect v Probability Intercept"
+                                       | pos_corr_use$parameter=="JND Effect v Fidelity Intercept"
+                                       | pos_corr_use$parameter=="JND Effect v Probability Effect"
+                                       | pos_corr_use$parameter=="JND Effect v Fidelity Effect"
                                        , ]$value
 
 ggplot(
   data = pos_corr_use
+  , aes(x = reorder(parameter, value, FUN = median), y = value)
 )+
   labs(x = "", y = "Correlation Coefficient (r)")+
-  stat_summary(aes(x = parameter, y = value), fun.data = get_95_HDI, size = 0.7)+
-  stat_summary(aes(x = parameter, y = value), fun.data = get_50_HDI, size = 2.5)+  
+  stat_summary(fun.data = get_95_HDI, size = 0.7)+
+  stat_summary(fun.data = get_50_HDI, size = 2.5)+  
   geom_hline(yintercept = 0, linetype = 2, size = 1)+
   coord_flip()+
   theme_gray(base_size = 30)+

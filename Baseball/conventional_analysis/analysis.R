@@ -1104,3 +1104,22 @@ ezANOVA(
   , type = 2
 )
 #-------------------------------- log JND ------------------------------------# 
+
+
+#----------------------- Correlation Matrix ----------------------------------# 
+corrs = data.frame(
+  pss_intercept = aggregate(pss ~ id, data = toj_by_condition, FUN = mean)$pss
+  , log_jnd_intercept = aggregate(log_jnd ~ id, data = toj_by_condition, FUN = mean)$log_jnd
+  , logit_rho_intercept = fitted_id$logit_rho
+  , log_kappa_intercept = fitted_id$kappa_prime
+  # negative to get glove - base
+  , pss_effect = -aggregate(pss ~ id, data = toj_by_condition, FUN = diff)$pss
+  , log_jnd_effect = -aggregate(log_jnd ~ id, data = toj_by_condition, FUN = diff)$log_jnd
+  # this is attended - unattended, naturally
+  , logit_rho_effect = aggregate(logit_rho ~ id, data = fitted, FUN = diff)$logit_rho
+  , log_kappa_effect = aggregate(kappa_prime ~ id, data = fitted, FUN = diff)$kappa_prime
+)
+
+# get matrix
+cor(corrs)
+#----------------------- Correlation Matrix ----------------------------------# 
