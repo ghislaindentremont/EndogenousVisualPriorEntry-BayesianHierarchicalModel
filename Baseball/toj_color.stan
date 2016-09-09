@@ -1,3 +1,5 @@
+# GENERAL NOTE: This is not the code used to generate stan fit model analysed 'lookAtStanFit.R' # I cleaned up some things here, compared to original. Most critically, all in the interactions herein are halved one time more than main effects during computation. This is the correct way to do things, however, initially, I did not do this, and therefore had to correct for it post-hoc in the 'lookAtStanFit' code. 
+
 data{
   // NOTE: N_toj = N_color
 	int N_toj ; // number of participants for toj task

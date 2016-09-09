@@ -5,7 +5,6 @@ library(grid)
 library(rstan)
 
 
-# setwd("/Users/ray/Experiments/TOJAnalysis/FollowUp")
 setwd("/Users/ghislaindentremont/Documents/TOJ/Follow-Up")
 
 
@@ -182,6 +181,9 @@ toj_trials[toj_trials$soa2 == "240",]$soa2 = 250
 # Negative SOAs means RIGHT first 
 toj_trials[toj_trials$t1_loc == "RIGHT",]$soa2 = -toj_trials[toj_trials$t1_loc == "RIGHT",]$soa2
 
+# normalized soas
+toj_trials$soa3 = toj_trials$soa2/250
+
 # save
 save(toj_trials, file = "FollowUp_toj_trials.Rdata")
 
@@ -292,6 +294,9 @@ color_trials$attended[ (color_trials$block_bias == "LEFT" & color_trials$probe_l
 
 color_trials$color_diff_radians = color_trials$p_minus_j*pi/180
 
+color_trials$abs_color_diff = abs(color_trials$p_minus_j)
+
+
 # save
 save(color_trials, file = "FollowUp_color_trials.Rdata")
 
@@ -313,7 +318,7 @@ toj_color_data_for_stan = list(
   , condition_color = ifelse(color_trials$attended, 1, 2)
   # , condition_initial_bias = ifelse(aggregate(probe_initial_bias ~ id, data = toj_trials, FUN = unique)$probe_initial_bias == "RIGHT", -1, 1) 
   , condition_probe = ifelse(aggregate(longprobe ~ id, data = color_trials, FUN = unique)$longprobe == "FALSE", -1, 1)   # if longprobe T, then +1
-  , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = color_trials_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) 
+  , condition_judgement_type = ifelse(aggregate(toj_judgement_type ~ id, data = color_trials, FUN = unique)$toj_judgement_type == "first", -1, 1) 
   , y_color = pi+degree_to_rad(color_trials$p_minus_j)  # want from 0 to 360 instead of -180 to 180
 )
 

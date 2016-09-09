@@ -263,38 +263,38 @@ toj_means_by_id$jnd = aggregate(jnd~id, data = toj_by_condition, FUN = mean)$jnd
 
 hist(toj_means_by_id$pss,br=100)
 
-#### PSS Cutoff ####
-pss_cuttoff = medsd(toj_means_by_id$pss)*5
-abline(v=-pss_cuttoff)
-abline(v=pss_cuttoff)
-
-toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
-unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-
-hist(toj_means_by_id$jnd,br=100)
-jnd_cutoff = with(
-  toj_means_by_id[!toj_means_by_id$toss,]
-#### JND Cutoff ####
-  , median(jnd)+medsd(jnd)*5
-)
-abline(v=jnd_cutoff)
-toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$jnd[!toj_means_by_id$toss]>jnd_cutoff
-unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
-
-ggplot(
-  data = toj_means_by_id
-  , mapping = aes(
-    x = pss
-    , y = jnd
-    , label = id
-    , colour = toss
-  )
-)+
-  geom_text()
-
-toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
-print("TOJ Tossed Count:")
-length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
+# #### PSS Cutoff ####
+# pss_cuttoff = medsd(toj_means_by_id$pss)*5
+# abline(v=-pss_cuttoff)
+# abline(v=pss_cuttoff)
+# 
+# toj_means_by_id$toss = abs(toj_means_by_id$pss)>pss_cuttoff
+# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+# 
+# hist(toj_means_by_id$jnd,br=100)
+# jnd_cutoff = with(
+#   toj_means_by_id[!toj_means_by_id$toss,]
+# #### JND Cutoff ####
+#   , median(jnd)+medsd(jnd)*5
+# )
+# abline(v=jnd_cutoff)
+# toj_means_by_id$toss[!toj_means_by_id$toss] = toj_means_by_id$jnd[!toj_means_by_id$toss]>jnd_cutoff
+# unique(length(toj_means_by_id$id[!toj_means_by_id$toss]))
+# 
+# ggplot(
+#   data = toj_means_by_id
+#   , mapping = aes(
+#     x = pss
+#     , y = jnd
+#     , label = id
+#     , colour = toss
+#   )
+# )+
+#   geom_text()
+# 
+# toj_trials$toss = toj_trials$id %in% toj_means_by_id$id[toj_means_by_id$toss]
+# print("TOJ Tossed Count:")
+# length(unique(toj_trials[toj_trials$toss == TRUE,]$id))
 
 
 
