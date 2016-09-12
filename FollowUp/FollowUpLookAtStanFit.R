@@ -296,6 +296,45 @@ betas$participant = rep(c(1:length(unique(toj_trials$id))), times = 8, each = nr
 #-------------------------------------- Get Betas -----------------------------------------#
 
 
+#-------------------------------------- Get SDs -------------------------------------------#
+get_violin(
+  (
+  (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_intercept_sd/2)
+  -  (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_intercept_sd/2)
+  ) * 250
+  , labels = "PSS SD"
+  , y_lab = "PSS (ms)"
+  )
+
+get_violin(
+  (
+    exp(ex_toj_color_post$population_log_jnd_intercept_mean + ex_toj_color_post$population_log_jnd_intercept_sd/2)
+    -  exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_intercept_sd/2)
+  ) * 250
+  , labels = "JND SD"
+  , y_lab = "JND (ms)"
+)
+
+get_violin(
+  (
+    plogis(ex_toj_color_post$population_logit_rho_intercept_mean + ex_toj_color_post$population_logit_rho_intercept_sd/2)
+    -  plogis(ex_toj_color_post$population_logit_rho_intercept_mean - ex_toj_color_post$population_logit_rho_intercept_sd/2)
+  ) 
+  , labels = "Probability SD"
+  , y_lab = "Probability"
+)
+
+get_violin(
+  (
+    exp(ex_toj_color_post$population_log_kappa_intercept_mean + ex_toj_color_post$population_log_kappa_intercept_sd/2)
+    -  exp(ex_toj_color_post$population_log_kappa_intercept_mean - ex_toj_color_post$population_log_kappa_intercept_sd/2)
+  ) 
+  , labels = "Fidelity SD"
+  , y_lab = "Fidelity"
+)
+#-------------------------------------- Get SDs -------------------------------------------#
+
+
 #-------------------------------------- Get Corr ------------------------------------------#
 pos_corr_use2 = data.frame(
   "PSS Intercept v PSS Effect" = pos_corr[pos_corr$parameter == "value.1.2",]$value
@@ -444,7 +483,7 @@ rhodiff_vs_pssdiff2 = cbind(pssdiff_ids, rhodiff_ids[-c(1,3)])
 
 rhodiff_vs_pssdiff = cbind(rhodiff_vs_pssdiff2, ids[,c("PSS.Difference", "Probability.Difference")] )
 
-# shrinkage for prior entry effects
+# shrinkage for PSS differences
 plot(rhodiff_vs_pssdiff$participant, rhodiff_vs_pssdiff$PSS.Difference, col = "red")
 abline(h = mean(rhodiff_vs_pssdiff$PSS.Difference), col = 'red')
 points(rhodiff_vs_pssdiff$pssdiff, col = "blue")
@@ -497,75 +536,75 @@ ggplot(data = rhodiff_vs_pssdiff, aes(x = rhodiff, y = pssdiff, color = factor(p
 #----------------------- Prior Entry vs. Probability Differences --------------------------#
 
 
-# #----------------------- Prior Entry vs. Probability EFFECTS ------------------------------#
-# priorentry_ids = ddply(
-#   .data = betas
-#   , .variables = .(participant)
-#   , .fun = function(x){
-#     i = unique(x$participant)
-#     x_use = x[x$parameter ==  "population_pss_attention_effect_mean",]$value
-#     priorentry = median(
-#       pssattentioneffectmean + pssattentioneffectsd*x_use 
-#     ) 
-#     df = data.frame(priorentry*250)
-#     names(df) = c("priorentry")
-#     return(df)
-#   }
-# )
-# 
-# rhoeffect_ids = ddply(
-#   .data = betas
-#   , .variables = .(participant)
-#   , .fun = function(x){
-#     i = unique(x$participant)
-#     x_use = x[x$parameter ==  "population_logit_rho_attention_effect_mean",]$value
-#     rhoeffect = median(
-#       rhoattentioneffectmean + rhoattentioneffectsd*x_use 
-#     ) 
-#     df = data.frame(rhoeffect)
-#     names(df) = c("rhoeffect")
-#     return(df)
-#   }
-# )
-# 
-# # rid redundant Cs
-# rhoeffect_vs_priorentry2 = cbind(rhoeffect_ids, priorentry_ids[-1])
-# 
-# # shrinkage for prior entry effects
-# rhoeffect_vs_priorentry = cbind(rhoeffect_vs_priorentry2, ids[,c("PSS.Effect", "Probability.Effect")] )
-# 
-# plot(rhoeffect_vs_priorentry$participant, rhoeffect_vs_priorentry$PSS.Effect, col = "red")
-# abline(h = mean(rhoeffect_vs_priorentry$PSS.Effect), col = 'red')
-# points(rhoeffect_vs_priorentry$priorentry, col = "blue")
-# abline(h = mean(rhoeffect_vs_priorentry$priorentry), col = "blue")
-# # correlation between Bayesian estimate and raw value
-# cor(rhoeffect_vs_priorentry$priorentry, rhoeffect_vs_priorentry$PSS.Effect)
-# 
-# # shrinkage for probability effects
-# plot(rhoeffect_vs_priorentry$participant, rhoeffect_vs_priorentry$Probability.Effect, col = "red")
-# abline(h = mean(rhoeffect_vs_priorentry$Probability.Effect), col = 'red')
-# points(rhoeffect_vs_priorentry$rhoeffect, col = "blue")
-# abline(h = mean(rhoeffect_vs_priorentry$rhoeffect), col = "blue")
-# # correlation between Bayesian estimate and raw value
-# cor(rhoeffect_vs_priorentry$rhoeffect, rhoeffect_vs_priorentry$Probability.Effect)
-# 
-# # see 2-D
-# ggplot(data = rhoeffect_vs_priorentry, aes(x = rhoeffect, y = priorentry))+
-#   geom_point(size = 2, aes(color = "Bayesian"))+
-#   scale_x_continuous(name = "Log-Odds of Probability Effects")+
-#   scale_y_continuous(name = "Prior Entry Effects") +
-#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
-#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
-#   geom_point(data = ids, aes(x = Probability.Effect, y = PSS.Effect,  color = "Raw"), size = 2)+
-#   scale_color_discrete(name = "")+
-#   theme_gray(base_size = 30)+
-#   theme(
-#     panel.grid.major = element_line(size = 1.5)
-#     , panel.grid.minor = element_line(size = 1)
-#     , strip.background = element_blank()
-#     , strip.text.x = element_blank() 
-#   ) 
-# 
+#----------------------- Prior Entry vs. Probability EFFECTS ------------------------------#
+priorentry_ids = ddply(
+  .data = betas
+  , .variables = .(participant)
+  , .fun = function(x){
+    i = unique(x$participant)
+    x_use = x[x$parameter ==  "population_pss_attention_effect_mean",]$value
+    priorentry = median(
+      pssattentioneffectmean + pssattentioneffectsd*x_use 
+    ) 
+    df = data.frame(priorentry*250)
+    names(df) = c("priorentry")
+    return(df)
+  }
+)
+
+rhoeffect_ids = ddply(
+  .data = betas
+  , .variables = .(participant)
+  , .fun = function(x){
+    i = unique(x$participant)
+    x_use = x[x$parameter ==  "population_logit_rho_attention_effect_mean",]$value
+    rhoeffect = median(
+      rhoattentioneffectmean + rhoattentioneffectsd*x_use 
+    ) 
+    df = data.frame(rhoeffect)
+    names(df) = c("rhoeffect")
+    return(df)
+  }
+)
+
+# rid redundant Cs
+rhoeffect_vs_priorentry2 = cbind(rhoeffect_ids, priorentry_ids[-1])
+
+# shrinkage for prior entry effects
+rhoeffect_vs_priorentry = cbind(rhoeffect_vs_priorentry2, ids[,c("PSS.Effect", "Probability.Effect")] )
+
+plot(rhoeffect_vs_priorentry$participant, rhoeffect_vs_priorentry$PSS.Effect, col = "red")
+abline(h = mean(rhoeffect_vs_priorentry$PSS.Effect), col = 'red')
+points(rhoeffect_vs_priorentry$priorentry, col = "blue")
+abline(h = mean(rhoeffect_vs_priorentry$priorentry), col = "blue")
+# correlation between Bayesian estimate and raw value
+cor(rhoeffect_vs_priorentry$priorentry, rhoeffect_vs_priorentry$PSS.Effect)
+
+# shrinkage for probability effects
+plot(rhoeffect_vs_priorentry$participant, rhoeffect_vs_priorentry$Probability.Effect, col = "red")
+abline(h = mean(rhoeffect_vs_priorentry$Probability.Effect), col = 'red')
+points(rhoeffect_vs_priorentry$rhoeffect, col = "blue")
+abline(h = mean(rhoeffect_vs_priorentry$rhoeffect), col = "blue")
+# correlation between Bayesian estimate and raw value
+cor(rhoeffect_vs_priorentry$rhoeffect, rhoeffect_vs_priorentry$Probability.Effect)
+
+# see 2-D
+ggplot(data = rhoeffect_vs_priorentry, aes(x = rhoeffect, y = priorentry))+
+  geom_point(size = 2, aes(color = "Bayesian"))+
+  scale_x_continuous(name = "Log-Odds of Probability Effects")+
+  scale_y_continuous(name = "Prior Entry Effects") +
+  geom_vline(xintercept = 0, linetype = 2, size = 1)+
+  geom_hline(yintercept = 0, linetype = 2, size = 1)+
+  geom_point(data = ids, aes(x = Probability.Effect, y = PSS.Effect,  color = "Raw"), size = 2)+
+  scale_color_discrete(name = "")+
+  theme_gray(base_size = 30)+
+  theme(
+    panel.grid.major = element_line(size = 1.5)
+    , panel.grid.minor = element_line(size = 1)
+    , strip.background = element_blank()
+    , strip.text.x = element_blank() 
+  ) 
+
 # # plot with conditions
 # ggplot(data = rhoeffect_vs_priorentry, aes(x = rhoeffect, y = priorentry, color = factor(probedurationcondition), shape = factor(judgementtypecondition)))+ # color = factor(V1)))+
 #   geom_point(size = 4)+
@@ -728,53 +767,53 @@ ggplot(data = kappadiff_vs_pssdiff, aes(x = kappadiff, y = pssdiff, color = fact
 #------------------------- Prior Entry vs. Fidelity Differences ---------------------------#
 
 
-# #----------------------- Prior Entry vs. Fidelity EFFECTS ---------------------------------#
-# kappaeffect_ids = ddply(
-#   .data = betas
-#   , .variables = .(participant)
-#   , .fun = function(x){
-#     i = unique(x$participant)
-#     x_use = x[x$parameter ==  "population_log_kappa_attention_effect_mean",]$value
-#     kappaeffect = median(
-#       kappaattentioneffectmean + kappaattentioneffectsd*x_use 
-#     ) 
-#     df = data.frame(kappaeffect)
-#     names(df) = c("kappaeffect")
-#     return(df)
-#   }
-# )
-# 
-# # rid redundant Cs
-# kappaeffect_vs_priorentry2 = cbind(kappaeffect_ids, priorentry_ids[-1])
-# 
-# # shrinkage for prior entry effects
-# kappaeffect_vs_priorentry = cbind(kappaeffect_vs_priorentry2, ids[,c("PSS.Effect", "Fidelity.Effect")] )
-# 
-# # shrinkage for fidelity effects
-# plot(kappaeffect_vs_priorentry$participant, kappaeffect_vs_priorentry$Fidelity.Effect, col = "red")
-# abline(h = mean(kappaeffect_vs_priorentry$Fidelity.Effect), col = 'red')
-# points(kappaeffect_vs_priorentry$kappaeffect, col = "blue")
-# abline(h = mean(kappaeffect_vs_priorentry$kappaeffect), col = "blue")
-# # correlation between Bayesian estimate and raw value
-# cor(kappaeffect_vs_priorentry$kappaeffect, kappaeffect_vs_priorentry$Fidelity.Effect)
-# 
-# # see 2-D
-# ggplot(data = kappaeffect_vs_priorentry, aes(x = kappaeffect, y = priorentry))+
-#   geom_point(size = 2, aes(color = "Bayesian"))+
-#   scale_x_continuous(name = "Log of Fidelity Effects")+
-#   scale_y_continuous(name = "Prior Entry Effects") +
-#   geom_vline(xintercept = 0, linetype = 2, size = 1)+
-#   geom_hline(yintercept = 0, linetype = 2, size = 1)+
-#   geom_point(data = ids, aes(x = Fidelity.Effect, y = PSS.Effect,  color = "Raw"), size = 2)+
-#   scale_color_discrete(name = "")+
-#   theme_gray(base_size = 30)+
-#   theme(
-#     panel.grid.major = element_line(size = 1.5)
-#     , panel.grid.minor = element_line(size = 1)
-#     , strip.background = element_blank()
-#     , strip.text.x = element_blank() 
-#   ) 
-# 
+#----------------------- Prior Entry vs. Fidelity EFFECTS ---------------------------------#
+kappaeffect_ids = ddply(
+  .data = betas
+  , .variables = .(participant)
+  , .fun = function(x){
+    i = unique(x$participant)
+    x_use = x[x$parameter ==  "population_log_kappa_attention_effect_mean",]$value
+    kappaeffect = median(
+      kappaattentioneffectmean + kappaattentioneffectsd*x_use 
+    ) 
+    df = data.frame(kappaeffect)
+    names(df) = c("kappaeffect")
+    return(df)
+  }
+)
+
+# rid redundant Cs
+kappaeffect_vs_priorentry2 = cbind(kappaeffect_ids, priorentry_ids[-1])
+
+# shrinkage for prior entry effects
+kappaeffect_vs_priorentry = cbind(kappaeffect_vs_priorentry2, ids[,c("PSS.Effect", "Fidelity.Effect")] )
+
+# shrinkage for fidelity effects
+plot(kappaeffect_vs_priorentry$participant, kappaeffect_vs_priorentry$Fidelity.Effect, col = "red")
+abline(h = mean(kappaeffect_vs_priorentry$Fidelity.Effect), col = 'red')
+points(kappaeffect_vs_priorentry$kappaeffect, col = "blue")
+abline(h = mean(kappaeffect_vs_priorentry$kappaeffect), col = "blue")
+# correlation between Bayesian estimate and raw value
+cor(kappaeffect_vs_priorentry$kappaeffect, kappaeffect_vs_priorentry$Fidelity.Effect)
+
+# see 2-D
+ggplot(data = kappaeffect_vs_priorentry, aes(x = kappaeffect, y = priorentry))+
+  geom_point(size = 2, aes(color = "Bayesian"))+
+  scale_x_continuous(name = "Log of Fidelity Effects")+
+  scale_y_continuous(name = "Prior Entry Effects") +
+  geom_vline(xintercept = 0, linetype = 2, size = 1)+
+  geom_hline(yintercept = 0, linetype = 2, size = 1)+
+  geom_point(data = ids, aes(x = Fidelity.Effect, y = PSS.Effect,  color = "Raw"), size = 2)+
+  scale_color_discrete(name = "")+
+  theme_gray(base_size = 30)+
+  theme(
+    panel.grid.major = element_line(size = 1.5)
+    , panel.grid.minor = element_line(size = 1)
+    , strip.background = element_blank()
+    , strip.text.x = element_blank() 
+  ) 
+
 # # plot with conditions
 # ggplot(data = kappaeffect_vs_priorentry, aes(x = kappaeffect, y = priorentry, color = factor(probedurationcondition), shape = factor(judgementtypecondition)))+ # color = factor(V1)))+
 #   geom_point(size = 4)+
@@ -934,7 +973,6 @@ neg_attn_neg_judge_neg_probe =
 neg_attn_neg_judge_pos_probe =
   exp(ex_toj_color_post$population_log_jnd_intercept_mean - ex_toj_color_post$population_log_jnd_judgement_type_effect_mean/2 + ex_toj_color_post$population_log_jnd_probe_duration_effect_mean/2 
       - (ex_toj_color_post$population_log_jnd_attention_effect_mean - ex_toj_color_post$population_log_jnd_attention_judgement_type_interaction_effect_mean + ex_toj_color_post$population_log_jnd_attention_probe_duration_interaction_effect_mean)/2 ) 
-
 #---------------------------------- JND Conditions ----------------------------------------#
 
 
@@ -1664,8 +1702,8 @@ gg = ggplot(data = df, aes(y = Prop, x = SOA, colour = Attend))+
 Text1 = textGrob(label = paste("Right First"), gp = gpar(fontsize= 30))
 Text2 = textGrob(label = paste("Left First"), gp = gpar(fontsize= 30)) 
 gg = gg+
-  annotation_custom(grob = Text1,  xmin = -200, xmax = -200, ymin = -0.25, ymax = -0.25)+
-  annotation_custom(grob = Text2,  xmin = 200, xmax = 200, ymin = -0.25, ymax = -0.25)
+  annotation_custom(grob = Text1,  xmin = -225, xmax = -225, ymin = -0.14, ymax = -0.14)+
+  annotation_custom(grob = Text2,  xmin = 225, xmax = 225, ymin = -0.14, ymax = -0.14)
 # Code to override clipping
 gg2 <- ggplot_gtable(ggplot_build(gg))
 gg2$layout$clip[gg2$layout$name=="panel"] <- "off"

@@ -1,18 +1,17 @@
 data{
-	int<lower=0> N_toj;
-	int<lower=0> L_toj;
-	int<lower=0,upper=1> y_toj[L_toj];
-	real x_toj[L_toj];
-	int id_toj[L_toj];
-	int<lower=-1,upper=1> condition_toj[L_toj];
-	int<lower=0> N_color;                      
-  int<lower=0> L_color;                         
-  int<lower=0> id_color[L_color];                 
-  int<lower=1,upper=2> condition_color[L_color];   
-  // int<lower=-1,upper=1> condition_initial_bias[N_toj];
-  int<lower=-1,upper=1> condition_probe[N_toj];
-  int<lower=-1,upper=1> condition_judgement_type[N_toj];
-  real<lower=0,upper=2*pi()> y_color[L_color]; 
+	int<lower=0> N_toj; // number of participants
+	int<lower=0> L_toj; // number of observations for TOJ trials
+	int<lower=0,upper=1> y_toj[L_toj]; // left first judgement = 1, right first judgement = 0
+	real x_toj[L_toj]; // normalized SOAs (-1 to 1 instead of -250 to 250)
+	int id_toj[L_toj]; // participant id as a number from 1 to N_toj
+	int<lower=-1,upper=1> condition_toj[L_toj]; // attend left = -1, attend right = 1
+	int<lower=0> N_color; // number of participants (same as N_toj)                     
+  int<lower=0> L_color; // number of observations for Color Wheel trials                    
+  int<lower=0> id_color[L_color]; // participant id             
+  int<lower=1,upper=2> condition_color[L_color]; // attended = 1, unattended = 2
+  int<lower=-1,upper=1> condition_probe[N_toj]; // short probe = -1, long probe = 1
+  int<lower=-1,upper=1> condition_judgement_type[N_toj]; // which came first = -1, which came second = 1
+  real<lower=0,upper=2*pi()> y_color[L_color]; // angle of Color Wheel error in radians 
 }
 transformed data{
   int<lower=1> K;
@@ -28,32 +27,24 @@ parameters{
   // Population Means
 	real population_pss_intercept_mean;
 	real population_pss_attention_effect_mean;
-	// real population_pss_initial_bias_effect_mean;
 	real population_pss_judgement_type_effect_mean;
 	real population_pss_probe_duration_effect_mean;
-	// real population_pss_attention_initial_bias_interaction_effect_mean;
 	real population_pss_attention_judgement_type_interaction_effect_mean;	
 	real population_pss_attention_probe_duration_interaction_effect_mean;
 	real population_log_jnd_intercept_mean;
 	real population_log_jnd_attention_effect_mean;
-	// real population_log_jnd_initial_bias_effect_mean;
 	real population_log_jnd_judgement_type_effect_mean;
 	real population_log_jnd_probe_duration_effect_mean;
-	// real population_log_jnd_attention_initial_bias_interaction_effect_mean;
 	real population_log_jnd_attention_judgement_type_interaction_effect_mean;	
 	real population_log_jnd_attention_probe_duration_interaction_effect_mean;
 	real population_logit_rho_intercept_mean;
   real population_logit_rho_attention_effect_mean;
   real population_logit_rho_probe_duration_effect_mean;
   real population_logit_rho_attention_probe_duration_interaction_effect_mean;
-  // real population_logit_rho_initial_bias_effect_mean;
-  // real population_logit_rho_attention_initial_bias_interaction_effect_mean;
   real population_log_kappa_intercept_mean;
   real population_log_kappa_attention_effect_mean;
   real population_log_kappa_probe_duration_effect_mean;
   real population_log_kappa_attention_probe_duration_interaction_effect_mean;
-  // real population_log_kappa_initial_bias_effect_mean;
-  // real population_log_kappa_attention_initial_bias_interaction_effect_mean;
 
 	// Population SDs
 	real<lower=0> population_pss_intercept_sd;
@@ -99,28 +90,24 @@ transformed parameters{
 		for(n in 1:N_toj){
 			id_pss_intercept[n] = 
 			beta[n,1]*population_pss_intercept_sd + population_pss_intercept_mean
-			// + population_pss_initial_bias_effect_mean* condition_initial_bias[n]/2
 			+ population_pss_judgement_type_effect_mean * condition_judgement_type[n]/2
 			+ population_pss_probe_duration_effect_mean * condition_probe[n]/2 ;
 
 			id_pss_effect[n] = ( 
 			 beta[n,2]*population_pss_effect_sd + population_pss_attention_effect_mean
-			// + population_pss_attention_initial_bias_interaction_effect_mean * condition_initial_bias[n] 
-			+ population_pss_attention_judgement_type_interaction_effect_mean * condition_judgement_type[n]
-			+ population_pss_attention_probe_duration_interaction_effect_mean * condition_probe[n]
+			+ population_pss_attention_judgement_type_interaction_effect_mean * condition_judgement_type[n]/2
+			+ population_pss_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2
 			)/2 ;
 
 		  id_log_jnd_intercept[n] = 
 		  beta[n,3]*population_log_jnd_intercept_sd + population_log_jnd_intercept_mean
-			// + population_log_jnd_initial_bias_effect_mean* condition_initial_bias[n]/2 
 			+ population_log_jnd_judgement_type_effect_mean * condition_judgement_type[n]/2
 			+ population_log_jnd_probe_duration_effect_mean * condition_probe[n]/2 ;
 			
 			id_log_jnd_effect[n] = ( 
 			beta[n,4]*population_log_jnd_effect_sd + population_log_jnd_attention_effect_mean
-			// + population_log_jnd_attention_initial_bias_interaction_effect_mean * condition_initial_bias[n] 
-			+ population_log_jnd_attention_judgement_type_interaction_effect_mean * condition_judgement_type[n] 
-			+ population_log_jnd_attention_probe_duration_interaction_effect_mean * condition_probe[n]
+			+ population_log_jnd_attention_judgement_type_interaction_effect_mean * condition_judgement_type[n]/2
+			+ population_log_jnd_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2
 			)/2 ;
 		}
 		// compute trial-level parameters
@@ -136,22 +123,18 @@ transformed parameters{
       id_logit_rho_intercept[n] = 
       beta[n,5]*population_logit_rho_intercept_sd + population_logit_rho_intercept_mean
       + population_logit_rho_probe_duration_effect_mean * condition_probe[n]/2 ;
-      // + population_logit_rho_initial_bias_effect_mean * condition_initial_bias[n]/2 ;
-      
+
       id_logit_rho_effect[n] = 
       beta[n,7]*population_logit_rho_effect_sd + population_logit_rho_attention_effect_mean 
-      + population_logit_rho_attention_probe_duration_interaction_effect_mean * condition_probe[n] ;
-      // + population_logit_rho_attention_initial_bias_interaction_effect_mean * condition_initial_bias[n] ;
+      + population_logit_rho_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2 ;
       
       id_log_kappa_intercept[n] = 
       beta[n,6]*population_log_kappa_intercept_sd + population_log_kappa_intercept_mean 
       + population_log_kappa_probe_duration_effect_mean * condition_probe[n]/2 ;
-      // + population_log_kappa_initial_bias_effect_mean * condition_initial_bias[n]/2 ;
       
       id_log_kappa_effect[n] = 
       beta[n,8]*population_log_kappa_effect_sd + population_log_kappa_attention_effect_mean
-      + population_log_kappa_attention_probe_duration_interaction_effect_mean * condition_probe[n] ;
-      // + population_log_kappa_attention_initial_bias_interaction_effect_mean * condition_initial_bias[n] ;
+      + population_log_kappa_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2 ;
       
       id_logit_rho[1][n] = id_logit_rho_intercept[n] + id_logit_rho_effect[n]/2 ;
       id_logit_rho[2][n] = id_logit_rho_intercept[n] - id_logit_rho_effect[n]/2 ;
@@ -183,32 +166,24 @@ model{
   // Population Means
 	population_pss_intercept_mean ~ student_t(4,0,1);
 	population_pss_attention_effect_mean ~ student_t(4,0,1);
-	// population_pss_initial_bias_effect_mean ~ student_t(4,0,1);
 	population_pss_judgement_type_effect_mean ~ student_t(4,0,1);
 	population_pss_probe_duration_effect_mean ~ student_t(4,0,1);
-	// population_pss_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,1);
 	population_pss_attention_judgement_type_interaction_effect_mean ~ student_t(4,0,1);	
 	population_pss_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,1);
 	population_log_jnd_intercept_mean ~ student_t(4,-1,.5);
 	population_log_jnd_attention_effect_mean ~ student_t(4,0,1);
-	// population_log_jnd_initial_bias_effect_mean ~ student_t(4,0,1);
 	population_log_jnd_judgement_type_effect_mean ~ student_t(4,0,1);
 	population_log_jnd_probe_duration_effect_mean ~ student_t(4,0,1);
-	// population_log_jnd_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,1);
 	population_log_jnd_attention_judgement_type_interaction_effect_mean ~ student_t(4,0,1);	
 	population_log_jnd_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,1);
 	population_logit_rho_intercept_mean ~ student_t(4,3,3);
   population_logit_rho_attention_effect_mean ~ student_t(4,0,3);
   population_logit_rho_probe_duration_effect_mean ~ student_t(4,0,3);
   population_logit_rho_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,3);
-  // population_logit_rho_initial_bias_effect_mean ~ student_t(4,0,3);
-  // population_logit_rho_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,3);
   population_log_kappa_intercept_mean ~ student_t(4,3,3);
   population_log_kappa_attention_effect_mean ~ student_t(4,0,3);
   population_log_kappa_probe_duration_effect_mean ~ student_t(4,0,3);
   population_log_kappa_attention_probe_duration_interaction_effect_mean ~ student_t(4,0,3);
-  // population_log_kappa_initial_bias_effect_mean ~ student_t(4,0,3);
-  // population_log_kappa_attention_initial_bias_interaction_effect_mean ~ student_t(4,0,3);
 
 	// Population SDs
 	population_pss_intercept_sd ~ student_t(4,0,1);
