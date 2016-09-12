@@ -67,19 +67,19 @@ transformed parameters{
   vector[L_color] p ; // for storing log-probabilities
   {
     // Local Inits for TOJ
-    real id_pss_intercept[N_toj] ; 
-    real id_pss_effect[N_toj] ; 
-    real id_log_jnd_intercept[N_toj] ; 
-    real id_log_jnd_effect[N_toj] ; 
+    real id_pss_mean[N_toj] ; 
+    real id_pss_difference[N_toj] ; 
+    real id_log_jnd_mean[N_toj] ; 
+    real id_log_jnd_difference[N_toj] ; 
     real trial_pss[L_toj] ; 
     real trial_log_jnd[L_toj] ; 
 
     // Local Inits for Color Wheel
-    vector[N_color] id_logit_rho_intercept ;
-    vector[N_color] id_logit_rho_effect ;
+    vector[N_color] id_logit_rho_mean ;
+    vector[N_color] id_logit_rho_difference ;
     vector[N_color] id_logit_rho[K] ;
-    vector[N_color] id_log_kappa_intercept ;
-    vector[N_color] id_log_kappa_effect ;
+    vector[N_color] id_log_kappa_mean ;
+    vector[N_color] id_log_kappa_difference ;
     vector[N_color] id_log_kappa[K] ;
     // useful transformations
     vector[N_color] id_kappa[K] ;
@@ -88,23 +88,23 @@ transformed parameters{
 
     // Computations for TOJ
     for(n in 1:N_toj){
-	  id_pss_intercept[n] = 
+	  id_pss_mean[n] = 
 	  beta[n,1]*population_pss_intercept_sd + population_pss_intercept_mean
 	  + population_pss_judgement_type_effect_mean * condition_judgement_type[n]/2
 	  + population_pss_probe_duration_effect_mean * condition_probe[n]/2 ;
 
-	  id_pss_effect[n] = ( 
+	  id_pss_difference[n] = ( 
 	  beta[n,2]*population_pss_effect_sd + population_pss_attention_effect_mean
 	  + population_pss_attention_judgement_type_interaction_effect_mean * condition_judgement_type[n]/2
 	  + population_pss_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2
 	  )/2 ;
 
-      id_log_jnd_intercept[n] = 
-      beta[n,3]*population_log_jnd_intercept_sd + population_log_jnd_intercept_mean
+    id_log_jnd_mean[n] = 
+    beta[n,3]*population_log_jnd_intercept_sd + population_log_jnd_intercept_mean
 	  + population_log_jnd_judgement_type_effect_mean * condition_judgement_type[n]/2
 	  + population_log_jnd_probe_duration_effect_mean * condition_probe[n]/2 ;
 	
-	  id_log_jnd_effect[n] = ( 
+	  id_log_jnd_difference[n] = ( 
 	  beta[n,4]*population_log_jnd_effect_sd + population_log_jnd_attention_effect_mean
 	  + population_log_jnd_attention_judgement_type_interaction_effect_mean * condition_judgement_type[n]/2
 	  + population_log_jnd_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2
@@ -113,34 +113,34 @@ transformed parameters{
     
 // compute trial-level parameters
 for(l in 1:L_toj){
-	trial_pss[l] = id_pss_intercept[id_toj[l]] + id_pss_effect[id_toj[l]]*condition_toj[l];  
-	trial_log_jnd[l] = id_log_jnd_intercept[id_toj[l]] + id_log_jnd_effect[id_toj[l]]*condition_toj[l]; 
+	trial_pss[l] = id_pss_mean[id_toj[l]] + id_pss_difference[id_toj[l]]*condition_toj[l];  
+	trial_log_jnd[l] = id_log_jnd_mean[id_toj[l]] + id_log_jnd_difference[id_toj[l]]*condition_toj[l]; 
 	trial_prob[l] = Phi_approx((x_toj[l]-trial_pss[l])/exp(trial_log_jnd[l])) ;
     }
 
   	// Computations for Color wheel
   	// compute unit-level parameters
     for(n in 1:N_color){
-      id_logit_rho_intercept[n] = 
+      id_logit_rho_mean[n] = 
       beta[n,5]*population_logit_rho_intercept_sd + population_logit_rho_intercept_mean
       + population_logit_rho_probe_duration_effect_mean * condition_probe[n]/2 ;
 
-      id_logit_rho_effect[n] = 
+      id_logit_rho_difference[n] = 
       beta[n,7]*population_logit_rho_effect_sd + population_logit_rho_attention_effect_mean 
       + population_logit_rho_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2 ;
       
-      id_log_kappa_intercept[n] = 
+      id_log_kappa_mean[n] = 
       beta[n,6]*population_log_kappa_intercept_sd + population_log_kappa_intercept_mean 
       + population_log_kappa_probe_duration_effect_mean * condition_probe[n]/2 ;
       
-      id_log_kappa_effect[n] = 
+      id_log_kappa_difference[n] = 
       beta[n,8]*population_log_kappa_effect_sd + population_log_kappa_attention_effect_mean
       + population_log_kappa_attention_probe_duration_interaction_effect_mean * condition_probe[n]/2 ;
       
-      id_logit_rho[1][n] = id_logit_rho_intercept[n] + id_logit_rho_effect[n]/2 ;
-      id_logit_rho[2][n] = id_logit_rho_intercept[n] - id_logit_rho_effect[n]/2 ;
-      id_log_kappa[1][n] = id_log_kappa_intercept[n] + id_log_kappa_effect[n]/2 ;
-      id_log_kappa[2][n] = id_log_kappa_intercept[n] - id_log_kappa_effect[n]/2 ;
+      id_logit_rho[1][n] = id_logit_rho_mean[n] + id_logit_rho_difference[n]/2 ;
+      id_logit_rho[2][n] = id_logit_rho_mean[n] - id_logit_rho_difference[n]/2 ;
+      id_log_kappa[1][n] = id_log_kappa_mean[n] + id_log_kappa_difference[n]/2 ;
+      id_log_kappa[2][n] = id_log_kappa_mean[n] - id_log_kappa_difference[n]/2 ;
     }
     // compute the transforms
     for(i in 1:K){
