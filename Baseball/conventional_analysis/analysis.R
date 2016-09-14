@@ -445,7 +445,7 @@ color_log_tot_SD = aggregate(log_abs_color_diff ~ attended, data=color_means, FU
 # ASSUMPTIONS
 # (1) Normality
 m = lm(log_abs_color_diff ~ attended, data = color_means)
-plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
+# plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
 # STILL OUTLIERS AT FAR RIGHT 
 # TAKING LOG A SECOND TIME FIXES THIS BUT PERHAPS BAD IDEA
 # (2) Equal variance
@@ -556,7 +556,7 @@ kappa_prime_tot_SD = aggregate(kappa_prime ~ attended, data = fitted, FUN = sd)
 # ASSUMPTIONS
 # (1) Normality
 m = lm(kappa_prime ~ attended, data = fitted)
-plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
+# plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
 # (2) Equal variance
 kappa_vars =  aggregate(kappa_prime ~ attended, data = fitted, FUN = var)
 diffreal = kappa_vars$kappa_prime[1] - kappa_vars$kappa_prime[2]
@@ -792,7 +792,7 @@ logit_rho_tot_SD = aggregate(logit_rho ~ attended, data = fitted, FUN = sd)
 # ASSUMPTIONS
 # (1) Normality
 m = lm(logit_rho ~ attended, data = fitted)
-plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
+# plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
 
 # test 
 t.test(
@@ -924,7 +924,7 @@ TOJ_pss_SD = aggregate(pss ~ base_probe_dist, data = toj_by_condition, FUN = sd)
 # ASSUMPTIONS
 # (1) Normality
 m = lm(pss ~ base_probe_dist, data = toj_by_condition)
-plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
+# plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
 # (2) Equal variance
 pss_varz = aggregate(pss ~ base_probe_dist, data = toj_by_condition, FUN = var)
 diffreal = pss_varz$pss[1] - pss_varz$pss[2]
@@ -1047,7 +1047,7 @@ TOJ_log_jnd_SD = aggregate(log_jnd ~ base_probe_dist, data = toj_by_condition, F
 # ASSUMPTIONS
 # (1) Normality
 m = lm(log_jnd ~ base_probe_dist, data = toj_by_condition)
-plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
+# plot(m) # look at second plot: residuals vs. theoreticcal quantiles 
 # BETTER
 # (2) Equal variance
 log_jnd_varz = aggregate(log_jnd ~ base_probe_dist, data = toj_by_condition, FUN = var)
@@ -1108,22 +1108,128 @@ ezANOVA(
 
 
 #----------------------- Correlation Matrix ----------------------------------# 
-corrs = data.frame(
-  "PSS Intercept" = aggregate(pss ~ id, data = toj_by_condition, FUN = mean)$pss
-  , "JND Intercept" = aggregate(log_jnd ~ id, data = toj_by_condition, FUN = mean)$log_jnd
-  , "Probability Intercept" = fitted_id$logit_rho
-  , "Fidelity Intercept" = fitted_id$kappa_prime
+ids_temp = data.frame(
+  id = aggregate(pss ~id, data = toj_by_condition, FUN = mean)$id
+  , "PSS Mean" = aggregate(pss ~ id, data = toj_by_condition, FUN = mean)$pss
+  , "JND Mean" = aggregate(log_jnd ~ id, data = toj_by_condition, FUN = mean)$log_jnd
+  , "Probability Mean" = fitted_id$logit_rho
+  , "Fidelity Mean" = fitted_id$kappa_prime
   # negative to get glove - base
-  , "PSS Effect" = -aggregate(pss ~ id, data = toj_by_condition, FUN = diff)$pss
-  , "JND Effect" = -aggregate(log_jnd ~ id, data = toj_by_condition, FUN = diff)$log_jnd
+  , "PSS Difference" = -aggregate(pss ~ id, data = toj_by_condition, FUN = diff)$pss
+  , "JND Difference" = -aggregate(log_jnd ~ id, data = toj_by_condition, FUN = diff)$log_jnd
   # this is attended - unattended, naturally
-  , "Probability Effect" = aggregate(logit_rho ~ id, data = fitted, FUN = diff)$logit_rho
-  , "Fidelity Effect" = aggregate(kappa_prime ~ id, data = fitted, FUN = diff)$kappa_prime
+  , "Probability Difference" = aggregate(logit_rho ~ id, data = fitted, FUN = diff)$logit_rho
+  , "Fidelity Difference" = aggregate(kappa_prime ~ id, data = fitted, FUN = diff)$kappa_prime
 )
 
 # get matrix
+corrs = ids_temp[,-1]
 M = cor(corrs)
 
 # plot
 corrplot(M, method = "number", type = "lower")
 #----------------------- Correlation Matrix ----------------------------------# 
+
+
+#----------------------- Isolate Interactions --------------------------------# 
+cdns = aggregate(pss ~ know_tie_goes_runner  + id, data = toj_by_condition, FUN = mean)[,c("id", "know_tie_goes_runner")]
+
+cdns$know_tie_goes_runner  = ifelse(aggregate(know_tie_goes_runner  ~ id, data = cdns, FUN = unique)$know_tie_goes_runner, -1, 1)  # know ('safe' bias) is -1...
+
+ids2 = cbind(cdns, ids_temp)
+ids = ids2[-3]  # double checked allignment, now remove extra id column
+
+
+
+### PSS intercepts 
+# convention type
+pss_convention_effect_temp = aggregate(pss ~know_tie_goes_runner , data = toj_pss_means, FUN = mean)
+# "don't know" minus "know"
+pss_convention_effect = pss_convention_effect_temp$pss[1] - pss_convention_effect_temp$pss[2]
+
+# need to devide effect by two before subtracting out
+# THINK ABOUT IT: you can get at full difference in differences because you only have one between subject group per P
+ids$PSS.Intercept = ids$PSS.Mean - (pss_convention_effect*ids$know_tie_goes_runner )/2
+
+
+### JND intercepts
+# convention type
+log_jnd_convention_effect_temp = aggregate(log_jnd ~know_tie_goes_runner , data = toj_log_jnd_means, FUN = mean)
+# "don't know" minus "know"
+log_jnd_convention_effect = log_jnd_convention_effect_temp$log_jnd[1] - log_jnd_convention_effect_temp$log_jnd[2]
+
+# need to devide effect by two before subtracting out
+# THINK ABOUT IT: you can get at full difference in differences because you only have one between subject group per P
+ids$JND.Intercept = ids$JND.Mean - (log_jnd_convention_effect*ids$know_tie_goes_runner )/2
+
+
+### Probability intercepts
+rho_convention_effect_temp = aggregate(logit_rho ~ know_tie_goes_runner, data = fitted, FUN = mean)
+# 'Long' minus 'Short'
+rho_convention_effect = rho_convention_effect_temp$logit_rho[1] - rho_convention_effect_temp$logit_rho[2]
+
+# need to devide effect by two before subtracting out
+ids$Probability.Intercept = ids$Probability.Mean - (rho_convention_effect*ids$know_tie_goes_runner)/2
+
+
+### Fidelity intercepts
+kappa_convention_effect_temp = aggregate(kappa_prime ~ know_tie_goes_runner, data = fitted, FUN = mean)
+# 'Long' minus 'Short'
+kappa_convention_effect = kappa_convention_effect_temp$kappa_prime[1] - kappa_convention_effect_temp$kappa_prime[2]
+
+# need to devide effect by two before subtracting out
+ids$Fidelity.Intercept = ids$Fidelity.Mean- (kappa_convention_effect*ids$know_tie_goes_runner)/2
+
+
+
+### PSS effects
+# need negative because attend glove minus attend base
+pss_convention_interaction_temp = aggregate(pss ~ know_tie_goes_runner, data = toj_pss_means, FUN = diff)
+pss_convention_interaction_temp$pss = -pss_convention_interaction_temp$pss
+
+# "don't know" minus "know"
+pss_convention_interaction = pss_convention_interaction_temp$pss[1] - pss_convention_interaction_temp$pss[2]
+
+# need to devide interaction by two before subtracting out
+# THINK ABOUT IT: you can get at full difference in differences because you only have one between subject group per P
+ids$PSS.Effect = ids$PSS.Difference - (pss_convention_interaction*ids$know_tie_goes_runner )/2
+
+
+### JND effects
+log_jnd_convention_interaction_temp = aggregate(log_jnd ~know_tie_goes_runner , data = toj_log_jnd_means, FUN = diff)
+log_jnd_convention_interaction_temp$log_jnd = -log_jnd_convention_interaction_temp$log_jnd 
+# "don't know" minus "know"
+log_jnd_convention_interaction = log_jnd_convention_interaction_temp$log_jnd[1] - log_jnd_convention_interaction_temp$log_jnd[2]
+
+# need to devide interaction by two before subtracting out
+# THINK ABOUT IT: you can get at full difference in differences because you only have one between subject group per P
+ids$JND.Effect = ids$JND.Difference - ( log_jnd_convention_interaction*ids$know_tie_goes_runner )/2
+
+
+### Probability effects
+rho_convention_interaction_temp2 = aggregate(logit_rho ~ attended + know_tie_goes_runner, data = fitted, FUN = mean)
+rho_convention_interaction_temp = aggregate(logit_rho ~ know_tie_goes_runner, data = rho_convention_interaction_temp2, FUN = diff)
+# 'Long' minus 'Short'
+rho_convention_interaction = rho_convention_interaction_temp$logit_rho[1] - rho_convention_interaction_temp$logit_rho[2]
+
+# need to devide interaction by two before subtracting out
+ids$Probability.Effect = ids$Probability.Difference - (rho_convention_interaction*ids$know_tie_goes_runner)/2
+
+
+### Fidelity effects
+kappa_convention_interaction_temp2 = aggregate(kappa_prime ~ attended + know_tie_goes_runner, data = fitted, FUN = mean)
+kappa_convention_interaction_temp = aggregate(kappa_prime ~ know_tie_goes_runner, data = kappa_convention_interaction_temp2, FUN = diff)
+# 'Long' minus 'Short'
+kappa_convention_interaction = kappa_convention_interaction_temp$kappa_prime[1] - kappa_convention_interaction_temp$kappa_prime[2]
+
+# need to devide interaction by two before subtracting out
+ids$Fidelity.Effect = ids$Fidelity.Difference - (kappa_convention_interaction*ids$know_tie_goes_runner)/2
+
+
+### Corr Matrix Again
+corrse = ids[c(11:18)]
+Me = cor(corrse)
+
+# plot
+corrplot(Me, method = "number", type = "lower")
+#----------------------- Isolate Interactions --------------------------------# 
