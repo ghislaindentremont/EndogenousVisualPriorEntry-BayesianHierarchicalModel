@@ -1231,5 +1231,5 @@ corrse = ids[c(11:18)]
 Me = cor(corrse)
 
 # plot
-corrplot(Me, method = "number", type = "lower")
+corrplot(Me, method = "color", type = "lower", addCoef.col = "black")
 #----------------------- Isolate Interactions --------------------------------# 
