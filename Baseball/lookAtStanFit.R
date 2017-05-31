@@ -7,11 +7,11 @@ library(reshape2)
 library(plyr)
 library(grid)
 
-setwd("/Users/ghislaindentremont/Documents/TOJ/Baseball")
+setwd("/Users/ghislaindentremont/Documents/Experiments/TOJ/Baseball")
 load("toj_color_post_June16th2016" )  # Rstan results
 load("toj_trials.Rdata")  # actual toj data
 load("color_trials.Rdata")  # actual color data
-source("../EndogenousVisualPriorEntry-BayesianHierarchicalModel/functions.R")
+source("../EndogenousVisualPriorEntry-BayesianHierarchicalModel/functions.R")  # 80,000
 
 
 
@@ -27,7 +27,6 @@ gg_toj_color_post
 # look at structure
 str(gg_toj_color_post)
 
-# THIS LIST IS ADAPTED FOR FUTURE ANALYSES
 # list of parameters to examine
 param_list = c("logitRhoEffectMean"
                , "logitRhoMean"
@@ -54,7 +53,6 @@ param_list = c("logitRhoEffectMean"
                , "zpopulation_pss_effect_sd"
               , "zpopulation_pss_intercept_sd"
               )
-# THIS LIST IS ADAPTED FOR FUTURE ANALYSES
 
 # look at posteriors
 for (param in param_list) {

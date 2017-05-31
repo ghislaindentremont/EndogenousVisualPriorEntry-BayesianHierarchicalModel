@@ -9,10 +9,11 @@ library(reshape2)
 # library(sprintfr)
 library(gtools)
 
-setwd("~/Documents/TOJ/Follow-Up")
+setwd("~/Documents/Experiments/TOJ/Follow-Up")
 load("FollowUptoj_color_post_Aug8th2016")
 load("FollowUp_color_trials.Rdata")
 load("FollowUp_toj_trials.Rdata")
+# 10,000 * 6 / 2 = 30,000 iters 
 source("../EndogenousVisualPriorEntry-BayesianHierarchicalModel/functions.R")
 
 
@@ -881,7 +882,7 @@ get_violin(
   , y_lab = "SOA (ms)"
 )
 
-# NOTE: probe duration effects will cancel out (because no back-transformation)
+# NOTE: judgement_type effects will cancel out (because no back-transformation)
 get_violin(
   c(
   (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_judgement_type_effect_mean/2
@@ -911,19 +912,20 @@ get_violin(
   , y_lab = "SOA (ms)"
 )
 
-# NOTE: judgement_type effects will cancel out (because no back-transformation)
+# NOTE: probe duration effects will cancel out (because no back-transformation)
 get_violin(
   c(
-    (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
-     + (ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) *250
-    - (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
-       - (ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) * 250
-    ,   (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+      (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
          + (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) *250
     - (ex_toj_color_post$population_pss_intercept_mean - ex_toj_color_post$population_pss_probe_duration_effect_mean/2
        - (ex_toj_color_post$population_pss_attention_effect_mean - ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) *250
+    
+    , (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+     + (ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) *250
+    - (ex_toj_color_post$population_pss_intercept_mean + ex_toj_color_post$population_pss_probe_duration_effect_mean/2
+       - (ex_toj_color_post$population_pss_attention_effect_mean + ex_toj_color_post$population_pss_attention_probe_duration_interaction_effect_mean)/2 ) * 250
   )
-  , c("Long", "Short")
+  , c("Short", "Long")
   , y_lab = "PSS (Right - Left; ms)"
 )
 get_95_HDI(
@@ -1268,9 +1270,9 @@ get_violin(
 )
 
 # Back-transformed:
-values = c(rho_pos_attn_pos_probe - rho_neg_attn_pos_probe
-    , rho_pos_attn_neg_probe - rho_neg_attn_neg_probe )
-labels = c("Long","Short")
+values = c( rho_pos_attn_neg_probe - rho_neg_attn_neg_probe
+    , rho_pos_attn_pos_probe - rho_neg_attn_pos_probe )
+labels = c("Short", "Long")
 y_lab = "\u03C1 (Attended - Unattended)"
 samps = iters
 hline = T
@@ -1285,6 +1287,8 @@ df = data.frame(
   value = values
   , parameter = label_vec
 )
+
+df$parameter = factor(df$parameter, labels)
 
 gg = ggplot(data = df)+
   geom_violin(aes(x = parameter, y = value))+
@@ -1451,9 +1455,9 @@ get_violin(
 
 # simpler
 get_violin(
-  c(kappa_pos_attn_pos_probe - kappa_neg_attn_pos_probe
-    , kappa_pos_attn_neg_probe - kappa_neg_attn_neg_probe)
-  , c("Long","Short")
+  c(kappa_pos_attn_neg_probe - kappa_neg_attn_neg_probe
+    , kappa_pos_attn_pos_probe - kappa_neg_attn_pos_probe)
+  , c("Short", "Long")
   , y_lab = "\u03BA (Attended - Unattended)"
 )
 

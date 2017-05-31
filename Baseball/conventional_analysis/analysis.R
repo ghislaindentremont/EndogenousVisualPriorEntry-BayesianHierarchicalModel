@@ -1,7 +1,6 @@
 #### Libraries ####
 library(plyr)
 library(ggplot2)
-# library(grid)
 library(rstan)
 library(ez)
 library(corrplot)
@@ -1127,7 +1126,7 @@ corrs = ids_temp[,-1]
 M = cor(corrs)
 
 # plot
-corrplot(M, method = "number", type = "lower")
+corrplot(M, method = "color", type = "lower", addCoef.col = "black")
 #----------------------- Correlation Matrix ----------------------------------# 
 
 
@@ -1233,3 +1232,109 @@ Me = cor(corrse)
 # plot
 corrplot(Me, method = "color", type = "lower", addCoef.col = "black")
 #----------------------- Isolate Interactions --------------------------------# 
+
+
+#----------------------- Raw Correlation Matrix ------------------------------# 
+ids_temp_raw = data.frame(
+  id = aggregate(pss ~id, data = toj_by_condition, FUN = mean)$id
+  , "PSS Mean" = aggregate(pss ~ id, data = toj_by_condition, FUN = mean)$pss
+  , "JND Mean" = aggregate(jnd ~ id, data = toj_by_condition, FUN = mean)$jnd
+  , "Probability Mean" = fitted_id$rho
+  , "Fidelity Mean" = fitted_id$kappa
+  # negative to get glove - base
+  , "PSS Difference" = -aggregate(pss ~ id, data = toj_by_condition, FUN = diff)$pss
+  , "JND Difference" = -aggregate(jnd ~ id, data = toj_by_condition, FUN = diff)$jnd
+  # this is attended - unattended, naturally
+  , "Probability Difference" = aggregate(rho ~ id, data = fitted, FUN = diff)$rho
+  , "Fidelity Difference" = aggregate(kappa ~ id, data = fitted, FUN = diff)$kappa
+)
+
+# get matrix
+corrs_raw = ids_temp_raw[,-1]
+M_raw = cor(corrs_raw)
+
+# plot
+corrplot(M_raw, method = "color", type = "lower", addCoef.col = "black")
+#----------------------- Raw Correlation Matrix ------------------------------# 
+
+
+#----------------------- Raw Isolate Interactions ----------------------------# 
+ids_raw2 = cbind(cdns, ids_temp_raw)
+ids_raw = ids_raw2[-3]  # double checked allignment, now remove extra id column
+
+
+### PSS effect
+ids_raw$PSS.Intercept = ids$PSS.Intercept
+
+
+### JND intercepts
+# convention type
+jnd_convention_effect_temp = aggregate(jnd ~know_tie_goes_runner , data = toj_jnd_means, FUN = mean)
+# "don't know" minus "know"
+jnd_convention_effect = jnd_convention_effect_temp$jnd[1] - jnd_convention_effect_temp$jnd[2]
+
+# need to devide effect by two before subtracting out
+# THINK ABOUT IT: you can get at full difference in differences because you only have one between subject group per P
+ids_raw$JND.Intercept = ids_raw$JND.Mean - (jnd_convention_effect*ids_raw$know_tie_goes_runner )/2
+
+
+### Probability intercepts
+rho_convention_effect_temp = aggregate(rho ~ know_tie_goes_runner, data = fitted, FUN = mean)
+# 'Long' minus 'Short'
+rho_convention_effect = rho_convention_effect_temp$rho[1] - rho_convention_effect_temp$rho[2]
+
+# need to devide effect by two before subtracting out
+ids_raw$Probability.Intercept = ids_raw$Probability.Mean - (rho_convention_effect*ids_raw$know_tie_goes_runner)/2
+
+
+### Fidelity intercepts
+kappa_convention_effect_temp = aggregate(kappa ~ know_tie_goes_runner, data = fitted, FUN = mean)
+# 'Long' minus 'Short'
+kappa_convention_effect = kappa_convention_effect_temp$kappa[1] - kappa_convention_effect_temp$kappa[2]
+
+# need to devide effect by two before subtracting out
+ids_raw$Fidelity.Intercept = ids_raw$Fidelity.Mean- (kappa_convention_effect*ids_raw$know_tie_goes_runner)/2
+
+
+### PSS effects
+ids_raw$PSS.Effect = ids$PSS.Effect
+
+
+### JND effects
+jnd_convention_interaction_temp = aggregate(jnd ~know_tie_goes_runner , data = toj_jnd_means, FUN = diff)
+jnd_convention_interaction_temp$jnd = -jnd_convention_interaction_temp$jnd 
+# "don't know" minus "know"
+jnd_convention_interaction = jnd_convention_interaction_temp$jnd[1] - jnd_convention_interaction_temp$jnd[2]
+
+# need to devide interaction by two before subtracting out
+# THINK ABOUT IT: you can get at full difference in differences because you only have one between subject group per P
+ids_raw$JND.Effect = ids_raw$JND.Difference - ( jnd_convention_interaction*ids_raw$know_tie_goes_runner )/2
+
+
+### Probability effects
+rho_convention_interaction_temp2 = aggregate(rho ~ attended + know_tie_goes_runner, data = fitted, FUN = mean)
+rho_convention_interaction_temp = aggregate(rho ~ know_tie_goes_runner, data = rho_convention_interaction_temp2, FUN = diff)
+# 'Long' minus 'Short'
+rho_convention_interaction = rho_convention_interaction_temp$rho[1] - rho_convention_interaction_temp$rho[2]
+
+# need to devide interaction by two before subtracting out
+ids_raw$Probability.Effect = ids_raw$Probability.Difference - (rho_convention_interaction*ids_raw$know_tie_goes_runner)/2
+
+
+### Fidelity effects
+kappa_convention_interaction_temp2 = aggregate(kappa ~ attended + know_tie_goes_runner, data = fitted, FUN = mean)
+kappa_convention_interaction_temp = aggregate(kappa ~ know_tie_goes_runner, data = kappa_convention_interaction_temp2, FUN = diff)
+# 'Long' minus 'Short'
+kappa_convention_interaction = kappa_convention_interaction_temp$kappa[1] - kappa_convention_interaction_temp$kappa[2]
+
+# need to devide interaction by two before subtracting out
+ids_raw$Fidelity.Effect = ids_raw$Fidelity.Difference - (kappa_convention_interaction*ids_raw$know_tie_goes_runner)/2
+
+
+### Corr Matrix Again
+corrse_raw = ids_raw[c(11:18)]
+Me_raw = cor(corrse_raw)
+
+# plot
+corrplot(Me_raw, method = "color", type = "lower", addCoef.col = "black")
+#----------------------- Raw Isolate Interactions ----------------------------# 

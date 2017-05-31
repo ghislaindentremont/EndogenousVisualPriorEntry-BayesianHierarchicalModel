@@ -180,6 +180,8 @@ get_violin = function(values, labels, y_lab, hline = TRUE, facet = FALSE, samps 
     , parameter = label_vec
   )
   
+  df$parameter = factor(df$parameter, labels)
+  
   gg = ggplot(data = df)+
     geom_violin(aes(x = parameter, y = value))+
     labs(x = "", y = y_lab)+
